@@ -43,6 +43,16 @@ export default function Home() {
           </Link>
         </nav>
       </div>
+      <footer className="absolute bottom-6 left-0 right-0 flex justify-center z-10">
+        <a
+          href="https://www.linkedin.com/in/nickomori/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+        >
+          LinkedIn
+        </a>
+      </footer>
     </main>
   )
 }
