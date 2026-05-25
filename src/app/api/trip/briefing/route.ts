@@ -9,12 +9,12 @@ interface BriefingRequest {
   context: DayLog & { wakeTime: string }
 }
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
 export async function POST(request: NextRequest) {
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json({ error: 'OPENAI_API_KEY not set' }, { status: 500 })
   }
+
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
   const body: BriefingRequest = await request.json()
   const { card, completedActivityIds, context } = body
