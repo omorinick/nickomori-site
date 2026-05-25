@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { TripData } from '@/data/trips/japan-2026'
 import { useTripState } from './hooks/useTripState'
 import FullItineraryView from './views/FullItineraryView'
@@ -36,7 +37,10 @@ export default function TripClient({ data }: { data: TripData }) {
         <div className="max-w-2xl mx-auto px-4">
           <div className="flex items-center justify-between py-3">
             <div>
-              <div className="font-semibold text-neutral-900 text-sm">{data.tripName}</div>
+              <Link href="/vault" className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">
+                ← Vault
+              </Link>
+              <div className="font-semibold text-neutral-900 text-sm mt-0.5">{data.tripName}</div>
               <div className="text-xs text-neutral-400">{data.dateRange}</div>
             </div>
             <button

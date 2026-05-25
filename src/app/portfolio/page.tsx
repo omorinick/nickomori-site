@@ -1,9 +1,11 @@
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { PageBreadcrumb } from '@/components/PageBreadcrumb'
 
 export default function PortfolioPage() {
   return (
     <main className="min-h-screen bg-background px-6 py-10">
       <div className="max-w-4xl mx-auto">
+        <PageBreadcrumb crumbs={[{ label: 'Portfolio' }]} />
         <div className="mb-10">
           <h1 className="text-2xl font-semibold text-foreground">Portfolio</h1>
           <p className="text-sm text-muted-foreground mt-1">Work samples and case studies</p>

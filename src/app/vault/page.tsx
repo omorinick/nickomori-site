@@ -3,11 +3,13 @@ import { logout } from './actions'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { PageBreadcrumb } from '@/components/PageBreadcrumb'
 
 export default function VaultPage() {
   return (
     <main className="min-h-screen bg-background px-6 py-10">
       <div className="max-w-4xl mx-auto">
+        <PageBreadcrumb crumbs={[{ label: 'Vault' }]} />
         <div className="flex items-start justify-between mb-10">
           <div>
             <h1 className="text-2xl font-semibold text-foreground">Vault</h1>
