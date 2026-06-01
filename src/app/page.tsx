@@ -25,7 +25,7 @@ export default function Home() {
             className="group flex items-center justify-between rounded-xl border border-neutral-800 px-5 py-4 hover:border-neutral-600 transition-colors"
           >
             <div>
-              <p className="font-medium text-white">Portfolio</p>
+              <p className="font-medium text-white">Playground</p>
               <p className="text-sm text-neutral-400 mt-0.5">Work samples and case studies</p>
             </div>
             <span className="text-neutral-600 group-hover:text-neutral-400 transition-colors">→</span>

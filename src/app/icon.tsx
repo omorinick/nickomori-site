@@ -16,7 +16,7 @@ export default function Icon() {
         borderRadius: '6px',
       }}
     >
-      <div style={{ color: 'white', fontSize: 18, lineHeight: 1 }}>森</div>
+      <div style={{ fontSize: 20, lineHeight: 1 }}>🍜</div>
     </div>,
     { ...size }
   )
