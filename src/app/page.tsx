@@ -30,20 +30,9 @@ export default function Home() {
             </div>
             <span className="text-neutral-600 group-hover:text-neutral-400 transition-colors">→</span>
           </Link>
-
-          <Link
-            href="/vault"
-            className="group flex items-center justify-between rounded-xl border border-neutral-800 px-5 py-4 hover:border-neutral-600 transition-colors"
-          >
-            <div>
-              <p className="font-medium text-white">Vault</p>
-              <p className="text-sm text-neutral-400 mt-0.5">Less than half-baked ideas.</p>
-            </div>
-            <span className="text-neutral-600 group-hover:text-neutral-400 transition-colors">→</span>
-          </Link>
         </nav>
       </div>
-      <footer className="absolute bottom-6 left-0 right-0 flex justify-center z-10">
+      <footer className="absolute bottom-6 left-0 right-0 flex justify-center gap-6 z-10">
         <a
           href="https://www.linkedin.com/in/nickomori/"
           target="_blank"
@@ -52,6 +41,12 @@ export default function Home() {
         >
           LinkedIn
         </a>
+        <Link
+          href="/vault"
+          className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+        >
+          Vault
+        </Link>
       </footer>
     </main>
   )
