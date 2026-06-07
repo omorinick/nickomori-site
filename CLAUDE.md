@@ -31,11 +31,9 @@ git push
 | Route | Public label | Access | Purpose |
 |---|---|---|---|
 | `/` | — | Public | Homepage |
-| `/portfolio` | Constructive Distractions | Public | PM projects, automations, demos |
-| `/portfolio/[slug]` | — | Public | Individual project page |
-| `/projects` | Projects | Public | Side projects |
+| `/projects` | Constructive Distractions | Public | PM projects, automations, demos |
 | `/projects/[slug]` | — | Public or pw-gated | Individual project |
-| `/vault` | Vault | Password-gated | Personal AI artifacts |
+| `/vault` | Vault | Password-gated | Personal AI artifacts (linked from footer) |
 | `/vault/[slug]` | — | Password-gated | Individual artifact |
 
 ## Authentication
