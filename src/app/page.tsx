@@ -21,7 +21,7 @@ export default function Home() {
 
         <nav className="flex flex-col gap-3">
           <Link
-            href="/portfolio"
+            href="/projects"
             className="group flex items-center justify-between rounded-xl border border-neutral-800 px-5 py-4 hover:border-neutral-600 transition-colors"
           >
             <div>
