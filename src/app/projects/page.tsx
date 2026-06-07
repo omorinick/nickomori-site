@@ -34,7 +34,7 @@ export default function ProjectsPage() {
           >
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <p className="font-medium text-foreground">Compliant Market</p>
+                <p className="font-medium text-foreground">DrugX</p>
                 <Badge variant="secondary" className="text-xs">Satire</Badge>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
