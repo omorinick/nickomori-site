@@ -15,11 +15,11 @@ export default function PortfolioPage() {
         <div className="flex flex-col gap-4">
           <Link
             href="/portfolio/pm-toolkit"
-            className="group flex items-start justify-between rounded-xl border border-neutral-800 px-5 py-5 hover:border-neutral-600 transition-colors"
+            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-neutral-500 transition-colors"
           >
             <div>
               <p className="font-medium text-white mb-1">Assumption Mapper</p>
-              <p className="text-sm text-neutral-400 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Describe a product idea or feature. Get a structured assumption map — swim lanes, assumptions across all five Teresa Torres dimensions, and a priority matrix — in seconds.
               </p>
             </div>

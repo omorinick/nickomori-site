@@ -48,7 +48,29 @@ git push
 | Variable | Purpose |
 |---|---|
 | `VAULT_PASSWORD` | Vault login passphrase |
-| `OPENAI_API_KEY` | OpenAI GPT-4o-mini for trip briefing API route |
+| `OPENAI_API_KEY` | OpenAI GPT-4o for trip briefing + PM Toolkit API routes |
+| `DEMO_PASSWORD` | Demo access gate for AI-powered portfolio tools |
+
+## Design System — Dark Mode Palette
+
+Reference: Linear / Figma dark mode. Three visible surface layers plus a clear text hierarchy.
+
+### CSS Variables (defined in `src/app/globals.css` `.dark` block)
+| Token | Approx hex | Use |
+|---|---|---|
+| `--background` | `#161616` | Page background |
+| `--card` | `#242424` | Cards, panels, surfaces above background |
+| `--secondary` / `--muted` | `#2E2E2E` | Inputs, hover states, elevated surfaces |
+| `--border` | `#393939` | Borders — use for all dividers and card outlines |
+| `--foreground` | `#EDEDED` | Primary text |
+| `--muted-foreground` | `#888` | Secondary text, labels, hints |
+
+### Rules — follow these on every page and component
+1. **Use semantic tokens, not hardcoded neutrals.** Use `border-border`, `bg-card`, `bg-background`, `text-foreground`, `text-muted-foreground`. Never hardcode `border-neutral-800` or similar — those bypass the palette.
+2. **Cards always need a background.** A card or surface with only a border is invisible on a dark background. Always pair `border-border` with `bg-card`.
+3. **Three text weights only.** Primary content → `text-foreground`. Supporting labels, metadata, descriptions → `text-muted-foreground`. Disabled/decorative → muted at lower opacity.
+4. **Homepage is exempt.** `/` uses hardcoded `bg-neutral-950` and `border-neutral-800` intentionally — it's a distinct design. Don't apply these rules there.
+5. **The homepage nav card pattern** (`border-neutral-800 hover:border-neutral-600`) can be reused for nav-style link cards. For content cards (displaying data), use `bg-card border-border`.
 
 ## Key Components & Patterns
 - `src/components/PageBreadcrumb.tsx` — shared breadcrumb nav used on all inner pages

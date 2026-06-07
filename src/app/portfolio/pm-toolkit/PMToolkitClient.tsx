@@ -279,7 +279,7 @@ export function PMToolkitClient() {
 
       {modal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
-          <div className="w-full max-w-sm rounded-xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl">
             <h2 className="text-base font-semibold text-white mb-1">Demo access required</h2>
             <p className="text-sm text-neutral-400 mb-4">
               Enter the demo code from Nick&apos;s resume or LinkedIn to continue.
@@ -355,8 +355,8 @@ Step 6 (Other User): Saves a personal copy of the filter set.`
           onClick={() => onModeChange('simple')}
           className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
             inputMode === 'simple'
-              ? 'border-neutral-600 text-white bg-neutral-800'
-              : 'border-neutral-800 text-neutral-500 hover:border-neutral-700 hover:text-neutral-400'
+              ? 'border-neutral-500 text-foreground bg-secondary'
+              : 'border-border text-muted-foreground hover:border-neutral-500 hover:text-foreground'
           }`}
         >
           I have an idea
@@ -365,8 +365,8 @@ Step 6 (Other User): Saves a personal copy of the filter set.`
           onClick={() => onModeChange('detailed')}
           className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
             inputMode === 'detailed'
-              ? 'border-neutral-600 text-white bg-neutral-800'
-              : 'border-neutral-800 text-neutral-500 hover:border-neutral-700 hover:text-neutral-400'
+              ? 'border-neutral-500 text-foreground bg-secondary'
+              : 'border-border text-muted-foreground hover:border-neutral-500 hover:text-foreground'
           }`}
         >
           I&apos;ll describe the happy path
@@ -381,7 +381,7 @@ Step 6 (Other User): Saves a personal copy of the filter set.`
       />
 
       <div className="flex items-center justify-between">
-        <p className="text-xs text-neutral-600">
+        <p className="text-xs text-muted-foreground">
           {inputMode === 'simple'
             ? 'The AI will generate the happy path first, then map assumptions.'
             : 'Describing the full path produces sharper, more specific assumptions.'}
@@ -405,8 +405,8 @@ function LoadingState({ stage }: { stage: Stage }) {
 
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
-      <div className="h-6 w-6 rounded-full border-2 border-neutral-700 border-t-white animate-spin" />
-      <p className="text-sm text-neutral-500">{messages[stage] ?? 'Working…'}</p>
+      <div className="h-6 w-6 rounded-full border-2 border-border border-t-foreground animate-spin" />
+      <p className="text-sm text-muted-foreground">{messages[stage] ?? 'Working…'}</p>
     </div>
   )
 }
@@ -440,8 +440,8 @@ function HappyPathReview({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-base font-semibold text-white mb-1">Happy Path</h2>
-        <p className="text-sm text-neutral-500">
+        <h2 className="text-base font-semibold text-foreground mb-1">Happy Path</h2>
+        <p className="text-sm text-muted-foreground">
           Review the swim lanes. If something looks off, start over with a more detailed description.
         </p>
       </div>
@@ -464,7 +464,7 @@ function HappyPathReview({
         <Button onClick={onContinue}>Generate assumption map →</Button>
         <button
           onClick={onReset}
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           Start over
         </button>
@@ -496,7 +496,7 @@ function CompleteView({
       <section>
         <button
           onClick={() => setSwimLanesOpen(o => !o)}
-          className="flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-300 transition-colors mb-3"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
         >
           <span className="text-xs">{swimLanesOpen ? '▼' : '▶'}</span>
           Happy Path
@@ -505,18 +505,18 @@ function CompleteView({
           <div className="space-y-2">
             {inputMode === 'simple' && happyPath.length > 0 ? (
               happyPath.map((s, i) => (
-                <div key={i} className="flex items-start gap-3 rounded-lg border border-neutral-800 px-4 py-3">
-                  <span className="text-xs text-neutral-600 font-mono mt-0.5 w-4 flex-shrink-0">{s.step}</span>
+                <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3">
+                  <span className="text-xs text-muted-foreground font-mono mt-0.5 w-4 flex-shrink-0">{s.step}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <ActorBadge actor={s.actor} />
                     </div>
-                    <p className="text-sm text-neutral-300">{s.action}</p>
+                    <p className="text-sm text-foreground">{s.action}</p>
                   </div>
                 </div>
               ))
             ) : (
-              <pre className="text-sm text-neutral-400 whitespace-pre-wrap font-mono leading-relaxed rounded-lg border border-neutral-800 px-4 py-3">
+              <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed rounded-lg border border-border bg-card px-4 py-3">
                 {inputText}
               </pre>
             )}
@@ -526,8 +526,8 @@ function CompleteView({
 
       {/* Priority Matrix */}
       <section>
-        <h2 className="text-base font-semibold text-white mb-1">Priority Matrix</h2>
-        <p className="text-xs text-neutral-500 mb-4">
+        <h2 className="text-base font-semibold text-foreground mb-1">Priority Matrix</h2>
+        <p className="text-xs text-muted-foreground mb-4">
           Top-right = high importance, low confidence — these need validation first.
           Hover any chip for the full assumption.
         </p>
@@ -540,7 +540,7 @@ function CompleteView({
             return (
               <div key={dim} className="flex items-center gap-1.5">
                 <span className={`w-2 h-2 rounded-full inline-block`} style={{ backgroundColor: c.dot }} />
-                <span className="text-xs text-neutral-500">{dim}</span>
+                <span className="text-xs text-muted-foreground">{dim}</span>
               </div>
             )
           })}
@@ -549,7 +549,7 @@ function CompleteView({
 
       {/* Assumption Map */}
       <section>
-        <h2 className="text-base font-semibold text-white mb-4">Assumption Map</h2>
+        <h2 className="text-base font-semibold text-foreground mb-4">Assumption Map</h2>
         <div className="space-y-6">
           {DIMENSIONS.map(dim => {
             const group = assumptions
@@ -561,17 +561,17 @@ function CompleteView({
               <div key={dim}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: c.dot }} />
-                  <h3 className="text-sm font-medium text-neutral-300">{dim}</h3>
-                  <span className="text-xs text-neutral-600">({group.length})</span>
+                  <h3 className="text-sm font-medium text-foreground">{dim}</h3>
+                  <span className="text-xs text-muted-foreground">({group.length})</span>
                 </div>
                 <div className="space-y-1.5">
                   {group.map(a => (
                     <div
                       key={a.id}
-                      className="flex items-start gap-3 rounded-lg border border-neutral-800/60 px-4 py-2.5"
+                      className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-2.5"
                     >
-                      <p className="text-sm text-neutral-300 flex-1 leading-relaxed">{a.text}</p>
-                      <div className="flex items-center gap-3 flex-shrink-0 text-xs text-neutral-600 pt-0.5">
+                      <p className="text-sm text-foreground flex-1 leading-relaxed">{a.text}</p>
+                      <div className="flex items-center gap-3 flex-shrink-0 text-xs text-muted-foreground pt-0.5">
                         <span title="Importance">I:{a.importance}</span>
                         <span title="Confidence">C:{a.confidence}</span>
                       </div>
@@ -591,7 +591,7 @@ function CompleteView({
         </Button>
         <button
           onClick={onReset}
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           Start over
         </button>
@@ -609,7 +609,7 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
         {/* Y-axis label */}
         <div className="flex items-center">
           <div
-            className="text-[10px] text-neutral-600 whitespace-nowrap"
+            className="text-[10px] text-muted-foreground whitespace-nowrap"
             style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
           >
             ↑ High Importance
@@ -618,13 +618,13 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
 
         {/* Matrix */}
         <div className="flex-1 relative" style={{ paddingTop: '70%' }}>
-          <div className="absolute inset-0 rounded-lg border border-neutral-800 bg-neutral-950 overflow-visible">
+          <div className="absolute inset-0 rounded-lg border border-border bg-card overflow-visible">
             {/* Top-right quadrant highlight */}
-            <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-amber-500/5 rounded-tr-lg" />
+            <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-amber-500/8 rounded-tr-lg" />
 
             {/* Center lines */}
-            <div className="absolute top-1/2 left-0 right-0 h-px bg-neutral-800/60" />
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-neutral-800/60" />
+            <div className="absolute top-1/2 left-0 right-0 h-px bg-border" />
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border" />
 
             {/* Quadrant label */}
             <div className="absolute top-2 right-3 text-[9px] text-amber-500/50 font-semibold tracking-wider uppercase">
@@ -657,13 +657,13 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
                   </div>
                   {hovered === a.id && (
                     <div
-                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-52 bg-neutral-900 border border-neutral-700 rounded-lg p-2.5 shadow-2xl pointer-events-none"
+                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-52 bg-card border border-border rounded-lg p-2.5 shadow-2xl pointer-events-none"
                       style={{ zIndex: 100 }}
                     >
-                      <p className="text-[11px] text-neutral-200 leading-relaxed mb-1">{a.text}</p>
+                      <p className="text-[11px] text-foreground leading-relaxed mb-1">{a.text}</p>
                       <div className="flex items-center justify-between">
                         <span className={`text-[9px] font-medium ${c.text}`}>{a.dimension}</span>
-                        <span className="text-[9px] text-neutral-500">I:{a.importance} · C:{a.confidence}</span>
+                        <span className="text-[9px] text-muted-foreground">I:{a.importance} · C:{a.confidence}</span>
                       </div>
                     </div>
                   )}
@@ -675,7 +675,7 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
       </div>
 
       {/* X-axis labels */}
-      <div className="flex justify-between text-[10px] text-neutral-600 mt-1.5 ml-7 pr-1">
+      <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5 ml-7 pr-1">
         <span>← High Confidence</span>
         <span>Low Confidence →</span>
       </div>
