@@ -1,5 +1,11 @@
 # Assumption Mapper — Project Context
 
+## How to use this file
+
+Read this file at the start of every session. Update it at the end of every session — decisions made, things built, things changed. If a decision from an earlier session gets reversed, overwrite it here. Do not preserve old decisions for historical record — this file should always reflect the current state, not the history. History lives in git.
+
+---
+
 ## What this is and why it exists
 
 A live interactive PM demo tool at `/projects/pm-toolkit` on nickomori.com. The goal is to showcase how Nick uses AI in his real PM workflow — specifically to accelerate the 0→1 phase of product solutioning where the blank page is hardest.
