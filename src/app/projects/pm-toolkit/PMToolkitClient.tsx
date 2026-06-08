@@ -221,17 +221,14 @@ export function PMToolkitClient() {
             >
               Teresa Torres
             </a>{' '}
-            dimensions, and a priority matrix — instantly. Built on the{' '}
-            <a
-              href="https://dschool.stanford.edu/resources/design-thinking-bootleg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-foreground transition-colors"
-            >
-              Stanford d.school
-            </a>{' '}
-            principle that 0→1 is the hard part.
+            dimensions, and a priority matrix — instantly.
           </p>
+          <blockquote className="mt-3 border-l-2 border-border pl-3">
+            <p className="text-sm text-muted-foreground italic leading-relaxed">
+              &ldquo;The faster we make our ideas tangible, the sooner we will be able to evaluate them, refine them, and zero in on the best solution.&rdquo;
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">— Tim Brown, <span className="not-italic">Change by Design</span></p>
+          </blockquote>
         </div>
 
         {error && (
