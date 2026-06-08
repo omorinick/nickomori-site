@@ -17,7 +17,7 @@ export default function ProjectsPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/projects/pm-toolkit"
-            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-neutral-500 transition-colors"
+            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
           >
             <div>
               <p className="font-medium text-foreground mb-1">Assumption Mapper</p>
@@ -30,7 +30,7 @@ export default function ProjectsPage() {
 
           <Link
             href="/projects/compliant-market"
-            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-neutral-500 transition-colors"
+            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
           >
             <div>
               <div className="flex items-center gap-2 mb-1">

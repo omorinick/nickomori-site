@@ -51,24 +51,81 @@ git push
 
 ## Design System — Dark Mode Palette
 
-Reference: Linear / Figma dark mode. Three visible surface layers plus a clear text hierarchy.
+Reference: Linear / Figma dark mode. Surface depth through luminance elevation; no shadows. All tokens defined in `src/app/globals.css`.
 
-### CSS Variables (defined in `src/app/globals.css` `.dark` block)
-| Token | Approx hex | Use |
-|---|---|---|
-| `--background` | `#141414` | Page background — dark but not pitch black |
-| `--card` | `#222222` | Cards, panels — clearly lifted above background |
-| `--secondary` / `--muted` | `#2e2e2e` | Inputs, hover states, elevated surfaces |
-| `--border` | `#393939` | Borders — use for all dividers and card outlines |
-| `--foreground` | `#ededed` | Primary text |
-| `--muted-foreground` | `#888888` | Secondary text, labels, hints |
+### Surface Hierarchy
+Four elevation levels — each step is a lighter gray:
 
-### Rules — follow these on every page and component
-1. **Use semantic tokens, not hardcoded neutrals.** Use `border-border`, `bg-card`, `bg-background`, `text-foreground`, `text-muted-foreground`. Never hardcode `border-neutral-800` or similar — those bypass the palette.
-2. **Cards always need a background.** A card or surface with only a border is invisible on a dark background. Always pair `border-border` with `bg-card`.
-3. **Three text weights only.** Primary content → `text-foreground`. Supporting labels, metadata, descriptions → `text-muted-foreground`. Disabled/decorative → muted at lower opacity.
-4. **Homepage is exempt.** `/` uses hardcoded `bg-neutral-950` and `border-neutral-800` intentionally — it's a distinct design. Don't apply these rules there.
-5. **The homepage nav card pattern** (`border-neutral-800 hover:border-neutral-600`) can be reused for nav-style link cards. For content cards (displaying data), use `bg-card border-border`.
+| Token | Tailwind class | Approx hex | Use |
+|---|---|---|---|
+| `--background` | `bg-background` | `#1c1c1c` | Page background |
+| `--card` | `bg-card` | `#272727` | Cards, panels, lifted surfaces |
+| `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `#303030` | Inputs, hover bg, embedded surfaces |
+| `--surface-overlay` | `bg-surface-overlay` | `#3a3a3a` | Modals, tooltips, dropdowns above cards |
+
+### Text Hierarchy
+Three levels only — use nothing outside these:
+
+| Token | Tailwind class | Approx hex | Use |
+|---|---|---|---|
+| `--foreground` | `text-foreground` | `#ededed` | Primary content, headings, values |
+| `--muted-foreground` | `text-muted-foreground` | `#888888` | Labels, descriptions, metadata |
+| `--foreground-subtle` | `text-foreground-subtle` | `#4a4a4a` | Disabled, decorative, placeholder — non-informational only |
+
+### Borders & Interactive States
+
+| Token | Tailwind class | Approx hex | Use |
+|---|---|---|---|
+| `--border` | `border-border` | `#3d3d3d` | Default borders on cards and dividers |
+| `--border-hover` | `border-border-hover` | `#545454` | Hover state on interactive cards/links |
+| `--ring` | `ring-ring` | `~#808080` | Focus ring on inputs |
+
+Standard interactive card pattern:
+```tsx
+className="border border-border bg-card hover:border-border-hover transition-colors"
+```
+
+Modal pattern — the one place shadows are appropriate (they signal elevation above a scrim):
+```tsx
+{/* scrim */}
+<div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
+  {/* panel */}
+  <div className="bg-surface-overlay border border-border rounded-2xl p-8 shadow-2xl shadow-black/60">
+    <h2 className="text-base font-semibold text-foreground">Title</h2>
+    <p className="text-sm text-foreground leading-relaxed">Body text — always text-foreground, not muted.</p>
+  </div>
+</div>
+```
+
+### Status Colors
+Each status has three variants for different contexts:
+
+| Status | Solid (`bg-X text-X-foreground`) | Tinted (`bg-X-subtle text-X`) | Text only (`text-X`) |
+|---|---|---|---|
+| `success` | Filled green bg | Dark green tint + green text | Green label |
+| `warning` | Filled amber bg | Dark amber tint + amber text | Amber label |
+| `info` | Filled blue bg | Dark blue tint + blue text | Blue label |
+| `destructive` | Filled red bg (shadcn built-in) | — | Red label |
+
+Usage examples:
+```tsx
+// Solid badge (high-prominence status)
+<span className="bg-success text-success-foreground px-2 py-0.5 rounded text-xs">Live</span>
+
+// Tinted chip (standard status indicator)
+<span className="bg-success-subtle text-success px-2 py-0.5 rounded text-xs">Active</span>
+
+// Inline text label
+<span className="text-warning text-sm">Pending review</span>
+```
+
+### Rules — follow on every page and component
+1. **Use semantic tokens, not hardcoded neutrals.** Never use `bg-neutral-800`, `text-gray-400`, `border-neutral-700`, etc. Always use the tokens above.
+2. **Cards always need a background.** Pair `border-border` with `bg-card` — a border without a bg is invisible on dark.
+3. **Text is exactly three levels.** `text-foreground` → `text-muted-foreground` → `text-foreground-subtle`. Nothing outside these.
+4. **Interactive borders use `border-border-hover`.** Any clickable card or link block: `border-border hover:border-border-hover`.
+5. **Status colors follow the solid/tinted pattern.** Don't invent one-off colored elements — use the status system.
+6. **Homepage is exempt.** `/` uses hardcoded `bg-neutral-950` and `border-neutral-800` intentionally — it's a distinct design. Don't apply these rules there.
 
 ## Key Components & Patterns
 - `src/components/PageBreadcrumb.tsx` — shared breadcrumb nav used on all inner pages

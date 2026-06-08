@@ -6,7 +6,7 @@ const GREEN = '#00bb29'
 
 export default function DrugXHeader() {
   return (
-    <header className="sticky top-0 z-40 bg-background border-b border-border">
+    <header className="sticky top-0 z-40 bg-card border-b border-border">
       {/* ── Main nav ── */}
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-5">
 
@@ -31,7 +31,7 @@ export default function DrugXHeader() {
             <input
               type="text"
               placeholder="Search for substance, brand, etc."
-              className="w-full bg-secondary border border-border rounded-full pl-10 pr-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-white/30 transition-colors"
+              className="w-full bg-secondary border border-border rounded-full pl-10 pr-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-border-hover transition-colors"
             />
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function DrugXHeader() {
 
         {/* Auth */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button className="hidden sm:block px-4 py-1.5 rounded-full border border-border text-sm hover:border-white/30 transition-colors whitespace-nowrap">
+          <button className="hidden sm:block px-4 py-1.5 rounded-full border border-border text-sm hover:border-border-hover transition-colors whitespace-nowrap">
             Login
           </button>
           <button
@@ -58,7 +58,7 @@ export default function DrugXHeader() {
       </div>
 
       {/* ── Sub-nav ── */}
-      <div className="border-t border-border bg-background">
+      <div className="border-t border-border bg-card">
         <div className="max-w-7xl mx-auto px-6 h-11 flex items-center gap-8 overflow-x-auto scrollbar-none">
           {CATEGORIES.map((cat, i) => (
             <span

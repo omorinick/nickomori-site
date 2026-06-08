@@ -22,7 +22,7 @@ export default function DrugXPageShell() {
       {/* Back bar — lives above the header in the DOM.
           Revealed only when the user overscrolls / scrolls up past top. */}
       <div
-        className="h-11 flex items-center px-6 bg-background border-b border-border"
+        className="h-11 flex items-center px-6 bg-card border-b border-border"
         style={{ height: BACK_BAR_HEIGHT }}
       >
         <Link

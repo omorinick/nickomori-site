@@ -6,7 +6,10 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
 } from 'recharts'
-import { ChevronDown, Zap, Shield, Settings2, TrendingUp, Heart, Share2 } from 'lucide-react'
+import {
+  ChevronDown, ChevronLeft, ChevronRight,
+  Zap, Shield, Settings2, TrendingUp, Heart, Share2,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   PRODUCT, RELATED_LISTINGS, MODALS, HISTORICAL_STATS, INFO_CARDS,
@@ -16,28 +19,94 @@ import {
 const PillScene = dynamic(() => import('./PillScene'), { ssr: false })
 
 const GREEN = '#00bb29'
-const RED = '#ef4444'
+const RED   = '#ef4444'
 
-// ─── Capsule placeholder ──────────────────────────────────────────────────────
+// Two-tone colors for each related product
+const RELATED_PILL_COLORS: Record<string, [string, string]> = {
+  'xanax-2mg':        ['#6b7280', '#9ca3af'],
+  'oxycodone-10mg':   ['#8b5cf6', '#a78bfa'],
+  'ambien-10mg':      ['#ec4899', '#f472b6'],
+  'claritin-10mg':    ['#eab308', '#fbbf24'],
+  'adderall-xr-10mg': ['#0d9488', '#2dd4bf'],
+}
 
-function CapsulePlaceholder({ c1, c2, size = 'lg' }: { c1: string; c2: string; size?: 'lg' | 'sm' }) {
-  const w = size === 'lg' ? 180 : 80
-  const h = size === 'lg' ? 72 : 32
+// ─── DrugX Labs interstitial modal ───────────────────────────────────────────
+
+function LabsModal({ onClose, onUpload }: { onClose: () => void; onUpload: () => void }) {
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', fn)
+    return () => window.removeEventListener('keydown', fn)
+  }, [onClose])
+
   return (
     <div
-      className="rounded-full flex-shrink-0"
-      style={{ width: w, height: h, background: `linear-gradient(90deg, ${c1} 50%, ${c2} 50%)` }}
-    />
+      className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-surface-overlay border border-border rounded-2xl p-8 max-w-md w-full shadow-2xl shadow-black/60"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <span
+            className="text-xs font-bold px-2 py-0.5 rounded tracking-wide"
+            style={{ background: GREEN, color: '#000' }}
+          >
+            ✦ JUST RELEASED
+          </span>
+          <span className="text-xs text-muted-foreground">DrugX Labs™</span>
+        </div>
+        <h2 className="text-xl font-bold leading-snug">
+          Found a pill you can&apos;t identify?
+        </h2>
+        <p className="text-sm text-foreground mt-3 leading-relaxed">
+          Upload it and we&apos;ll tell you exactly what it&apos;s worth on today&apos;s markets.
+          Powered by our proprietary compound recognition engine. Results in seconds.
+        </p>
+        <p className="text-sm text-foreground mt-1">No questions asked.</p>
+
+        {/* Fake upload area */}
+        <button
+          onClick={onUpload}
+          className="mt-6 w-full border-2 border-dashed border-border hover:border-border-hover rounded-xl py-6 flex flex-col items-center gap-2 transition-colors group"
+        >
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+            style={{ background: GREEN + '22' }}
+          >
+            💊
+          </div>
+          <span className="text-sm font-semibold group-hover:text-foreground text-muted-foreground transition-colors">
+            Upload a Pill →
+          </span>
+          <span className="text-xs text-foreground-subtle">PNG, JPG, HEIC up to 10MB</span>
+        </button>
+
+        <button
+          onClick={onClose}
+          className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          No thanks, I know what this is
+        </button>
+      </div>
+    </div>
   )
 }
 
-const CAPSULE_COLORS: Record<string, [string, string]> = {
-  'adderall-xr':        ['#e8722a', '#f4a46a'],
-  'xanax-2mg':          ['#d4d4d4', '#ebebeb'],
-  'oxycodone-10mg':     ['#f0f0f0', '#ffffff'],
-  'ambien-10mg':        ['#f4a0b8', '#f8c4d4'],
-  'claritin-10mg':      ['#f9f9f9', '#ececec'],
-  'adderall-xr-10mg':   ['#6fa8dc', '#9fc5e8'],
+// ─── Toast ────────────────────────────────────────────────────────────────────
+
+function Toast({ visible }: { visible: boolean }) {
+  return (
+    <div
+      className={cn(
+        'fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full bg-surface-overlay border border-border text-sm font-medium z-50 transition-all duration-300 whitespace-nowrap',
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none',
+      )}
+    >
+      Just kidding 💊
+    </div>
+  )
 }
 
 // ─── Related card ─────────────────────────────────────────────────────────────
@@ -45,14 +114,12 @@ const CAPSULE_COLORS: Record<string, [string, string]> = {
 function RelatedCard({ listing }: { listing: RelatedListing }) {
   const isUp   = listing.trending === 'up'
   const isDown = listing.trending === 'down'
-  const [c1, c2] = CAPSULE_COLORS[listing.id] ?? ['#888', '#aaa']
+  const [c1, c2] = RELATED_PILL_COLORS[listing.id] ?? ['#888', '#aaa']
+
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden cursor-pointer hover:border-white/25 transition-colors group">
-      <div className="relative bg-neutral-100 h-32 flex items-center justify-center">
-        <CapsulePlaceholder c1={c1} c2={c2} size="sm" />
-        <button className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Heart size={14} className="text-neutral-400" />
-        </button>
+    <div className="bg-card border border-border rounded-xl overflow-hidden cursor-pointer hover:border-border-hover transition-colors">
+      <div className="relative h-32" style={{ background: '#f0f0f0' }}>
+        <PillScene color1={c1} color2={c2} />
       </div>
       <div className="p-3">
         <p className="text-xs text-muted-foreground truncate">{listing.variant}</p>
@@ -73,10 +140,12 @@ function RelatedCard({ listing }: { listing: RelatedListing }) {
 
 // ─── Chart tooltip ────────────────────────────────────────────────────────────
 
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
+function ChartTooltip({ active, payload, label }: {
+  active?: boolean; payload?: { value: number }[]; label?: string
+}) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-card border border-border rounded-lg px-3 py-2 text-sm shadow-lg">
+    <div className="bg-surface-overlay border border-border rounded-lg px-3 py-2 text-sm shadow-lg">
       <p className="text-muted-foreground text-xs">{label}</p>
       <p className="font-semibold">${payload[0].value}</p>
     </div>
@@ -94,7 +163,7 @@ function Modal({ title, body, onClose }: { title: string; body: string[]; onClos
 
   return (
     <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4" onClick={onClose}>
-      <div className="bg-card border border-border rounded-2xl p-8 max-w-md w-full" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-overlay border border-border rounded-2xl p-8 max-w-md w-full shadow-2xl shadow-black/60" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-2 mb-5">
           <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: GREEN, color: '#000' }}>
             ✓ VERIFIED
@@ -103,7 +172,7 @@ function Modal({ title, body, onClose }: { title: string; body: string[]; onClos
         </div>
         <div className="space-y-3">
           {body.map((p, i) => (
-            <p key={i} className="text-sm text-muted-foreground leading-relaxed">{p}</p>
+            <p key={i} className="text-sm text-foreground leading-relaxed">{p}</p>
           ))}
         </div>
         <button onClick={onClose} className="mt-7 text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2">
@@ -119,11 +188,8 @@ function Modal({ title, body, onClose }: { title: string; body: string[]; onClos
 function AccordionRow({
   label, right, children, open, onToggle,
 }: {
-  label: string
-  right?: React.ReactNode
-  children?: React.ReactNode
-  open: boolean
-  onToggle: () => void
+  label: string; right?: React.ReactNode; children?: React.ReactNode
+  open: boolean; onToggle: () => void
 }) {
   return (
     <div className="border-t border-border">
@@ -138,9 +204,7 @@ function AccordionRow({
         </div>
       </button>
       {open && children && (
-        <div className="pb-4 text-sm text-muted-foreground leading-relaxed">
-          {children}
-        </div>
+        <div className="pb-4 text-sm text-muted-foreground leading-relaxed">{children}</div>
       )}
     </div>
   )
@@ -149,16 +213,26 @@ function AccordionRow({
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function DrugXProductPage() {
-  const [activeDosage, setActiveDosage]     = useState<Dosage>('30mg')
-  const [dosageOpen, setDosageOpen]         = useState(false)
+  const [activeDosage, setActiveDosage]       = useState<Dosage>('30mg')
+  const [dosageOpen, setDosageOpen]           = useState(false)
   const [activeTimeframe, setActiveTimeframe] = useState<Timeframe>('1M')
-  const [activeModal, setActiveModal]       = useState<'verification' | 'buyerProtection' | null>(null)
-  const [openAccordion, setOpenAccordion]   = useState<string | null>(null)
-  const [mounted, setMounted]               = useState(false)
+  const [activeModal, setActiveModal]         = useState<'verification' | 'buyerProtection' | null>(null)
+  const [openAccordion, setOpenAccordion]     = useState<string | null>(null)
+  const [mounted, setMounted]                 = useState(false)
+  const [carouselIdx, setCarouselIdx]         = useState(0)
+  const [showLabsModal, setShowLabsModal]     = useState(false)
+  const [showToast, setShowToast]             = useState(false)
   const dosageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => setMounted(true), [])
 
+  // Labs interstitial: show after 8 seconds
+  useEffect(() => {
+    const t = setTimeout(() => setShowLabsModal(true), 8000)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Close dosage dropdown on outside click
   useEffect(() => {
     const fn = (e: MouseEvent) => {
       if (dosageRef.current && !dosageRef.current.contains(e.target as Node)) {
@@ -169,7 +243,12 @@ export default function DrugXProductPage() {
     return () => document.removeEventListener('mousedown', fn)
   }, [])
 
-  const price     = PRODUCT.dosagePrices[activeDosage]
+  const handleUpload = () => {
+    setShowLabsModal(false)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000)
+  }
+
   const ask       = PRODUCT.dosageAsk[activeDosage]
   const bid       = PRODUCT.dosageBid[activeDosage]
   const lastSale  = PRODUCT.dosageLastSale[activeDosage]
@@ -180,7 +259,12 @@ export default function DrugXProductPage() {
   const chartMin  = Math.min(...chartData.map(d => d.price)) - 5
   const chartMax  = Math.max(...chartData.map(d => d.price)) + 5
   const timeframes: Timeframe[] = ['1W', '1M', '3M', '1Y']
+
   const toggleAccordion = (s: string) => setOpenAccordion(p => p === s ? null : s)
+
+  const VISIBLE_CARDS = 3
+  const maxCarouselIdx = RELATED_LISTINGS.length - VISIBLE_CARDS
+  const visibleListings = RELATED_LISTINGS.slice(carouselIdx, carouselIdx + VISIBLE_CARDS)
 
   return (
     <>
@@ -200,23 +284,20 @@ export default function DrugXProductPage() {
         {/* ── Product area ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
-          {/* Left: image */}
+          {/* Left: 3D pill image */}
           <div>
             <div className="rounded-2xl overflow-hidden bg-white relative h-[480px]">
-              {/* 3-D rotating pill */}
               <div className="absolute inset-0">
                 <PillScene color1="#3b6fd4" color2="#6b9fe8" />
               </div>
-              {/* Action icons */}
               <div className="absolute top-4 right-4 flex gap-2">
                 <button className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
-                  <Heart size={16} className="text-neutral-500" />
+                  <Heart size={16} className="text-muted-foreground" />
                 </button>
                 <button className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
-                  <Share2 size={16} className="text-neutral-500" />
+                  <Share2 size={16} className="text-muted-foreground" />
                 </button>
               </div>
-              {/* Verified badge */}
               <button
                 onClick={() => setActiveModal('verification')}
                 className="absolute bottom-4 left-4 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"
@@ -227,21 +308,14 @@ export default function DrugXProductPage() {
                 </svg>
                 Verified Authentic · What&apos;s this?
               </button>
-              {/* Carousel dots */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-neutral-800" />
-                <div className="w-2 h-2 rounded-full bg-neutral-300" />
-                <div className="w-2 h-2 rounded-full bg-neutral-300" />
-              </div>
             </div>
           </div>
 
-          {/* Right: details */}
+          {/* Right: purchase details */}
           <div className="pt-1">
             <h1 className="text-[28px] font-bold leading-tight">Adderall XR</h1>
             <p className="text-muted-foreground mt-0.5">{activeDosage} · {PRODUCT.variant}</p>
 
-            {/* QuickPack */}
             <div className="flex items-center gap-2 mt-4 text-sm">
               <div className="w-4 h-4 rounded border border-border flex items-center justify-center">
                 <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
@@ -255,10 +329,10 @@ export default function DrugXProductPage() {
               <Zap size={13} style={{ color: GREEN }} className="flex-shrink-0" />
             </div>
 
-            {/* Dosage selector */}
+            {/* Dosage dropdown */}
             <div className="mt-5 relative" ref={dosageRef}>
               <button
-                className="w-full flex items-center justify-between border border-border rounded-xl px-4 py-3.5 text-sm hover:border-white/30 transition-colors"
+                className="w-full flex items-center justify-between bg-card border border-border rounded-xl px-4 py-3.5 text-sm hover:border-border-hover transition-colors"
                 onClick={() => setDosageOpen(o => !o)}
               >
                 <span className="text-muted-foreground">Dosage:</span>
@@ -268,7 +342,7 @@ export default function DrugXProductPage() {
                 </div>
               </button>
               {dosageOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl overflow-hidden z-10 shadow-xl">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-surface-overlay border border-border rounded-xl overflow-hidden z-10 shadow-xl">
                   {PRODUCT.dosageOptions.map(d => (
                     <button
                       key={d}
@@ -287,7 +361,7 @@ export default function DrugXProductPage() {
             </div>
 
             {/* Buy box */}
-            <div className="mt-4 border border-border rounded-xl p-4">
+            <div className="mt-4 bg-card border border-border rounded-xl p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Buy Now for</p>
@@ -310,9 +384,8 @@ export default function DrugXProductPage() {
               </p>
             </div>
 
-            {/* Buttons */}
             <div className="mt-3 grid grid-cols-2 gap-3">
-              <button className="py-4 rounded-xl text-sm font-bold border border-border bg-card hover:border-white/30 transition-colors">
+              <button className="py-4 rounded-xl text-sm font-bold border border-border bg-card hover:border-border-hover transition-colors">
                 Make Offer
               </button>
               <button
@@ -323,7 +396,6 @@ export default function DrugXProductPage() {
               </button>
             </div>
 
-            {/* Pay over time */}
             <p className="mt-3 text-xs text-muted-foreground text-center">
               Pay over time with{' '}
               <span className="text-foreground font-medium">Venmo</span>
@@ -335,7 +407,6 @@ export default function DrugXProductPage() {
               <button className="underline underline-offset-1 hover:text-foreground transition-colors">Learn More</button>
             </p>
 
-            {/* Last sale */}
             <div className="mt-4 flex items-center justify-between text-sm border-t border-border pt-4">
               <div>
                 <span className="text-muted-foreground">Last Sale </span>
@@ -349,12 +420,10 @@ export default function DrugXProductPage() {
               </a>
             </div>
 
-            {/* Sell now */}
-            <button className="mt-3 w-full text-center text-sm font-semibold py-3 rounded-xl border border-border hover:border-white/30 transition-colors">
+            <button className="mt-3 w-full text-center text-sm font-semibold py-3 rounded-xl bg-card border border-border hover:border-border-hover transition-colors">
               Sell Now for ${bid} or Ask for More →
             </button>
 
-            {/* Accordion */}
             <div className="mt-2">
               <AccordionRow
                 label="Return Policy"
@@ -364,7 +433,6 @@ export default function DrugXProductPage() {
               >
                 <p className="px-1 pb-1">All sales are final once a dosage has been selected and the order is confirmed. We are unable to process returns for reasons related to personal preference, unexpected efficacy, or change of mind.</p>
               </AccordionRow>
-
               <AccordionRow
                 label="Buyer Promise"
                 open={openAccordion === 'buyer'}
@@ -372,7 +440,6 @@ export default function DrugXProductPage() {
               >
                 <p className="px-1 pb-1">We stand behind every product sold on DrugX. If a mistake is made, we'll make it right. Full refund or replacement, your choice. Terms apply. Not valid in states with recreational laws. Or the other states. Actually, none of the states. But we're working on it.</p>
               </AccordionRow>
-
               <AccordionRow
                 label="Our Process"
                 right={<span>Condition: Lab Verified</span>}
@@ -413,11 +480,18 @@ export default function DrugXProductPage() {
             {mounted ? (
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis dataKey="date" tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
                   <YAxis domain={[chartMin, chartMax]} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}`} width={40} />
                   <Tooltip content={<ChartTooltip />} />
-                  <Line type="monotone" dataKey="price" stroke={GREEN} strokeWidth={2} dot={false} activeDot={{ r: 4, fill: GREEN, stroke: 'var(--card)', strokeWidth: 2 }} />
+                  <Line
+                    type="linear"
+                    dataKey="price"
+                    stroke={GREEN}
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 4, fill: GREEN, stroke: 'var(--card)', strokeWidth: 2 }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
@@ -438,14 +512,14 @@ export default function DrugXProductPage() {
           <h2 className="text-lg font-semibold mb-4">Historical Data</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {HISTORICAL_STATS.map((stat, i) => (
-              <div key={i} className="bg-card border border-border rounded-xl p-5">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-sm font-semibold mt-1">{stat.label}</p>
+              <div key={i} className="bg-card border border-border rounded-xl px-4 py-3.5">
+                <p className="text-xl font-bold">{stat.value}</p>
+                <p className="text-sm font-medium mt-0.5">{stat.label}</p>
                 {stat.sub && (
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {stat.sub === 'vs. Pharmacy MSRP' ? (
                       <span className="flex items-center gap-1">
-                        <TrendingUp size={11} style={{ color: GREEN }} />
+                        <TrendingUp size={10} style={{ color: GREEN }} />
                         {stat.sub}
                       </span>
                     ) : `| ${stat.sub}`}
@@ -457,13 +531,13 @@ export default function DrugXProductPage() {
         </div>
 
         {/* ── Info cards ── */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           {INFO_CARDS.map(card => (
-            <div key={card.title} className="bg-card border border-border rounded-xl p-5">
+            <div key={card.title} className="bg-surface-overlay border border-border rounded-xl p-5">
               <div className="flex items-center gap-2.5 mb-3">
-                {card.icon === 'process' && <Settings2 size={18} className="text-muted-foreground flex-shrink-0" />}
-                {card.icon === 'shield'  && <Shield    size={18} className="text-muted-foreground flex-shrink-0" />}
-                {card.icon === 'sell'    && <TrendingUp size={18} className="text-muted-foreground flex-shrink-0" />}
+                {card.icon === 'process' && <Settings2 size={17} className="text-muted-foreground flex-shrink-0" />}
+                {card.icon === 'shield'  && <Shield    size={17} className="text-muted-foreground flex-shrink-0" />}
+                {card.icon === 'sell'    && <TrendingUp size={17} className="text-muted-foreground flex-shrink-0" />}
                 <p className="font-semibold text-sm">{card.title}</p>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">{card.body}</p>
@@ -474,33 +548,36 @@ export default function DrugXProductPage() {
           ))}
         </div>
 
-        {/* ── Related products ── */}
+        {/* ── Related products carousel ── */}
         <div className="mt-14">
-          <div className="flex items-baseline justify-between mb-4">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Related Products</h2>
-            <p className="text-xs text-muted-foreground">Curated by DrugX algorithm</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-muted-foreground mr-2">Curated by DrugX algorithm</p>
+              <button
+                onClick={() => setCarouselIdx(i => Math.max(0, i - 1))}
+                disabled={carouselIdx === 0}
+                className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:border-border-hover transition-colors disabled:opacity-30"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <button
+                onClick={() => setCarouselIdx(i => Math.min(maxCarouselIdx, i + 1))}
+                disabled={carouselIdx >= maxCarouselIdx}
+                className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:border-border-hover transition-colors disabled:opacity-30"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {RELATED_LISTINGS.map(l => <RelatedCard key={l.id} listing={l} />)}
+          <div className="grid grid-cols-3 gap-4">
+            {visibleListings.map(l => <RelatedCard key={l.id} listing={l} />)}
           </div>
-        </div>
-
-        {/* ── Pill ID CTA ── */}
-        <div className="mt-14 bg-card border border-border rounded-2xl p-8 text-center">
-          <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-2">Coming Soon · DrugX Labs™</p>
-          <h3 className="text-xl font-bold">Found a pill you can&apos;t identify?</h3>
-          <p className="text-sm text-muted-foreground mt-2">Upload it. We&apos;ll tell you what it&apos;s worth.</p>
-          <button
-            className="mt-4 text-sm font-semibold px-7 py-2.5 rounded-full border border-border text-muted-foreground cursor-not-allowed opacity-50"
-            disabled
-          >
-            Upload a Pill
-          </button>
         </div>
 
         {/* ── Fine print ── */}
-        <div className="mt-12 text-center">
-          <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.2)' }}>
+        <div className="mt-16 text-center">
+          <p className="text-xs leading-relaxed text-foreground-subtle">
             DrugX is a satirical project. All prices are fictional. No actual transactions occur.
             <br />
             Always verify what you&apos;re putting in your body. Or don&apos;t — we&apos;re a marketplace, not a doctor.
@@ -509,8 +586,11 @@ export default function DrugXProductPage() {
 
       </div>
 
-      {activeModal === 'verification'   && <Modal title={MODALS.verification.title}   body={MODALS.verification.body}   onClose={() => setActiveModal(null)} />}
+      {/* ── Modals ── */}
+      {activeModal === 'verification'    && <Modal title={MODALS.verification.title}    body={MODALS.verification.body}    onClose={() => setActiveModal(null)} />}
       {activeModal === 'buyerProtection' && <Modal title={MODALS.buyerProtection.title} body={MODALS.buyerProtection.body} onClose={() => setActiveModal(null)} />}
+      {showLabsModal && <LabsModal onClose={() => setShowLabsModal(false)} onUpload={handleUpload} />}
+      <Toast visible={showToast} />
     </>
   )
 }
