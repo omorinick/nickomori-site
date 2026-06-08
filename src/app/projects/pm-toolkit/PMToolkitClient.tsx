@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { PageBreadcrumb } from '@/components/PageBreadcrumb'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -95,14 +95,14 @@ function postItOffset(id: string): { x: number; y: number } {
 
 // ─── Actor lane styles ───────────────────────────────────────────────────────
 
-const ACTOR_LANE: Record<string, { dot: string; label: string }> = {
-  'User':                  { dot: 'bg-blue-400',    label: 'text-blue-300' },
-  'Platform':              { dot: 'bg-slate-400',   label: 'text-slate-300' },
-  'Other User':            { dot: 'bg-emerald-400', label: 'text-emerald-300' },
-  'Third-Party Service':   { dot: 'bg-purple-400',  label: 'text-purple-300' },
-  'Admin':                 { dot: 'bg-amber-400',   label: 'text-amber-300' },
+const ACTOR_LANE: Record<string, { dot: string; label: string; rowBg: string; stepBg: string; stepBorder: string }> = {
+  'User':                  { dot: 'bg-blue-400',    label: 'text-blue-300',    rowBg: 'bg-blue-950/25',    stepBg: 'bg-blue-950/60',    stepBorder: 'border-blue-800/70' },
+  'Platform':              { dot: 'bg-slate-400',   label: 'text-slate-300',   rowBg: 'bg-slate-900/30',   stepBg: 'bg-slate-800/50',   stepBorder: 'border-slate-700/70' },
+  'Other User':            { dot: 'bg-emerald-400', label: 'text-emerald-300', rowBg: 'bg-emerald-950/25', stepBg: 'bg-emerald-950/60', stepBorder: 'border-emerald-800/70' },
+  'Third-Party Service':   { dot: 'bg-purple-400',  label: 'text-purple-300',  rowBg: 'bg-purple-950/25',  stepBg: 'bg-purple-950/60',  stepBorder: 'border-purple-800/70' },
+  'Admin':                 { dot: 'bg-amber-400',   label: 'text-amber-300',   rowBg: 'bg-amber-950/25',   stepBg: 'bg-amber-950/60',   stepBorder: 'border-amber-800/70' },
 }
-const DEFAULT_ACTOR = { dot: 'bg-muted-foreground', label: 'text-muted-foreground' }
+const DEFAULT_ACTOR = { dot: 'bg-muted-foreground', label: 'text-muted-foreground', rowBg: 'bg-card', stepBg: 'bg-secondary', stepBorder: 'border-border' }
 
 // ─── Post-it colors for matrix ───────────────────────────────────────────────
 
@@ -346,16 +346,15 @@ function SwimLaneView({ steps }: { steps: HappyPathStep[] }) {
           const actorSteps = steps.filter(s => s.actor === actor)
           const c = ACTOR_LANE[actor] ?? DEFAULT_ACTOR
           const isLastRow = actorIdx === actors.length - 1
-          const rowBg = actorIdx % 2 === 0 ? 'bg-background' : 'bg-card'
 
           return [
             <div
               key={`label-${actor}`}
-              className={`flex items-center gap-2 px-3 py-0 border-r border-border ${rowBg} ${!isLastRow ? 'border-b border-border' : ''}`}
-              style={{ gridColumn: 1, gridRow: actorIdx + 1, minHeight: 80 }}
+              className={`flex items-center gap-2.5 px-4 border-r border-border ${c.rowBg} ${!isLastRow ? 'border-b border-border' : ''}`}
+              style={{ gridColumn: 1, gridRow: actorIdx + 1, minHeight: 96 }}
             >
               <div className={`w-2 h-2 rounded-full flex-shrink-0 ${c.dot}`} />
-              <span className={`text-xs font-medium leading-tight ${c.label}`}>{actor}</span>
+              <span className={`text-xs font-semibold leading-tight ${c.label}`}>{actor}</span>
             </div>,
 
             ...Array.from({ length: maxStep }, (_, i) => {
@@ -366,16 +365,16 @@ function SwimLaneView({ steps }: { steps: HappyPathStep[] }) {
               return (
                 <div
                   key={`${actor}-${stepNum}`}
-                  className={`relative flex items-center p-2 ${rowBg} ${!isLastRow ? 'border-b border-border' : ''} ${!isLastCol ? 'border-r border-border' : ''}`}
-                  style={{ gridColumn: stepNum + 1, gridRow: actorIdx + 1, minHeight: 80 }}
+                  className={`relative flex items-center p-3 ${c.rowBg} ${!isLastRow ? 'border-b border-border' : ''} ${!isLastCol ? 'border-r border-border' : ''}`}
+                  style={{ gridColumn: stepNum + 1, gridRow: actorIdx + 1, minHeight: 96 }}
                 >
-                  {/* Lane connector line through all cells */}
-                  <div className="absolute top-1/2 left-0 right-0 h-px bg-border/60 pointer-events-none" />
+                  {/* Lane connector line */}
+                  <div className={`absolute top-1/2 left-0 right-0 h-px pointer-events-none ${c.stepBorder} opacity-40`} />
 
                   {step && (
-                    <div className="relative z-10 bg-card border border-border rounded-md px-2.5 py-2 w-full shadow-sm">
-                      <span className="text-[9px] text-muted-foreground font-mono mb-1 block">{step.step}</span>
-                      <p className="text-xs text-foreground leading-snug">{step.action}</p>
+                    <div className={`relative z-10 ${c.stepBg} border ${c.stepBorder} rounded-md px-3 py-2.5 w-full shadow-sm`}>
+                      <span className="text-[9px] text-muted-foreground font-mono mb-1.5 block">{step.step}</span>
+                      <p className="text-sm text-foreground leading-snug">{step.action}</p>
                     </div>
                   )}
                 </div>
@@ -474,20 +473,33 @@ function CompleteView({ inputMode, inputText, happyPath, assumptions, onExport, 
                   <h3 className="text-sm font-medium text-foreground">{dim}</h3>
                   <span className="text-xs text-muted-foreground">({group.length})</span>
                 </div>
-                <div className="space-y-1.5">
-                  {group.map(a => {
-                    const imp = importanceLabel(a.importance)
-                    const conf = confidenceLabel(a.confidence)
-                    return (
-                      <div key={a.id} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-2.5">
-                        <p className="text-sm text-foreground flex-1 leading-relaxed">{a.text}</p>
-                        <div className="flex flex-col items-end gap-0.5 flex-shrink-0 pt-0.5 min-w-[110px]">
-                          <span className={`text-[10px] font-medium ${imp.cls}`}>{imp.text} importance</span>
-                          <span className={`text-[10px] ${conf.cls}`}>{conf.text}</span>
-                        </div>
-                      </div>
-                    )
-                  })}
+                <div className="rounded-lg border border-border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-card/50">
+                        <th className="text-left text-[10px] text-muted-foreground font-normal px-4 py-2">Assumption</th>
+                        <th className="text-right text-[10px] text-muted-foreground font-normal px-3 py-2 w-24 whitespace-nowrap">Importance</th>
+                        <th className="text-right text-[10px] text-muted-foreground font-normal px-4 py-2 w-32 whitespace-nowrap">Confidence</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {group.map((a, rowIdx) => {
+                        const imp = importanceLabel(a.importance)
+                        const conf = confidenceLabel(a.confidence)
+                        return (
+                          <tr key={a.id} className={`border-b border-border/50 last:border-b-0 ${rowIdx % 2 === 0 ? 'bg-card' : 'bg-background'}`}>
+                            <td className="px-4 py-3 text-foreground leading-relaxed">{a.text}</td>
+                            <td className="px-3 py-3 text-right">
+                              <span className={`text-[10px] font-medium ${imp.cls}`}>{imp.text}</span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className={`text-[10px] ${conf.cls}`}>{conf.text}</span>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )
@@ -514,6 +526,29 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
   const topToValidate = [...assumptions]
     .sort((a, b) => b.importance * (10 - b.confidence) - a.importance * (10 - a.confidence))
     .slice(0, 7)
+
+  // Spread items that share the same score so they don't fully overlap
+  const groupOffsets = useMemo(() => {
+    const map = new Map<string, { x: number; y: number }>()
+    const groups = new Map<string, Assumption[]>()
+    for (const a of assumptions) {
+      const key = `${a.importance}-${a.confidence}`
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(a)
+    }
+    for (const group of groups.values()) {
+      const n = group.length
+      group.forEach((a, i) => {
+        if (n === 1) { map.set(a.id, { x: 0, y: 0 }); return }
+        const spread = Math.min(n * 16, 56)
+        map.set(a.id, {
+          x: -spread / 2 + i * (spread / (n - 1)),
+          y: (i % 2 === 0 ? 0 : -10),
+        })
+      })
+    }
+    return map
+  }, [assumptions])
 
   return (
     <div className="space-y-6">
@@ -543,7 +578,7 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
             {assumptions.map(a => {
               const xPct = (10 - a.confidence) / 9 * 88 + 6
               const yPct = (10 - a.importance) / 9 * 88 + 6
-              const off = postItOffset(a.id)
+              const off = groupOffsets.get(a.id) ?? { x: 0, y: 0 }
               const p = POSTIT[a.dimension]
               const isHovered = hovered === a.id
 
@@ -555,23 +590,30 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
                     left: `${xPct}%`,
                     top: `${yPct}%`,
                     transform: `translate(calc(-50% + ${off.x}px), calc(-50% + ${off.y}px))`,
-                    zIndex: isHovered ? 50 : 10,
+                    zIndex: isHovered ? 60 : 10,
                   }}
                   onMouseEnter={() => setHovered(a.id)}
                   onMouseLeave={() => setHovered(null)}
                 >
                   {/* Post-it square */}
                   <div
-                    className="flex items-end p-1.5 rounded-sm shadow-md transition-transform duration-100"
+                    className="flex items-center justify-center p-2 rounded-sm transition-all duration-150"
                     style={{
-                      width: 68,
-                      height: 68,
-                      backgroundColor: p.bg,
-                      transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                      boxShadow: isHovered ? '0 4px 12px rgba(0,0,0,0.5)' : '0 2px 4px rgba(0,0,0,0.3)',
+                      width: 64,
+                      height: 64,
+                      backgroundColor: isHovered ? p.bg : `${p.bg}55`,
+                      border: `1.5px solid ${p.text}30`,
+                      transform: isHovered ? 'scale(1.15)' : 'scale(1)',
+                      boxShadow: isHovered
+                        ? `0 8px 20px rgba(0,0,0,0.6), 0 0 0 1px ${p.text}40`
+                        : '0 2px 6px rgba(0,0,0,0.35)',
+                      opacity: isHovered ? 1 : 0.75,
                     }}
                   >
-                    <p className="text-[9px] font-medium leading-tight line-clamp-3" style={{ color: p.text }}>
+                    <p
+                      className="text-[9px] font-medium leading-tight text-center line-clamp-3"
+                      style={{ color: isHovered ? p.text : `${p.text}cc` }}
+                    >
                       {a.label}
                     </p>
                   </div>
