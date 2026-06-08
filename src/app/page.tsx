@@ -26,7 +26,11 @@ export default function Home() {
           >
             <div>
               <p className="font-medium text-white">Constructive Distractions</p>
-              <p className="text-sm text-neutral-400 mt-0.5">Projects and automations.</p>
+              <p className="text-sm text-neutral-400 mt-0.5">
+                I don&apos;t know what I think until I{' '}
+                <span className="line-through opacity-50">write</span>{' '}
+                build it down.
+              </p>
             </div>
             <span className="text-neutral-600 group-hover:text-neutral-400 transition-colors">→</span>
           </Link>
