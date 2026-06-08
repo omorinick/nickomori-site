@@ -11,11 +11,7 @@ import { DIMENSIONS, DIMENSION_COLORS } from '@/lib/pm-toolkit-types'
 type Stage = 'input' | 'loading-happy-path' | 'happy-path-review' | 'loading-assumptions' | 'complete'
 type ApiError = 'demo_limit_reached' | 'invalid_password' | 'input_too_short' | 'quota_exceeded' | 'server_error' | null
 
-interface PasswordModal {
-  open: boolean
-  error: boolean
-  loading: boolean
-}
+interface PasswordModal { open: boolean; error: boolean; loading: boolean }
 
 async function callApi<T>(
   action: string,
@@ -47,9 +43,7 @@ function generateMarkdown(
   lines.push('## Happy Path', '')
   if (inputMode === 'simple' && happyPath.length > 0) {
     lines.push('| Step | Actor | Action |', '|------|-------|--------|')
-    for (const s of happyPath) {
-      lines.push(`| ${s.step} | ${s.actor} | ${s.action} |`)
-    }
+    for (const s of happyPath) lines.push(`| ${s.step} | ${s.actor} | ${s.action} |`)
   } else {
     lines.push(inputText)
   }
@@ -61,19 +55,14 @@ function generateMarkdown(
     if (group.length === 0) continue
     lines.push(`### ${dim}`, '')
     lines.push('| # | Assumption | Importance | Confidence |', '|---|-----------|:---:|:---:|')
-    group.forEach((a, i) => {
-      lines.push(`| ${i + 1} | ${a.text} | ${a.importance} | ${a.confidence} |`)
-    })
+    group.forEach((a, i) => lines.push(`| ${i + 1} | ${a.text} | ${a.importance} | ${a.confidence} |`))
     lines.push('')
   }
 
-  const sorted = [...assumptions].sort((a, b) => {
-    const priorityA = a.importance * (10 - a.confidence)
-    const priorityB = b.importance * (10 - b.confidence)
-    return priorityB - priorityA
-  })
-
-  lines.push('## Priority Matrix (sorted by importance × low-confidence)', '')
+  const sorted = [...assumptions].sort((a, b) =>
+    b.importance * (10 - b.confidence) - a.importance * (10 - a.confidence)
+  )
+  lines.push('## Priority Matrix (sorted: importance × low-confidence)', '')
   lines.push('| Label | Dimension | Assumption | Importance | Confidence |', '|-------|-----------|-----------|:---:|:---:|')
   for (const a of sorted) {
     lines.push(`| ${a.label} | ${a.dimension} | ${a.text} | ${a.importance} | ${a.confidence} |`)
@@ -81,6 +70,51 @@ function generateMarkdown(
 
   return lines.join('\n')
 }
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function importanceLabel(score: number): { text: string; cls: string } {
+  if (score >= 8) return { text: 'Critical', cls: 'text-red-400' }
+  if (score >= 6) return { text: 'High', cls: 'text-amber-400' }
+  if (score >= 4) return { text: 'Medium', cls: 'text-yellow-500' }
+  return { text: 'Low', cls: 'text-neutral-500' }
+}
+
+function confidenceLabel(score: number): { text: string; cls: string } {
+  if (score >= 8) return { text: 'Confident', cls: 'text-emerald-400' }
+  if (score >= 6) return { text: 'Somewhat confident', cls: 'text-emerald-600' }
+  if (score >= 4) return { text: 'Uncertain', cls: 'text-amber-500' }
+  return { text: 'Low confidence', cls: 'text-red-400' }
+}
+
+function postItOffset(id: string): { x: number; y: number } {
+  let h = 0
+  for (const c of id) h = (h * 31 + c.charCodeAt(0)) | 0
+  return { x: (Math.abs(h) % 20) - 10, y: (Math.abs(h * 13) % 20) - 10 }
+}
+
+// ─── Actor lane styles ───────────────────────────────────────────────────────
+
+const ACTOR_LANE: Record<string, { dot: string; label: string }> = {
+  'User':                  { dot: 'bg-blue-400',    label: 'text-blue-300' },
+  'Platform':              { dot: 'bg-slate-400',   label: 'text-slate-300' },
+  'Other User':            { dot: 'bg-emerald-400', label: 'text-emerald-300' },
+  'Third-Party Service':   { dot: 'bg-purple-400',  label: 'text-purple-300' },
+  'Admin':                 { dot: 'bg-amber-400',   label: 'text-amber-300' },
+}
+const DEFAULT_ACTOR = { dot: 'bg-neutral-400', label: 'text-neutral-300' }
+
+// ─── Post-it colors for matrix ───────────────────────────────────────────────
+
+const POSTIT: Record<Dimension, { bg: string; text: string }> = {
+  'Desirability':   { bg: '#312e81', text: '#c7d2fe' },
+  'Feasibility':    { bg: '#4c1d95', text: '#ddd6fe' },
+  'Usability':      { bg: '#064e3b', text: '#a7f3d0' },
+  'Viability':      { bg: '#78350f', text: '#fde68a' },
+  'Ethical/Legal':  { bg: '#7f1d1d', text: '#fecaca' },
+}
+
+// ─── Main export ─────────────────────────────────────────────────────────────
 
 export function PMToolkitClient() {
   const [stage, setStage] = useState<Stage>('input')
@@ -107,34 +141,11 @@ export function PMToolkitClient() {
   async function generateHappyPath(demoPassword?: string) {
     setStage('loading-happy-path')
     setError(null)
-
-    const result = await callApi<{ steps: HappyPathStep[] }>(
-      'generate-happy-path',
-      { input: inputText },
-      demoPassword
-    )
-
-    if (result.error === 'demo_limit_reached') {
-      setStage('input')
-      openPasswordModal((pw) => void generateHappyPath(pw))
-      return
-    }
-    if (result.error === 'invalid_password') {
-      setModal(m => ({ ...m, loading: false, error: true }))
-      setStage('input')
-      return
-    }
-    if (result.error === 'quota_exceeded') {
-      setError('The AI service is temporarily unavailable. Please try again later.')
-      setStage('input')
-      return
-    }
-    if (result.error) {
-      setError('Something went wrong. Please try again.')
-      setStage('input')
-      return
-    }
-
+    const result = await callApi<{ steps: HappyPathStep[] }>('generate-happy-path', { input: inputText }, demoPassword)
+    if (result.error === 'demo_limit_reached') { setStage('input'); openPasswordModal(pw => void generateHappyPath(pw)); return }
+    if (result.error === 'invalid_password') { setModal(m => ({ ...m, loading: false, error: true })); setStage('input'); return }
+    if (result.error === 'quota_exceeded') { setError('The AI service is temporarily unavailable. Please try again later.'); setStage('input'); return }
+    if (result.error) { setError('Something went wrong. Please try again.'); setStage('input'); return }
     setModal({ open: false, error: false, loading: false })
     setPasswordInput('')
     setHappyPath(result.data!.steps)
@@ -144,38 +155,15 @@ export function PMToolkitClient() {
   async function generateAssumptions(demoPassword?: string) {
     setStage('loading-assumptions')
     setError(null)
-
     const happyPathText = inputMode === 'detailed'
       ? inputText
       : happyPath.map(s => `Step ${s.step} (${s.actor}): ${s.action}`).join('\n')
-
-    const result = await callApi<{ assumptions: Assumption[] }>(
-      'generate-assumptions',
-      { happyPath: happyPathText },
-      demoPassword
-    )
-
-    if (result.error === 'demo_limit_reached') {
-      setStage(inputMode === 'detailed' ? 'input' : 'happy-path-review')
-      openPasswordModal((pw) => void generateAssumptions(pw))
-      return
-    }
-    if (result.error === 'invalid_password') {
-      setModal(m => ({ ...m, loading: false, error: true }))
-      setStage(inputMode === 'detailed' ? 'input' : 'happy-path-review')
-      return
-    }
-    if (result.error === 'quota_exceeded') {
-      setError('The AI service is temporarily unavailable. Please try again later.')
-      setStage(inputMode === 'detailed' ? 'input' : 'happy-path-review')
-      return
-    }
-    if (result.error) {
-      setError('Something went wrong. Please try again.')
-      setStage(inputMode === 'detailed' ? 'input' : 'happy-path-review')
-      return
-    }
-
+    const result = await callApi<{ assumptions: Assumption[] }>('generate-assumptions', { happyPath: happyPathText }, demoPassword)
+    const fallbackStage = inputMode === 'detailed' ? 'input' : 'happy-path-review'
+    if (result.error === 'demo_limit_reached') { setStage(fallbackStage); openPasswordModal(pw => void generateAssumptions(pw)); return }
+    if (result.error === 'invalid_password') { setModal(m => ({ ...m, loading: false, error: true })); setStage(fallbackStage); return }
+    if (result.error === 'quota_exceeded') { setError('The AI service is temporarily unavailable. Please try again later.'); setStage(fallbackStage); return }
+    if (result.error) { setError('Something went wrong. Please try again.'); setStage(fallbackStage); return }
     setModal({ open: false, error: false, loading: false })
     setPasswordInput('')
     setAssumptions(result.data!.assumptions)
@@ -194,16 +182,12 @@ export function PMToolkitClient() {
   }
 
   function handleReset() {
-    setStage('input')
-    setInputText('')
-    setHappyPath([])
-    setAssumptions([])
-    setError(null)
+    setStage('input'); setInputText(''); setHappyPath([]); setAssumptions([]); setError(null)
   }
 
   return (
     <main className="min-h-screen bg-background px-6 py-10">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <PageBreadcrumb crumbs={[
           { label: 'Constructive Distractions', href: '/projects' },
           { label: 'Assumption Mapper' },
@@ -213,12 +197,8 @@ export function PMToolkitClient() {
           <h1 className="text-2xl font-semibold text-foreground mb-2">Assumption Mapper</h1>
           <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
             Describe a product idea or feature. Get swim lanes, a full assumption map across the five{' '}
-            <a
-              href="https://www.producttalk.org/continuous-discovery-habits/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-foreground transition-colors"
-            >
+            <a href="https://www.producttalk.org/continuous-discovery-habits/" target="_blank" rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-foreground transition-colors">
               Teresa Torres
             </a>{' '}
             dimensions, and a priority matrix — instantly.
@@ -232,82 +212,41 @@ export function PMToolkitClient() {
         </div>
 
         {error && (
-          <div className="mb-6 rounded-lg border border-red-800 bg-red-950/30 px-4 py-3 text-sm text-red-300">
-            {error}
-          </div>
+          <div className="mb-6 rounded-lg border border-red-800 bg-red-950/30 px-4 py-3 text-sm text-red-300">{error}</div>
         )}
 
         {stage === 'input' && (
-          <InputStep
-            inputMode={inputMode}
-            inputText={inputText}
-            onModeChange={setInputMode}
+          <InputStep inputMode={inputMode} inputText={inputText} onModeChange={setInputMode}
             onTextChange={setInputText}
-            onSubmit={() => {
-              if (inputMode === 'simple') void generateHappyPath()
-              else void generateAssumptions()
-            }}
-          />
+            onSubmit={() => { if (inputMode === 'simple') void generateHappyPath(); else void generateAssumptions() }} />
         )}
-
-        {(stage === 'loading-happy-path' || stage === 'loading-assumptions') && (
-          <LoadingState stage={stage} />
-        )}
-
+        {(stage === 'loading-happy-path' || stage === 'loading-assumptions') && <LoadingState stage={stage} />}
         {stage === 'happy-path-review' && (
-          <HappyPathReview
-            steps={happyPath}
-            onContinue={() => void generateAssumptions()}
-            onReset={handleReset}
-          />
+          <HappyPathReview steps={happyPath} onContinue={() => void generateAssumptions()} onReset={handleReset} />
         )}
-
         {stage === 'complete' && (
-          <CompleteView
-            inputMode={inputMode}
-            inputText={inputText}
-            happyPath={happyPath}
-            assumptions={assumptions}
-            onExport={handleExportMarkdown}
-            onReset={handleReset}
-          />
+          <CompleteView inputMode={inputMode} inputText={inputText} happyPath={happyPath}
+            assumptions={assumptions} onExport={handleExportMarkdown} onReset={handleReset} />
         )}
       </div>
 
       {modal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
           <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl">
-            <h2 className="text-base font-semibold text-white mb-1">Demo access required</h2>
-            <p className="text-sm text-neutral-400 mb-4">
+            <h2 className="text-base font-semibold text-foreground mb-1">Demo access required</h2>
+            <p className="text-sm text-muted-foreground mb-4">
               Enter the demo code from Nick&apos;s resume or LinkedIn to continue.
             </p>
-            <Input
-              type="password"
-              placeholder="Demo code"
-              value={passwordInput}
+            <Input type="password" placeholder="Demo code" value={passwordInput}
               onChange={e => setPasswordInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') void submitPassword() }}
-              className="mb-3"
-              autoFocus
-            />
-            {modal.error && (
-              <p className="text-xs text-red-400 mb-3">Incorrect code. Try again.</p>
-            )}
+              className="mb-3" autoFocus />
+            {modal.error && <p className="text-xs text-red-400 mb-3">Incorrect code. Try again.</p>}
             <div className="flex gap-2">
-              <Button
-                onClick={() => void submitPassword()}
-                disabled={!passwordInput || modal.loading}
-                className="flex-1"
-              >
+              <Button onClick={() => void submitPassword()} disabled={!passwordInput || modal.loading} className="flex-1">
                 {modal.loading ? 'Verifying…' : 'Continue'}
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setModal({ open: false, error: false, loading: false })
-                  setPasswordInput('')
-                }}
-              >
+              <Button variant="outline" onClick={() => { setModal({ open: false, error: false, loading: false }); setPasswordInput('') }}>
                 Cancel
               </Button>
             </div>
@@ -318,12 +257,10 @@ export function PMToolkitClient() {
   )
 }
 
+// ─── Input step ──────────────────────────────────────────────────────────────
+
 function InputStep({
-  inputMode,
-  inputText,
-  onModeChange,
-  onTextChange,
-  onSubmit,
+  inputMode, inputText, onModeChange, onTextChange, onSubmit,
 }: {
   inputMode: 'simple' | 'detailed'
   inputText: string
@@ -331,7 +268,7 @@ function InputStep({
   onTextChange: (text: string) => void
   onSubmit: () => void
 }) {
-  const simpleplaceholder = `Describe your product idea in a sentence or two. The AI will map out the happy path and then generate the assumption map.
+  const simplePlaceholder = `Describe your product idea in a sentence or two. The AI will map out the happy path and then generate the assumption map.
 
 Example: "A filter-sharing feature in our B2B analytics tool where a PM saves their current dashboard filters and shares them with teammates. A teammate opens the link, sees the dashboard pre-filtered, and can save or modify their own copy."`
 
@@ -348,45 +285,27 @@ Step 6 (Other User): Saves a personal copy of the filter set.`
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <button
-          onClick={() => onModeChange('simple')}
-          className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
-            inputMode === 'simple'
-              ? 'border-neutral-500 text-foreground bg-secondary'
-              : 'border-border text-muted-foreground hover:border-neutral-500 hover:text-foreground'
-          }`}
-        >
-          I have an idea
-        </button>
-        <button
-          onClick={() => onModeChange('detailed')}
-          className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
-            inputMode === 'detailed'
-              ? 'border-neutral-500 text-foreground bg-secondary'
-              : 'border-border text-muted-foreground hover:border-neutral-500 hover:text-foreground'
-          }`}
-        >
-          I&apos;ll describe the happy path
-        </button>
+        {(['simple', 'detailed'] as const).map(mode => (
+          <button key={mode} onClick={() => onModeChange(mode)}
+            className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
+              inputMode === mode
+                ? 'border-neutral-500 text-foreground bg-secondary'
+                : 'border-border text-muted-foreground hover:border-neutral-500 hover:text-foreground'
+            }`}>
+            {mode === 'simple' ? 'I have an idea' : "I'll describe the happy path"}
+          </button>
+        ))}
       </div>
-
-      <Textarea
-        value={inputText}
-        onChange={e => onTextChange(e.target.value)}
-        placeholder={inputMode === 'simple' ? simpleplaceholder : detailedPlaceholder}
-        className="min-h-[180px] resize-none text-sm leading-relaxed"
-      />
-
+      <Textarea value={inputText} onChange={e => onTextChange(e.target.value)}
+        placeholder={inputMode === 'simple' ? simplePlaceholder : detailedPlaceholder}
+        className="min-h-[180px] resize-none text-sm leading-relaxed" />
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
           {inputMode === 'simple'
             ? 'The AI will generate the happy path first, then map assumptions.'
             : 'Describing the full path produces sharper, more specific assumptions.'}
         </p>
-        <Button
-          onClick={onSubmit}
-          disabled={inputText.trim().length < 10}
-        >
+        <Button onClick={onSubmit} disabled={inputText.trim().length < 10}>
           {inputMode === 'simple' ? 'Map it →' : 'Generate assumptions →'}
         </Button>
       </div>
@@ -394,42 +313,84 @@ Step 6 (Other User): Saves a personal copy of the filter set.`
   )
 }
 
-function LoadingState({ stage }: { stage: Stage }) {
-  const messages: Record<string, string> = {
-    'loading-happy-path': 'Mapping the happy path…',
-    'loading-assumptions': 'Generating assumptions across all five dimensions…',
-  }
+// ─── Loading ─────────────────────────────────────────────────────────────────
 
+function LoadingState({ stage }: { stage: Stage }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
       <div className="h-6 w-6 rounded-full border-2 border-border border-t-foreground animate-spin" />
-      <p className="text-sm text-muted-foreground">{messages[stage] ?? 'Working…'}</p>
+      <p className="text-sm text-muted-foreground">
+        {stage === 'loading-happy-path' ? 'Mapping the happy path…' : 'Generating assumptions across all five dimensions…'}
+      </p>
     </div>
   )
 }
 
-const ACTOR_COLORS: Record<string, string> = {
-  User: 'border-blue-700 text-blue-300 bg-blue-950/40',
-  Platform: 'border-neutral-700 text-neutral-300 bg-neutral-800/40',
-  'Other User': 'border-emerald-700 text-emerald-300 bg-emerald-950/40',
-  'Third-Party Service': 'border-purple-700 text-purple-300 bg-purple-950/40',
-  Admin: 'border-amber-700 text-amber-300 bg-amber-950/40',
-}
+// ─── Swim lane view ───────────────────────────────────────────────────────────
 
-function ActorBadge({ actor }: { actor: string }) {
-  const cls = ACTOR_COLORS[actor] ?? 'border-neutral-700 text-neutral-300 bg-neutral-800/40'
+function SwimLaneView({ steps }: { steps: HappyPathStep[] }) {
+  const actors = [...new Set(steps.map(s => s.actor))]
+  const maxStep = steps.length > 0 ? Math.max(...steps.map(s => s.step)) : 0
+  if (maxStep === 0) return null
+
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${cls}`}>
-      {actor}
-    </span>
+    <div className="overflow-x-auto rounded-lg border border-border">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `112px repeat(${maxStep}, minmax(148px, 1fr))`,
+          minWidth: `${112 + maxStep * 148}px`,
+        }}
+      >
+        {actors.flatMap((actor, actorIdx) => {
+          const actorSteps = steps.filter(s => s.actor === actor)
+          const c = ACTOR_LANE[actor] ?? DEFAULT_ACTOR
+          const isLastRow = actorIdx === actors.length - 1
+          const rowBg = actorIdx % 2 === 0 ? 'bg-background' : 'bg-card'
+
+          return [
+            <div
+              key={`label-${actor}`}
+              className={`flex items-center gap-2 px-3 py-0 border-r border-border ${rowBg} ${!isLastRow ? 'border-b border-border' : ''}`}
+              style={{ gridColumn: 1, gridRow: actorIdx + 1, minHeight: 80 }}
+            >
+              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${c.dot}`} />
+              <span className={`text-xs font-medium leading-tight ${c.label}`}>{actor}</span>
+            </div>,
+
+            ...Array.from({ length: maxStep }, (_, i) => {
+              const stepNum = i + 1
+              const step = actorSteps.find(s => s.step === stepNum)
+              const isLastCol = stepNum === maxStep
+
+              return (
+                <div
+                  key={`${actor}-${stepNum}`}
+                  className={`relative flex items-center p-2 ${rowBg} ${!isLastRow ? 'border-b border-border' : ''} ${!isLastCol ? 'border-r border-border' : ''}`}
+                  style={{ gridColumn: stepNum + 1, gridRow: actorIdx + 1, minHeight: 80 }}
+                >
+                  {/* Lane connector line through all cells */}
+                  <div className="absolute top-1/2 left-0 right-0 h-px bg-border/60 pointer-events-none" />
+
+                  {step && (
+                    <div className="relative z-10 bg-card border border-border rounded-md px-2.5 py-2 w-full shadow-sm">
+                      <span className="text-[9px] text-muted-foreground font-mono mb-1 block">{step.step}</span>
+                      <p className="text-xs text-foreground leading-snug">{step.action}</p>
+                    </div>
+                  )}
+                </div>
+              )
+            }),
+          ]
+        })}
+      </div>
+    </div>
   )
 }
 
-function HappyPathReview({
-  steps,
-  onContinue,
-  onReset,
-}: {
+// ─── Happy path review ────────────────────────────────────────────────────────
+
+function HappyPathReview({ steps, onContinue, onReset }: {
   steps: HappyPathStep[]
   onContinue: () => void
   onReset: () => void
@@ -442,27 +403,10 @@ function HappyPathReview({
           Review the swim lanes. If something looks off, start over with a more detailed description.
         </p>
       </div>
-
-      <div className="space-y-2">
-        {steps.map((s, i) => (
-          <div key={i} className="flex items-start gap-3 rounded-lg border border-neutral-800 px-4 py-3">
-            <span className="text-xs text-neutral-600 font-mono mt-0.5 w-4 flex-shrink-0">{s.step}</span>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <ActorBadge actor={s.actor} />
-              </div>
-              <p className="text-sm text-neutral-300">{s.action}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      <SwimLaneView steps={steps} />
       <div className="flex items-center gap-3">
         <Button onClick={onContinue}>Generate assumption map →</Button>
-        <button
-          onClick={onReset}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+        <button onClick={onReset} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
           Start over
         </button>
       </div>
@@ -470,14 +414,9 @@ function HappyPathReview({
   )
 }
 
-function CompleteView({
-  inputMode,
-  inputText,
-  happyPath,
-  assumptions,
-  onExport,
-  onReset,
-}: {
+// ─── Complete view ────────────────────────────────────────────────────────────
+
+function CompleteView({ inputMode, inputText, happyPath, assumptions, onExport, onReset }: {
   inputMode: 'simple' | 'detailed'
   inputText: string
   happyPath: HappyPathStep[]
@@ -491,33 +430,15 @@ function CompleteView({
     <div className="space-y-10">
       {/* Swim lanes — collapsed by default */}
       <section>
-        <button
-          onClick={() => setSwimLanesOpen(o => !o)}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
-        >
+        <button onClick={() => setSwimLanesOpen(o => !o)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3">
           <span className="text-xs">{swimLanesOpen ? '▼' : '▶'}</span>
           Happy Path
         </button>
         {swimLanesOpen && (
-          <div className="space-y-2">
-            {inputMode === 'simple' && happyPath.length > 0 ? (
-              happyPath.map((s, i) => (
-                <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3">
-                  <span className="text-xs text-muted-foreground font-mono mt-0.5 w-4 flex-shrink-0">{s.step}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <ActorBadge actor={s.actor} />
-                    </div>
-                    <p className="text-sm text-foreground">{s.action}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed rounded-lg border border-border bg-card px-4 py-3">
-                {inputText}
-              </pre>
-            )}
-          </div>
+          inputMode === 'simple' && happyPath.length > 0
+            ? <SwimLaneView steps={happyPath} />
+            : <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed rounded-lg border border-border bg-card px-4 py-3">{inputText}</pre>
         )}
       </section>
 
@@ -525,22 +446,16 @@ function CompleteView({
       <section>
         <h2 className="text-base font-semibold text-foreground mb-1">Priority Matrix</h2>
         <p className="text-xs text-muted-foreground mb-4">
-          Top-right = high importance, low confidence — these need validation first.
-          Hover any chip for the full assumption.
+          Top-right = high importance, low confidence — these need validation first. Hover any note for the full assumption.
         </p>
         <PriorityMatrix assumptions={assumptions} />
-
-        {/* Legend */}
         <div className="flex flex-wrap gap-3 mt-4">
-          {DIMENSIONS.map(dim => {
-            const c = DIMENSION_COLORS[dim]
-            return (
-              <div key={dim} className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full inline-block`} style={{ backgroundColor: c.dot }} />
-                <span className="text-xs text-muted-foreground">{dim}</span>
-              </div>
-            )
-          })}
+          {DIMENSIONS.map(dim => (
+            <div key={dim} className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-sm inline-block" style={{ backgroundColor: POSTIT[dim].bg, outline: `1px solid ${POSTIT[dim].text}30` }} />
+              <span className="text-xs text-muted-foreground">{dim}</span>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -549,9 +464,7 @@ function CompleteView({
         <h2 className="text-base font-semibold text-foreground mb-4">Assumption Map</h2>
         <div className="space-y-6">
           {DIMENSIONS.map(dim => {
-            const group = assumptions
-              .filter(a => a.dimension === dim)
-              .sort((a, b) => b.importance - a.importance)
+            const group = assumptions.filter(a => a.dimension === dim).sort((a, b) => b.importance - a.importance)
             if (group.length === 0) return null
             const c = DIMENSION_COLORS[dim]
             return (
@@ -562,18 +475,19 @@ function CompleteView({
                   <span className="text-xs text-muted-foreground">({group.length})</span>
                 </div>
                 <div className="space-y-1.5">
-                  {group.map(a => (
-                    <div
-                      key={a.id}
-                      className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-2.5"
-                    >
-                      <p className="text-sm text-foreground flex-1 leading-relaxed">{a.text}</p>
-                      <div className="flex items-center gap-3 flex-shrink-0 text-xs text-muted-foreground pt-0.5">
-                        <span title="Importance">I:{a.importance}</span>
-                        <span title="Confidence">C:{a.confidence}</span>
+                  {group.map(a => {
+                    const imp = importanceLabel(a.importance)
+                    const conf = confidenceLabel(a.confidence)
+                    return (
+                      <div key={a.id} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-2.5">
+                        <p className="text-sm text-foreground flex-1 leading-relaxed">{a.text}</p>
+                        <div className="flex flex-col items-end gap-0.5 flex-shrink-0 pt-0.5 min-w-[110px]">
+                          <span className={`text-[10px] font-medium ${imp.cls}`}>{imp.text} importance</span>
+                          <span className={`text-[10px] ${conf.cls}`}>{conf.text}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )
@@ -583,13 +497,8 @@ function CompleteView({
 
       {/* Actions */}
       <section className="flex items-center gap-4 pb-10">
-        <Button onClick={onExport} variant="outline">
-          Export as Markdown
-        </Button>
-        <button
-          onClick={onReset}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+        <Button onClick={onExport} variant="outline">Export as Markdown</Button>
+        <button onClick={onReset} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
           Start over
         </button>
       </section>
@@ -597,70 +506,93 @@ function CompleteView({
   )
 }
 
+// ─── Priority matrix ──────────────────────────────────────────────────────────
+
 function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
   const [hovered, setHovered] = useState<string | null>(null)
 
+  const topToValidate = [...assumptions]
+    .sort((a, b) => b.importance * (10 - b.confidence) - a.importance * (10 - a.confidence))
+    .slice(0, 7)
+
   return (
-    <div>
-      <div className="flex gap-4">
+    <div className="space-y-6">
+      {/* 2x2 matrix */}
+      <div className="flex gap-3">
         {/* Y-axis label */}
         <div className="flex items-center">
-          <div
-            className="text-[10px] text-muted-foreground whitespace-nowrap"
-            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
-          >
-            ↑ High Importance
+          <div className="text-[10px] text-muted-foreground whitespace-nowrap"
+            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+            ↑ Importance
           </div>
         </div>
 
-        {/* Matrix */}
-        <div className="flex-1 relative" style={{ paddingTop: '70%' }}>
+        <div className="flex-1 relative" style={{ paddingTop: '60%' }}>
           <div className="absolute inset-0 rounded-lg border border-border bg-card overflow-visible">
-            {/* Top-right quadrant highlight */}
+            {/* Top-right highlight */}
             <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-amber-500/8 rounded-tr-lg" />
-
             {/* Center lines */}
             <div className="absolute top-1/2 left-0 right-0 h-px bg-border" />
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border" />
-
             {/* Quadrant label */}
-            <div className="absolute top-2 right-3 text-[9px] text-amber-500/50 font-semibold tracking-wider uppercase">
+            <div className="absolute top-2 right-3 text-[9px] text-amber-400/60 font-semibold tracking-wider uppercase">
               Validate First
             </div>
 
-            {/* Assumption chips */}
+            {/* Post-it notes */}
             {assumptions.map(a => {
               const xPct = (10 - a.confidence) / 9 * 88 + 6
               const yPct = (10 - a.importance) / 9 * 88 + 6
-              const c = DIMENSION_COLORS[a.dimension]
+              const off = postItOffset(a.id)
+              const p = POSTIT[a.dimension]
+              const isHovered = hovered === a.id
 
               return (
                 <div
                   key={a.id}
-                  className="absolute"
+                  className="absolute cursor-default"
                   style={{
                     left: `${xPct}%`,
                     top: `${yPct}%`,
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: hovered === a.id ? 50 : 10,
+                    transform: `translate(calc(-50% + ${off.x}px), calc(-50% + ${off.y}px))`,
+                    zIndex: isHovered ? 50 : 10,
                   }}
                   onMouseEnter={() => setHovered(a.id)}
                   onMouseLeave={() => setHovered(null)}
                 >
+                  {/* Post-it square */}
                   <div
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-medium border cursor-default whitespace-nowrap ${c.bg} ${c.border} ${c.text}`}
+                    className="flex items-end p-1.5 rounded-sm shadow-md transition-transform duration-100"
+                    style={{
+                      width: 68,
+                      height: 68,
+                      backgroundColor: p.bg,
+                      transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                      boxShadow: isHovered ? '0 4px 12px rgba(0,0,0,0.5)' : '0 2px 4px rgba(0,0,0,0.3)',
+                    }}
                   >
-                    {a.label}
+                    <p className="text-[9px] font-medium leading-tight line-clamp-3" style={{ color: p.text }}>
+                      {a.label}
+                    </p>
                   </div>
-                  {hovered === a.id && (
+
+                  {/* Hover tooltip */}
+                  {isHovered && (
                     <div
-                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-52 bg-card border border-border rounded-lg p-2.5 shadow-2xl pointer-events-none"
+                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-card border border-border rounded-lg p-3 shadow-2xl pointer-events-none"
                       style={{ zIndex: 100 }}
                     >
-                      <p className="text-[11px] text-foreground leading-relaxed mb-1">{a.text}</p>
+                      <p className="text-xs text-foreground leading-relaxed mb-2">{a.text}</p>
                       <div className="flex items-center justify-between">
-                        <span className={`text-[9px] font-medium ${c.text}`}>{a.dimension}</span>
-                        <span className="text-[9px] text-muted-foreground">I:{a.importance} · C:{a.confidence}</span>
+                        <span className="text-[9px] font-medium" style={{ color: p.text }}>{a.dimension}</span>
+                        <div className="flex flex-col items-end gap-0.5">
+                          <span className={`text-[9px] font-medium ${importanceLabel(a.importance).cls}`}>
+                            {importanceLabel(a.importance).text}
+                          </span>
+                          <span className={`text-[9px] ${confidenceLabel(a.confidence).cls}`}>
+                            {confidenceLabel(a.confidence).text}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -671,10 +603,33 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
         </div>
       </div>
 
-      {/* X-axis labels */}
-      <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5 ml-7 pr-1">
+      {/* X-axis label */}
+      <div className="flex justify-between text-[10px] text-muted-foreground ml-7 pr-1">
         <span>← High Confidence</span>
         <span>Low Confidence →</span>
+      </div>
+
+      {/* Top items to validate */}
+      <div>
+        <h3 className="text-sm font-medium text-foreground mb-3">Top assumptions to validate first</h3>
+        <div className="space-y-1.5">
+          {topToValidate.map((a, i) => {
+            const p = POSTIT[a.dimension]
+            const imp = importanceLabel(a.importance)
+            const conf = confidenceLabel(a.confidence)
+            return (
+              <div key={a.id} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-2.5">
+                <span className="text-xs text-muted-foreground font-mono mt-0.5 w-4 flex-shrink-0">{i + 1}</span>
+                <div className="w-1.5 h-1.5 rounded-sm mt-1.5 flex-shrink-0" style={{ backgroundColor: p.bg, outline: `1px solid ${p.text}50` }} />
+                <p className="text-sm text-foreground flex-1 leading-relaxed">{a.text}</p>
+                <div className="flex flex-col items-end gap-0.5 flex-shrink-0 pt-0.5 min-w-[100px]">
+                  <span className={`text-[10px] font-medium ${imp.cls}`}>{imp.text}</span>
+                  <span className={`text-[10px] ${conf.cls}`}>{conf.text}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

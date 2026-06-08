@@ -56,12 +56,12 @@ Reference: Linear / Figma dark mode. Three visible surface layers plus a clear t
 ### CSS Variables (defined in `src/app/globals.css` `.dark` block)
 | Token | Approx hex | Use |
 |---|---|---|
-| `--background` | `#161616` | Page background |
-| `--card` | `#242424` | Cards, panels, surfaces above background |
-| `--secondary` / `--muted` | `#2E2E2E` | Inputs, hover states, elevated surfaces |
-| `--border` | `#393939` | Borders — use for all dividers and card outlines |
-| `--foreground` | `#EDEDED` | Primary text |
-| `--muted-foreground` | `#888` | Secondary text, labels, hints |
+| `--background` | `~#0d0d12` | Page background (zinc-dark, not pure black) |
+| `--card` | `~#1e1e26` | Cards, panels, surfaces above background |
+| `--secondary` / `--muted` | `~#2c2c38` | Inputs, hover states, elevated surfaces |
+| `--border` | `~#383848` | Borders — use for all dividers and card outlines |
+| `--foreground` | `~#f4f4f8` | Primary text (cool near-white) |
+| `--muted-foreground` | `~#909ab0` | Secondary text, labels, hints |
 
 ### Rules — follow these on every page and component
 1. **Use semantic tokens, not hardcoded neutrals.** Use `border-border`, `bg-card`, `bg-background`, `text-foreground`, `text-muted-foreground`. Never hardcode `border-neutral-800` or similar — those bypass the palette.
