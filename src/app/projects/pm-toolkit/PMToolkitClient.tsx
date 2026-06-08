@@ -74,17 +74,17 @@ function generateMarkdown(
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function importanceLabel(score: number): { text: string; cls: string } {
-  if (score >= 8) return { text: 'Critical', cls: 'text-red-400' }
-  if (score >= 6) return { text: 'High', cls: 'text-amber-400' }
-  if (score >= 4) return { text: 'Medium', cls: 'text-yellow-500' }
-  return { text: 'Low', cls: 'text-neutral-500' }
+  if (score >= 8) return { text: 'Critical', cls: 'text-destructive' }
+  if (score >= 6) return { text: 'High', cls: 'text-warning' }
+  if (score >= 4) return { text: 'Medium', cls: 'text-muted-foreground' }
+  return { text: 'Low', cls: 'text-foreground-subtle' }
 }
 
 function confidenceLabel(score: number): { text: string; cls: string } {
-  if (score >= 8) return { text: 'Confident', cls: 'text-emerald-400' }
-  if (score >= 6) return { text: 'Somewhat confident', cls: 'text-emerald-600' }
-  if (score >= 4) return { text: 'Uncertain', cls: 'text-amber-500' }
-  return { text: 'Low confidence', cls: 'text-red-400' }
+  if (score >= 8) return { text: 'Confident', cls: 'text-success' }
+  if (score >= 6) return { text: 'Somewhat confident', cls: 'text-muted-foreground' }
+  if (score >= 4) return { text: 'Uncertain', cls: 'text-warning' }
+  return { text: 'Low confidence', cls: 'text-destructive' }
 }
 
 function postItOffset(id: string): { x: number; y: number } {
@@ -102,7 +102,7 @@ const ACTOR_LANE: Record<string, { dot: string; label: string }> = {
   'Third-Party Service':   { dot: 'bg-purple-400',  label: 'text-purple-300' },
   'Admin':                 { dot: 'bg-amber-400',   label: 'text-amber-300' },
 }
-const DEFAULT_ACTOR = { dot: 'bg-neutral-400', label: 'text-neutral-300' }
+const DEFAULT_ACTOR = { dot: 'bg-muted-foreground', label: 'text-muted-foreground' }
 
 // ─── Post-it colors for matrix ───────────────────────────────────────────────
 
@@ -212,7 +212,7 @@ export function PMToolkitClient() {
         </div>
 
         {error && (
-          <div className="mb-6 rounded-lg border border-red-800 bg-red-950/30 px-4 py-3 text-sm text-red-300">{error}</div>
+          <div className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>
         )}
 
         {stage === 'input' && (
@@ -232,7 +232,7 @@ export function PMToolkitClient() {
 
       {modal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
-          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-surface-overlay p-6 shadow-2xl">
             <h2 className="text-base font-semibold text-foreground mb-1">Demo access required</h2>
             <p className="text-sm text-muted-foreground mb-4">
               Enter the demo code from Nick&apos;s resume or LinkedIn to continue.
@@ -241,7 +241,7 @@ export function PMToolkitClient() {
               onChange={e => setPasswordInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') void submitPassword() }}
               className="mb-3" autoFocus />
-            {modal.error && <p className="text-xs text-red-400 mb-3">Incorrect code. Try again.</p>}
+            {modal.error && <p className="text-xs text-destructive mb-3">Incorrect code. Try again.</p>}
             <div className="flex gap-2">
               <Button onClick={() => void submitPassword()} disabled={!passwordInput || modal.loading} className="flex-1">
                 {modal.loading ? 'Verifying…' : 'Continue'}
@@ -289,8 +289,8 @@ Step 6 (Other User): Saves a personal copy of the filter set.`
           <button key={mode} onClick={() => onModeChange(mode)}
             className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
               inputMode === mode
-                ? 'border-neutral-500 text-foreground bg-secondary'
-                : 'border-border text-muted-foreground hover:border-neutral-500 hover:text-foreground'
+                ? 'border-foreground text-foreground bg-secondary'
+                : 'border-border text-muted-foreground hover:border-border-hover hover:text-foreground'
             }`}>
             {mode === 'simple' ? 'I have an idea' : "I'll describe the happy path"}
           </button>
@@ -579,7 +579,7 @@ function PriorityMatrix({ assumptions }: { assumptions: Assumption[] }) {
                   {/* Hover tooltip */}
                   {isHovered && (
                     <div
-                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-card border border-border rounded-lg p-3 shadow-2xl pointer-events-none"
+                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-surface-overlay border border-border rounded-lg p-3 shadow-2xl pointer-events-none"
                       style={{ zIndex: 100 }}
                     >
                       <p className="text-xs text-foreground leading-relaxed mb-2">{a.text}</p>
