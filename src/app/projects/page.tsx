@@ -45,7 +45,7 @@ export default function ProjectsPage() {
           </Link>
 
           <Link
-            href="/projects/how-i-work"
+            href="/projects/ai-skills-automations"
             className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
           >
             <div>

@@ -69,7 +69,7 @@ function LabsModal({ onClose, onUpload }: { onClose: () => void; onUpload: () =>
         {/* Fake upload area */}
         <button
           onClick={onUpload}
-          className="mt-6 w-full border-2 border-dashed border-border hover:border-border-hover rounded-xl py-6 flex flex-col items-center gap-2 transition-colors group"
+          className="mt-6 w-full bg-card border-2 border-dashed border-border hover:border-border-hover rounded-xl py-6 flex flex-col items-center gap-2 transition-colors group"
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
@@ -226,10 +226,11 @@ export default function DrugXProductPage() {
 
   useEffect(() => setMounted(true), [])
 
-  // Labs interstitial: show after 8 seconds
+  // Labs modal: opened via the ID button in the header
   useEffect(() => {
-    const t = setTimeout(() => setShowLabsModal(true), 8000)
-    return () => clearTimeout(t)
+    const fn = () => setShowLabsModal(true)
+    document.addEventListener('drugx:open-labs-modal', fn)
+    return () => document.removeEventListener('drugx:open-labs-modal', fn)
   }, [])
 
   // Close dosage dropdown on outside click
@@ -264,7 +265,6 @@ export default function DrugXProductPage() {
 
   const VISIBLE_CARDS = 3
   const maxCarouselIdx = RELATED_LISTINGS.length - VISIBLE_CARDS
-  const visibleListings = RELATED_LISTINGS.slice(carouselIdx, carouselIdx + VISIBLE_CARDS)
 
   return (
     <>
@@ -570,8 +570,21 @@ export default function DrugXProductPage() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            {visibleListings.map(l => <RelatedCard key={l.id} listing={l} />)}
+          {/* -mx-2 cancels the outer px-2 so cards align flush with page content */}
+          <div className="overflow-hidden -mx-2">
+            <div
+              className="flex transition-transform duration-300 ease-in-out"
+              style={{
+                width: `${(RELATED_LISTINGS.length / VISIBLE_CARDS) * 100}%`,
+                transform: `translateX(-${carouselIdx * (100 / RELATED_LISTINGS.length)}%)`,
+              }}
+            >
+              {RELATED_LISTINGS.map(l => (
+                <div key={l.id} className="px-2" style={{ width: `${100 / RELATED_LISTINGS.length}%` }}>
+                  <RelatedCard listing={l} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

@@ -1,17 +1,23 @@
+'use client'
+
 import Link from 'next/link'
+import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const CATEGORIES = ['Pills', 'Injections', 'Powders', 'Collectibles', 'Mystery Box']
 const GREEN = '#00bb29'
 
 export default function DrugXHeader() {
+  const openLabsModal = () =>
+    document.dispatchEvent(new CustomEvent('drugx:open-labs-modal'))
+
   return (
     <header className="sticky top-0 z-40 bg-card border-b border-border">
       {/* ── Main nav ── */}
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-5">
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-4">
 
         {/* Logo */}
-        <Link href="/projects/compliant-market" className="flex-shrink-0 mr-2">
+        <Link href="/projects/compliant-market" className="flex-shrink-0 mr-1">
           <span className="text-[22px] font-black tracking-tight leading-none">
             <span className="text-foreground">Drug</span>
             <span style={{ color: GREEN }}>X</span>
@@ -35,6 +41,26 @@ export default function DrugXHeader() {
             />
           </div>
         </div>
+
+        {/* ID button — triggers DrugX Labs modal */}
+        <button
+          onClick={openLabsModal}
+          className="relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border text-sm font-bold overflow-hidden hover:border-border-hover transition-colors flex-shrink-0"
+          style={{ color: GREEN }}
+          title="Identify a pill"
+        >
+          {/* Shine sweep overlay */}
+          <span
+            aria-hidden="true"
+            className="absolute top-0 h-full w-8 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)',
+              animation: 'shine 2.5s ease-in-out infinite',
+            }}
+          />
+          <Search size={13} strokeWidth={2.5} />
+          <span>ID</span>
+        </button>
 
         {/* Nav links */}
         <nav className="hidden lg:flex items-center gap-6 text-sm text-muted-foreground flex-shrink-0">

@@ -171,3 +171,9 @@
     @apply font-sans;
   }
 }
+
+@keyframes shine {
+  0%   { transform: translateX(-100%); }
+  40%  { transform: translateX(350%); }
+  100% { transform: translateX(350%); }
+}
