@@ -127,7 +127,31 @@ Usage examples:
 5. **Status colors follow the solid/tinted pattern.** Don't invent one-off colored elements — use the status system.
 6. **Homepage is exempt.** `/` uses hardcoded `bg-neutral-950` and `border-neutral-800` intentionally — it's a distinct design. Don't apply these rules there.
 
+### Project Page Hero Pattern
+Document-style project pages (case studies, project write-ups) must use this hero structure to establish visual hierarchy. **The h1 being dramatically larger than everything else is what makes a page feel designed.**
+
+```tsx
+{/* Category label — always "Constructive Distractions" for /projects pages */}
+<p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Constructive Distractions</p>
+
+{/* Title — text-4xl minimum, bold, tight tracking */}
+<h1 className="text-4xl font-bold text-foreground tracking-tight mb-4">Project Name</h1>
+
+{/* Hook line — text-foreground (white), NOT muted. This is the pitch. */}
+<p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
+  The one-sentence value prop or framing.
+</p>
+
+{/* Supporting context — muted is fine here */}
+<p className="text-sm text-muted-foreground mb-8 max-w-2xl">
+  Stat, qualifier, or secondary framing.
+</p>
+```
+
+**Key rule:** Hook text immediately under the title is `text-foreground` (white). It's the most important copy on the page — making it gray buries the lede. Only secondary context drops to `text-muted-foreground`.
+
 ## Key Components & Patterns
+- `src/components/SiteHeader.tsx` — sticky site header with 大森 logo, auto-hides on `/` and DrugX pages
 - `src/components/PageBreadcrumb.tsx` — shared breadcrumb nav used on all inner pages
 - `src/components/trip/` — Japan itinerary components (generic, reusable for future trips)
 - `src/data/trips/japan-2026.ts` — trip data types and JAPAN_2026 export
