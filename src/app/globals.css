@@ -113,51 +113,51 @@
 }
 
 .dark {
-  --background: oklch(0.16 0 0);         /* #1c1c1c — raised floor for visible depth */
+  --background: oklch(0.20 0 0);         /* #252525 — dark charcoal, not near-black */
   --foreground: oklch(0.95 0 0);         /* #ededed — primary text */
-  --card: oklch(0.21 0 0);               /* #272727 — clearly lifted above background */
+  --card: oklch(0.26 0 0);               /* #323232 — clearly lifted above background */
   --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.21 0 0);
+  --popover: oklch(0.26 0 0);
   --popover-foreground: oklch(0.95 0 0);
   --primary: oklch(0.95 0 0);
-  --primary-foreground: oklch(0.16 0 0);
-  --secondary: oklch(0.25 0 0);          /* #303030 — inputs, elevated surfaces */
+  --primary-foreground: oklch(0.20 0 0);
+  --secondary: oklch(0.30 0 0);          /* #393939 — inputs, elevated surfaces */
   --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.25 0 0);
+  --muted: oklch(0.30 0 0);
   --muted-foreground: oklch(0.59 0 0);   /* #888 — readable secondary text */
-  --accent: oklch(0.25 0 0);
+  --accent: oklch(0.30 0 0);
   --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.32 0 0);             /* #3d3d3d — visible borders */
-  --input: oklch(0.23 0 0);
-  --ring: oklch(0.50 0 0);
+  --border: oklch(0.37 0 0);             /* #464646 — visible borders */
+  --input: oklch(0.28 0 0);
+  --ring: oklch(0.55 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.21 0 0);
+  --sidebar: oklch(0.26 0 0);
   --sidebar-foreground: oklch(0.95 0 0);
   --sidebar-primary: oklch(0.95 0 0);
-  --sidebar-primary-foreground: oklch(0.16 0 0);
-  --sidebar-accent: oklch(0.25 0 0);
+  --sidebar-primary-foreground: oklch(0.20 0 0);
+  --sidebar-accent: oklch(0.30 0 0);
   --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.32 0 0);
-  --sidebar-ring: oklch(0.50 0 0);
+  --sidebar-border: oklch(0.37 0 0);
+  --sidebar-ring: oklch(0.55 0 0);
 
   /* Extended tokens — dark mode */
-  --surface-overlay: oklch(0.30 0 0);     /* ~#3a3a3a — modals, tooltips above cards */
-  --foreground-subtle: oklch(0.38 0 0);   /* ~#4a4a4a — disabled text, decorative only */
-  --border-hover: oklch(0.42 0 0);        /* ~#545454 — interactive border hover */
+  --surface-overlay: oklch(0.34 0 0);     /* ~#424242 — modals, tooltips above cards */
+  --foreground-subtle: oklch(0.44 0 0);   /* ~#565656 — disabled text, decorative only */
+  --border-hover: oklch(0.46 0 0);        /* ~#5a5a5a — interactive border hover */
   --success: oklch(0.72 0.14 145);        /* sage green — text or solid bg */
-  --success-foreground: oklch(0.16 0 0);  /* dark text on solid green */
-  --success-subtle: oklch(0.23 0.04 145); /* dark green tint for badge bg */
+  --success-foreground: oklch(0.20 0 0);  /* dark text on solid green */
+  --success-subtle: oklch(0.27 0.04 145); /* dark green tint for badge bg */
   --warning: oklch(0.78 0.14 75);         /* warm amber — text or solid bg */
-  --warning-foreground: oklch(0.16 0 0);  /* dark text on solid amber */
-  --warning-subtle: oklch(0.23 0.05 75);  /* dark amber tint for badge bg */
+  --warning-foreground: oklch(0.20 0 0);  /* dark text on solid amber */
+  --warning-subtle: oklch(0.27 0.05 75);  /* dark amber tint for badge bg */
   --info: oklch(0.68 0.12 240);           /* cool blue — text or solid bg */
   --info-foreground: oklch(0.95 0 0);     /* light text on solid blue */
-  --info-subtle: oklch(0.23 0.04 240);    /* dark blue tint for badge bg */
+  --info-subtle: oklch(0.27 0.04 240);    /* dark blue tint for badge bg */
 }
 
 @layer base {

@@ -58,10 +58,10 @@ Four elevation levels — each step is a lighter gray:
 
 | Token | Tailwind class | Approx hex | Use |
 |---|---|---|---|
-| `--background` | `bg-background` | `#1c1c1c` | Page background |
-| `--card` | `bg-card` | `#272727` | Cards, panels, lifted surfaces |
-| `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `#303030` | Inputs, hover bg, embedded surfaces |
-| `--surface-overlay` | `bg-surface-overlay` | `#3a3a3a` | Modals, tooltips, dropdowns above cards |
+| `--background` | `bg-background` | `#252525` | Page background |
+| `--card` | `bg-card` | `#323232` | Cards, panels, lifted surfaces |
+| `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `#393939` | Inputs, hover bg, embedded surfaces |
+| `--surface-overlay` | `bg-surface-overlay` | `#424242` | Modals, tooltips, dropdowns above cards |
 
 ### Text Hierarchy
 Three levels only — use nothing outside these:
@@ -76,8 +76,8 @@ Three levels only — use nothing outside these:
 
 | Token | Tailwind class | Approx hex | Use |
 |---|---|---|---|
-| `--border` | `border-border` | `#3d3d3d` | Default borders on cards and dividers |
-| `--border-hover` | `border-border-hover` | `#545454` | Hover state on interactive cards/links |
+| `--border` | `border-border` | `#464646` | Default borders on cards and dividers |
+| `--border-hover` | `border-border-hover` | `#5a5a5a` | Hover state on interactive cards/links |
 | `--ring` | `ring-ring` | `~#808080` | Focus ring on inputs |
 
 Standard interactive card pattern:

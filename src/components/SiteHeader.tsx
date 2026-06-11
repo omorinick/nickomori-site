@@ -8,7 +8,7 @@ export function SiteHeader() {
   if (pathname === '/' || pathname.startsWith('/projects/compliant-market')) return null
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-border bg-card">
       <div className="max-w-4xl mx-auto px-6 h-11 flex items-center">
         <Link
           href="/"
