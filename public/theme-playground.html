@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme Playground — nickomori.com</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #111; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+input[type="color"] { cursor: pointer; appearance: none; -webkit-appearance: none; border: none; padding: 0; }
+select { appearance: none; -webkit-appearance: none; }
+.swatch-btn { transition: all 0.15s; }
+.swatch-btn:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ─── Palette templates ───────────────────────────────────────────────────────
+
+const TEMPLATES = [
+  {
+    id: 'warm-editorial',
+    name: 'Warm Editorial',
+    desc: 'Cream, copper, vintage feel',
+    swatches: ['#f9f5ef', '#b87333', '#1c1815'],
+    light: {
+      bg: '#f9f5ef', bgCard: '#f0ebe0', bgSecondary: '#e6dfd0',
+      fg: '#1c1815', fgMuted: '#7a6e64', fgSubtle: '#b0a898',
+      border: '#ddd5c4', borderHover: '#c4b8a4',
+      accent: '#b87333', accentFg: '#ffffff', accentSubtle: '#f5ead8',
+    },
+    dark: {
+      bg: '#1e1a16', bgCard: '#2a2420', bgSecondary: '#332e28',
+      fg: '#f0ebe0', fgMuted: '#a89880', fgSubtle: '#6a5e52',
+      border: '#3d3530', borderHover: '#524840',
+      accent: '#c49a3c', accentFg: '#1e1a16', accentSubtle: '#2e2410',
+    },
+  },
+  {
+    id: 'minimal-modern',
+    name: 'Minimal Modern',
+    desc: 'Clean white, single blue',
+    swatches: ['#ffffff', '#2563eb', '#09090b'],
+    light: {
+      bg: '#ffffff', bgCard: '#f8fafc', bgSecondary: '#f1f5f9',
+      fg: '#09090b', fgMuted: '#71717a', fgSubtle: '#a1a1aa',
+      border: '#e4e4e7', borderHover: '#d4d4d8',
+      accent: '#2563eb', accentFg: '#ffffff', accentSubtle: '#eff6ff',
+    },
+    dark: {
+      bg: '#09090b', bgCard: '#18181b', bgSecondary: '#27272a',
+      fg: '#fafafa', fgMuted: '#a1a1aa', fgSubtle: '#52525b',
+      border: '#3f3f46', borderHover: '#52525b',
+      accent: '#3b82f6', accentFg: '#ffffff', accentSubtle: '#172554',
+    },
+  },
+  {
+    id: 'forest-sage',
+    name: 'Forest Sage',
+    desc: 'Green-tinted, grounded',
+    swatches: ['#f4f7f4', '#4a6741', '#1a2419'],
+    light: {
+      bg: '#f4f7f4', bgCard: '#eaf0ea', bgSecondary: '#dce8dc',
+      fg: '#1a2419', fgMuted: '#5a6e59', fgSubtle: '#9aab99',
+      border: '#c8d8c7', borderHover: '#b0c4af',
+      accent: '#4a6741', accentFg: '#ffffff', accentSubtle: '#e0eedf',
+    },
+    dark: {
+      bg: '#141c14', bgCard: '#1e281d', bgSecondary: '#263325',
+      fg: '#e8f0e7', fgMuted: '#8a9e89', fgSubtle: '#4a5e49',
+      border: '#2e3e2d', borderHover: '#3a4e39',
+      accent: '#72a46e', accentFg: '#141c14', accentSubtle: '#1c301b',
+    },
+  },
+  {
+    id: 'ocean-depth',
+    name: 'Ocean Depth',
+    desc: 'Cool, focused, nautical',
+    swatches: ['#f0f4f8', '#0369a1', '#0c1929'],
+    light: {
+      bg: '#f0f4f8', bgCard: '#e4ecf4', bgSecondary: '#d4e4f0',
+      fg: '#0c1929', fgMuted: '#486080', fgSubtle: '#8aa8c4',
+      border: '#c4d8e8', borderHover: '#a8c4d8',
+      accent: '#0369a1', accentFg: '#ffffff', accentSubtle: '#e0f0fa',
+    },
+    dark: {
+      bg: '#0a1520', bgCard: '#122030', bgSecondary: '#1a2e40',
+      fg: '#d4e8f8', fgMuted: '#6898b8', fgSubtle: '#3a5870',
+      border: '#1e3448', borderHover: '#284454',
+      accent: '#38bdf8', accentFg: '#0a1520', accentSubtle: '#0c2540',
+    },
+  },
+  {
+    id: 'rose-dust',
+    name: 'Rose Dust',
+    desc: 'Soft, warm, editorial pink',
+    swatches: ['#fdf4f4', '#9f4e57', '#1e1214'],
+    light: {
+      bg: '#fdf4f4', bgCard: '#f8eaea', bgSecondary: '#f0dcdc',
+      fg: '#1e1214', fgMuted: '#7a5258', fgSubtle: '#b89298',
+      border: '#e8d0d2', borderHover: '#d4b8bc',
+      accent: '#9f4e57', accentFg: '#ffffff', accentSubtle: '#fce8ea',
+    },
+    dark: {
+      bg: '#1a1012', bgCard: '#261820', bgSecondary: '#30202a',
+      fg: '#f8eaec', fgMuted: '#a87888', fgSubtle: '#604850',
+      border: '#3a2830', borderHover: '#4a3040',
+      accent: '#e07080', accentFg: '#1a1012', accentSubtle: '#2a1520',
+    },
+  },
+  {
+    id: 'slate-night',
+    name: 'Slate Night',
+    desc: 'Current site — charcoal dark',
+    swatches: ['#252525', '#8a8a8a', '#f0f0f0'],
+    light: {
+      bg: '#f5f5f5', bgCard: '#ffffff', bgSecondary: '#ebebeb',
+      fg: '#1a1a1a', fgMuted: '#6b6b6b', fgSubtle: '#a0a0a0',
+      border: '#e0e0e0', borderHover: '#cacaca',
+      accent: '#1a1a1a', accentFg: '#ffffff', accentSubtle: '#f0f0f0',
+    },
+    dark: {
+      bg: '#252525', bgCard: '#323232', bgSecondary: '#393939',
+      fg: '#ededed', fgMuted: '#888888', fgSubtle: '#565656',
+      border: '#464646', borderHover: '#5a5a5a',
+      accent: '#ededed', accentFg: '#252525', accentSubtle: '#3a3a3a',
+    },
+  },
+];
+
+// ─── Fonts ───────────────────────────────────────────────────────────────────
+
+const HEADING_FONTS = [
+  { id: 'cormorant', name: 'Cormorant Garamond', family: "'Cormorant Garamond', serif", google: 'Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400' },
+  { id: 'playfair', name: 'Playfair Display', family: "'Playfair Display', serif", google: 'Playfair+Display:wght@400;600;700' },
+  { id: 'dm-serif', name: 'DM Serif Display', family: "'DM Serif Display', serif", google: 'DM+Serif+Display' },
+  { id: 'libre-baskerville', name: 'Libre Baskerville', family: "'Libre Baskerville', serif", google: 'Libre+Baskerville:wght@400;700' },
+  { id: 'eb-garamond', name: 'EB Garamond', family: "'EB Garamond', serif", google: 'EB+Garamond:wght@400;600;700' },
+  { id: 'inter', name: 'Inter', family: "'Inter', sans-serif", google: 'Inter:wght@400;500;600;700' },
+  { id: 'dm-sans', name: 'DM Sans', family: "'DM Sans', sans-serif", google: 'DM+Sans:wght@400;500;600;700' },
+  { id: 'system', name: 'System default', family: 'system-ui, sans-serif', google: null },
+];
+
+const BODY_FONTS = [
+  { id: 'inter', name: 'Inter', family: "'Inter', sans-serif", google: 'Inter:wght@400;500;600' },
+  { id: 'dm-sans', name: 'DM Sans', family: "'DM Sans', sans-serif", google: 'DM+Sans:wght@400;500;600' },
+  { id: 'source-sans', name: 'Source Sans 3', family: "'Source Sans 3', sans-serif", google: 'Source+Sans+3:wght@400;500;600' },
+  { id: 'cormorant', name: 'Cormorant Garamond', family: "'Cormorant Garamond', serif", google: 'Cormorant+Garamond:wght@400;500;600' },
+  { id: 'system', name: 'System default', family: 'system-ui, sans-serif', google: null },
+];
+
+// ─── Font loader ─────────────────────────────────────────────────────────────
+
+function useGoogleFont(googlePath) {
+  useEffect(() => {
+    if (!googlePath) return;
+    const id = `gf-${googlePath.replace(/[^a-z0-9]/gi, '')}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${googlePath}&display=swap`;
+    document.head.appendChild(link);
+  }, [googlePath]);
+}
+
+// ─── Color row ───────────────────────────────────────────────────────────────
+
+function ColorRow({ label, value, onChange }) {
+  const [hex, setHex] = useState(value);
+  useEffect(() => setHex(value), [value]);
+
+  const handleHex = (e) => {
+    const v = e.target.value;
+    setHex(v);
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) onChange(v);
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #1e1e1e' }}>
+      <span style={{ fontSize: '11px', color: '#666', flex: 1 }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <input
+          type="text"
+          value={hex}
+          onChange={handleHex}
+          maxLength={7}
+          style={{ width: '72px', fontSize: '11px', padding: '3px 6px', border: '1px solid #2a2a2a', borderRadius: '4px', background: '#111', color: '#ccc', fontFamily: 'monospace' }}
+        />
+        <div style={{ position: 'relative', width: '24px', height: '24px', borderRadius: '5px', overflow: 'hidden', border: '1px solid #333', flexShrink: 0, backgroundColor: value }}>
+          <input
+            type="color"
+            value={value}
+            onChange={(e) => { onChange(e.target.value); setHex(e.target.value); }}
+            style={{ position: 'absolute', width: '300%', height: '300%', top: '-100%', left: '-100%', opacity: 0, cursor: 'pointer' }}
+          />
+          <div style={{ position: 'absolute', inset: 0, cursor: 'pointer' }} onClick={() => {}} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Preview site ─────────────────────────────────────────────────────────────
+
+function PreviewSite({ p, hFont, bFont }) {
+  const s = (extra) => ({ fontFamily: bFont.family, ...extra });
+
+  const nav = { bg: p.bgCard, border: p.border, fg: p.fg, muted: p.fgMuted };
+  const primaryBtn = { background: p.accent, color: p.accentFg, border: 'none' };
+  const ghostBtn = { background: 'transparent', color: p.fg, border: `1px solid ${p.border}` };
+  const card = { background: p.bgCard, border: `1px solid ${p.border}` };
+
+  return (
+    <div style={{ background: p.bg, minHeight: '100vh', fontFamily: bFont.family, color: p.fg }}>
+
+      {/* Nav */}
+      <div style={{ background: nav.bg, borderBottom: `1px solid ${nav.border}`, padding: '0 40px', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+        <span style={{ fontFamily: hFont.family, fontWeight: 700, fontSize: '17px', color: p.fg }}>nickomori.com</span>
+        <div style={{ display: 'flex', gap: '28px' }}>
+          {['Work', 'Writing', 'Vault'].map(l => (
+            <a key={l} style={{ fontSize: '13px', color: nav.muted, cursor: 'pointer', textDecoration: 'none' }}>{l}</a>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 40px 80px' }}>
+
+        {/* Hero */}
+        <div style={{ padding: '72px 0 56px' }}>
+          <p style={{ fontSize: '11px', color: p.fgMuted, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '18px' }}>Product Manager · San Francisco</p>
+          <h1 style={{ fontFamily: hFont.family, fontSize: '54px', fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.025em', marginBottom: '22px', color: p.fg }}>
+            Building things<br/>worth building.
+          </h1>
+          <p style={{ fontSize: '18px', lineHeight: 1.65, color: p.fgMuted, maxWidth: '520px', marginBottom: '32px' }}>
+            Experiments at the intersection of AI and product work. A digital sandbox for ideas that deserve to exist.
+          </p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button style={{ ...primaryBtn, padding: '11px 22px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, fontFamily: bFont.family, cursor: 'pointer' }}>View work →</button>
+            <button style={{ ...ghostBtn, padding: '11px 22px', borderRadius: '8px', fontSize: '14px', fontWeight: 500, fontFamily: bFont.family, cursor: 'pointer' }}>About me</button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '56px' }}>
+          {[{ n: '8+', label: 'Years in product' }, { n: '12', label: 'Projects shipped' }, { n: '3', label: 'AI tools in prod' }].map(({ n, label }) => (
+            <div key={n} style={{ ...card, borderRadius: '12px', padding: '22px 20px' }}>
+              <div style={{ fontFamily: hFont.family, fontSize: '34px', fontWeight: 700, color: p.accent, marginBottom: '4px', lineHeight: 1 }}>{n}</div>
+              <div style={{ fontSize: '12px', color: p.fgMuted }}>{label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Project cards */}
+        <div style={{ marginBottom: '56px' }}>
+          <h2 style={{ fontFamily: hFont.family, fontSize: '26px', fontWeight: 600, marginBottom: '6px', color: p.fg }}>Constructive Distractions</h2>
+          <p style={{ fontSize: '14px', color: p.fgMuted, marginBottom: '20px' }}>Projects built to think, not just to ship.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {[
+              { title: 'Assumption Mapper', desc: 'Describe a product idea. Get a structured assumption map across all five Torres dimensions.', tag: 'AI Tool' },
+              { title: 'Backseat Driver', desc: 'A car-maintenance advisor that works for the owner, not the shop.', tag: 'In progress' },
+              { title: 'DrugX', desc: 'A peer-to-peer marketplace for pharmaceutical assets. No questions asked.', tag: 'Satire' },
+            ].map(({ title, desc, tag }) => (
+              <div key={title} style={{ ...card, borderRadius: '12px', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', cursor: 'pointer' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+                    <span style={{ fontSize: '15px', fontWeight: 600, color: p.fg }}>{title}</span>
+                    <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '99px', background: p.accentSubtle, color: p.accent, fontFamily: bFont.family }}>{tag}</span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: p.fgMuted, lineHeight: 1.55 }}>{desc}</p>
+                </div>
+                <span style={{ color: p.fgSubtle, fontSize: '16px', marginLeft: '16px', flexShrink: 0, marginTop: '2px' }}>→</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Typography */}
+        <div style={{ marginBottom: '56px' }}>
+          <div style={{ ...card, borderRadius: '16px', padding: '32px' }}>
+            <p style={{ fontSize: '10px', color: p.fgSubtle, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '24px' }}>Typography sample</p>
+            <div style={{ fontFamily: hFont.family, fontSize: '42px', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', color: p.fg, marginBottom: '10px' }}>Display heading</div>
+            <div style={{ fontFamily: hFont.family, fontSize: '26px', fontWeight: 600, color: p.fg, marginBottom: '10px' }}>Section heading — h2</div>
+            <div style={{ fontFamily: hFont.family, fontSize: '18px', fontWeight: 600, color: p.fg, marginBottom: '16px' }}>Card title — h3</div>
+            <p style={{ fontSize: '16px', lineHeight: 1.7, color: p.fg, marginBottom: '10px' }}>Primary body text. This is where most reading happens. Good typography is invisible — it just feels right and stays out of the way of the ideas.</p>
+            <p style={{ fontSize: '14px', lineHeight: 1.6, color: p.fgMuted, marginBottom: '8px' }}>Muted / secondary text. Used for descriptions, metadata, captions, and supporting context.</p>
+            <p style={{ fontSize: '12px', lineHeight: 1.5, color: p.fgSubtle }}>Subtle text — labels, disabled states, fine print, decorative only.</p>
+          </div>
+        </div>
+
+        {/* Elements grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '56px' }}>
+          {/* Chips + buttons */}
+          <div style={{ ...card, borderRadius: '12px', padding: '24px' }}>
+            <p style={{ fontSize: '10px', color: p.fgSubtle, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>Status & actions</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '99px', background: p.accentSubtle, color: p.accent }}>Active</span>
+              <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '99px', background: p.bgSecondary, color: p.fg, border: `1px solid ${p.border}` }}>Pending</span>
+              <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '99px', background: p.bgSecondary, color: p.fgMuted }}>Draft</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <button style={{ ...primaryBtn, padding: '8px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, fontFamily: bFont.family, cursor: 'pointer' }}>Primary</button>
+              <button style={{ ...ghostBtn, padding: '8px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 500, fontFamily: bFont.family, cursor: 'pointer' }}>Ghost</button>
+              <button style={{ background: 'none', color: p.accent, border: 'none', fontSize: '13px', fontFamily: bFont.family, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Link</button>
+            </div>
+          </div>
+
+          {/* Form */}
+          <div style={{ ...card, borderRadius: '12px', padding: '24px' }}>
+            <p style={{ fontSize: '10px', color: p.fgSubtle, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>Form elements</p>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ fontSize: '12px', color: p.fgMuted, display: 'block', marginBottom: '5px' }}>Email</label>
+              <input readOnly style={{ width: '100%', padding: '8px 11px', border: `1px solid ${p.border}`, borderRadius: '7px', background: p.bg, color: p.fg, fontFamily: bFont.family, fontSize: '13px', outline: 'none' }} placeholder="you@example.com" />
+            </div>
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ fontSize: '12px', color: p.fgMuted, display: 'block', marginBottom: '5px' }}>Message</label>
+              <textarea readOnly style={{ width: '100%', padding: '8px 11px', border: `1px solid ${p.border}`, borderRadius: '7px', background: p.bg, color: p.fg, fontFamily: bFont.family, fontSize: '13px', resize: 'none', height: '62px', outline: 'none' }} placeholder="Say something..." />
+            </div>
+            <button style={{ ...primaryBtn, width: '100%', padding: '9px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, fontFamily: bFont.family, cursor: 'pointer' }}>Send →</button>
+          </div>
+        </div>
+
+        {/* Blockquote */}
+        <div style={{ borderLeft: `3px solid ${p.accent}`, paddingLeft: '22px', marginBottom: '56px' }}>
+          <p style={{ fontFamily: hFont.family, fontSize: '20px', lineHeight: 1.55, color: p.fg, marginBottom: '10px', fontStyle: 'italic' }}>
+            "The faster we make our ideas tangible, the sooner we can evaluate them, refine them, and zero in on the best solution."
+          </p>
+          <p style={{ fontSize: '13px', color: p.fgMuted }}>— Tim Brown, Change by Design</p>
+        </div>
+
+        {/* Modal sample */}
+        <div style={{ ...card, borderRadius: '16px', padding: '28px', marginBottom: '56px', boxShadow: `0 8px 32px rgba(0,0,0,0.15)` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '4px', background: p.accent, color: p.accentFg }}>✓ VERIFIED</span>
+            <span style={{ fontFamily: hFont.family, fontSize: '16px', fontWeight: 600, color: p.fg }}>Modal panel</span>
+          </div>
+          <p style={{ fontSize: '14px', lineHeight: 1.65, color: p.fg, marginBottom: '8px' }}>Modal body text uses primary foreground — not muted — because it's the main content, not supporting detail.</p>
+          <p style={{ fontSize: '13px', lineHeight: 1.6, color: p.fgMuted }}>Secondary context drops to muted. This is where the contrast between the two text levels is most apparent.</p>
+          <button style={{ marginTop: '18px', fontSize: '12px', color: p.fgMuted, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '2px', fontFamily: bFont.family }}>Close</button>
+        </div>
+
+      </div>
+
+      {/* Footer */}
+      <div style={{ borderTop: `1px solid ${p.border}`, padding: '22px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '760px', margin: '0 auto' }}>
+        <span style={{ fontSize: '12px', color: p.fgMuted }}>© 2026 Nick Omori</span>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {['LinkedIn', 'GitHub', 'Vault'].map(l => (
+            <span key={l} style={{ fontSize: '12px', color: p.accent, cursor: 'pointer' }}>{l}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main app ─────────────────────────────────────────────────────────────────
+
+const COLOR_FIELDS = [
+  { key: 'bg',            label: 'Background' },
+  { key: 'bgCard',        label: 'Card surface' },
+  { key: 'bgSecondary',   label: 'Secondary / input bg' },
+  { key: 'fg',            label: 'Text — primary' },
+  { key: 'fgMuted',       label: 'Text — muted' },
+  { key: 'fgSubtle',      label: 'Text — subtle' },
+  { key: 'border',        label: 'Border' },
+  { key: 'borderHover',   label: 'Border hover' },
+  { key: 'accent',        label: 'Accent' },
+  { key: 'accentFg',      label: 'Accent foreground' },
+  { key: 'accentSubtle',  label: 'Accent subtle bg' },
+];
+
+function App() {
+  const [templateId, setTemplateId] = useState('warm-editorial');
+  const [isDark, setIsDark] = useState(false);
+  const [palette, setPalette] = useState(TEMPLATES[0].light);
+  const [headingFontId, setHeadingFontId] = useState('cormorant');
+  const [bodyFontId, setBodyFontId] = useState('inter');
+  const [copied, setCopied] = useState(false);
+  const [colorsOpen, setColorsOpen] = useState(false);
+
+  const template = TEMPLATES.find(t => t.id === templateId);
+  const headingFont = HEADING_FONTS.find(f => f.id === headingFontId);
+  const bodyFont = BODY_FONTS.find(f => f.id === bodyFontId);
+
+  useGoogleFont(headingFont?.google);
+  useGoogleFont(bodyFont?.google);
+
+  const selectTemplate = (t) => {
+    setTemplateId(t.id);
+    setPalette(isDark ? t.dark : t.light);
+  };
+
+  const toggleDark = () => {
+    const next = !isDark;
+    setIsDark(next);
+    setPalette(next ? template.dark : template.light);
+  };
+
+  const updateColor = (key, val) => setPalette(p => ({ ...p, [key]: val }));
+
+  const CSS_VAR_MAP = {
+    bg: '--background',
+    bgCard: '--card',
+    bgSecondary: '--secondary',
+    fg: '--foreground',
+    fgMuted: '--muted-foreground',
+    fgSubtle: '--foreground-subtle',
+    border: '--border',
+    borderHover: '--border-hover',
+    accent: '--primary',
+    accentFg: '--primary-foreground',
+    accentSubtle: '--accent-subtle',
+  };
+
+  const exportCSS = () => {
+    const block = isDark ? '.dark' : ':root';
+    const lines = Object.entries(CSS_VAR_MAP).map(([key, varName]) => `  ${varName}: ${palette[key]};`);
+    const fontLine = `  /* Heading: ${headingFont.name} — Body: ${bodyFont.name} */`;
+    const output = `/* ${template.name} — ${isDark ? 'Dark' : 'Light'} */\n${block} {\n${fontLine}\n${lines.join('\n')}\n}`;
+    navigator.clipboard.writeText(output).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  const sidebarStyle = { background: '#141414', color: '#d0d0d0', display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto' };
+  const sectionLabel = { fontSize: '10px', color: '#555', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px', display: 'block' };
+  const selectStyle = { width: '100%', padding: '7px 10px', borderRadius: '7px', border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#d0d0d0', fontSize: '12px', cursor: 'pointer', outline: 'none' };
+
+  return (
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+
+      {/* ── Sidebar ── */}
+      <div style={{ width: '288px', flexShrink: 0, ...sidebarStyle }}>
+
+        {/* Header */}
+        <div style={{ padding: '16px 18px 14px', borderBottom: '1px solid #222' }}>
+          <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff', marginBottom: '1px' }}>Theme Playground</div>
+          <div style={{ fontSize: '11px', color: '#555' }}>nickomori.com</div>
+        </div>
+
+        <div style={{ flex: 1, padding: '16px 18px', overflowY: 'auto' }}>
+
+          {/* Mode toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <span style={{ fontSize: '12px', color: '#666' }}>Mode</span>
+            <button onClick={toggleDark} style={{ fontSize: '11px', padding: '5px 14px', borderRadius: '99px', border: '1px solid #2e2e2e', background: isDark ? '#e0e0e0' : '#2a2a2a', color: isDark ? '#111' : '#d0d0d0', cursor: 'pointer', fontWeight: 500 }}>
+              {isDark ? '☀ Light' : '◑ Dark'}
+            </button>
+          </div>
+
+          {/* Palettes */}
+          <div style={{ marginBottom: '22px' }}>
+            <span style={sectionLabel}>Palettes</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              {TEMPLATES.map(t => {
+                const isActive = templateId === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => selectTemplate(t)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', border: `1px solid ${isActive ? '#444' : '#1e1e1e'}`, background: isActive ? '#222' : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s' }}
+                  >
+                    <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
+                      {t.swatches.map((c, i) => (
+                        <div key={i} style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: c, border: '1px solid rgba(255,255,255,0.08)' }} />
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: isActive ? '#fff' : '#aaa', fontWeight: isActive ? 500 : 400 }}>{t.name}</div>
+                      <div style={{ fontSize: '10px', color: '#555' }}>{t.desc}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Colors */}
+          <div style={{ marginBottom: '22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', cursor: 'pointer' }} onClick={() => setColorsOpen(o => !o)}>
+              <span style={sectionLabel}>Colors</span>
+              <span style={{ fontSize: '11px', color: '#555', marginBottom: '10px' }}>{colorsOpen ? '▲' : '▼'}</span>
+            </div>
+            {colorsOpen && (
+              <div style={{ background: '#0e0e0e', borderRadius: '8px', padding: '4px 12px 2px' }}>
+                {COLOR_FIELDS.map(({ key, label }) => (
+                  <ColorRow key={key} label={label} value={palette[key]} onChange={(v) => updateColor(key, v)} />
+                ))}
+              </div>
+            )}
+            {!colorsOpen && (
+              <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                {COLOR_FIELDS.map(({ key }) => (
+                  <div key={key} style={{ width: '22px', height: '22px', borderRadius: '5px', backgroundColor: palette[key], border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' }} title={key} onClick={() => setColorsOpen(true)} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Fonts */}
+          <div style={{ marginBottom: '22px' }}>
+            <span style={sectionLabel}>Fonts</span>
+            <div style={{ background: '#0e0e0e', borderRadius: '8px', padding: '12px' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '5px' }}>Heading</label>
+                <select value={headingFontId} onChange={e => setHeadingFontId(e.target.value)} style={selectStyle}>
+                  {HEADING_FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
+                <div style={{ fontSize: '13px', color: '#555', marginTop: '5px', fontFamily: headingFont?.family, lineHeight: 1.2 }}>
+                  Big heading text.
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '5px' }}>Body</label>
+                <select value={bodyFontId} onChange={e => setBodyFontId(e.target.value)} style={selectStyle}>
+                  {BODY_FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
+                <div style={{ fontSize: '12px', color: '#555', marginTop: '5px', fontFamily: bodyFont?.family }}>
+                  Body text reads like this.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Export */}
+        <div style={{ padding: '14px 18px', borderTop: '1px solid #1e1e1e' }}>
+          <button
+            onClick={exportCSS}
+            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${copied ? '#3a5a3a' : '#2e2e2e'}`, background: copied ? '#1e3a1e' : '#1e1e1e', color: copied ? '#6ddc6d' : '#d0d0d0', fontSize: '12px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}
+          >
+            {copied ? '✓ Copied to clipboard' : '⬇ Export CSS variables'}
+          </button>
+          <div style={{ fontSize: '10px', color: '#3a3a3a', marginTop: '6px', textAlign: 'center' }}>
+            Paste into globals.css {isDark ? '.dark' : ':root'} block
+          </div>
+        </div>
+      </div>
+
+      {/* ── Preview ── */}
+      <div style={{ flex: 1, overflowY: 'auto', background: '#0a0a0a' }}>
+        <PreviewSite p={palette} hFont={headingFont} bFont={bodyFont} />
+      </div>
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
