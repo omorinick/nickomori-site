@@ -10,11 +10,13 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card">
       <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-        <Link
-          href="/"
-          className="font-heading text-xl font-light tracking-widest text-foreground/30 hover:text-foreground/60 transition-colors select-none"
-        >
-          大森
+        <Link href="/" className="flex items-center gap-3 group">
+          <span className="font-heading text-xl font-light tracking-widest text-foreground/25 select-none group-hover:text-foreground/50 transition-colors">
+            大森
+          </span>
+          <span className="text-sm font-semibold text-foreground tracking-tight group-hover:text-muted-foreground transition-colors">
+            nickomori.com
+          </span>
         </Link>
         <nav className="flex items-center gap-7">
           <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
