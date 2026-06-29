@@ -10,7 +10,7 @@ export function SiteHeader() {
 
   if (pathname === '/') {
     return (
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-border bg-background">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link
             href="/"
