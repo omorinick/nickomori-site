@@ -18,7 +18,7 @@ export default function DrugXPageShell() {
   }, [])
 
   return (
-    <>
+    <div className="dark bg-background text-foreground min-h-screen">
       {/* Back bar — lives above the header in the DOM.
           Revealed only when the user overscrolls / scrolls up past top. */}
       <div
@@ -36,6 +36,6 @@ export default function DrugXPageShell() {
 
       <DrugXHeader />
       <DrugXProductPage />
-    </>
+    </div>
   )
 }

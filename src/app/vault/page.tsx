@@ -12,8 +12,8 @@ export default function VaultPage() {
         <PageBreadcrumb crumbs={[{ label: 'Vault' }]} />
         <div className="flex items-start justify-between mb-10">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Vault</h1>
-            <p className="text-sm text-muted-foreground mt-1">Personal artifacts & tools</p>
+            <h1 className="text-4xl font-bold text-foreground tracking-tight font-heading">Vault</h1>
+            <p className="text-sm text-muted-foreground mt-2">Personal artifacts & tools</p>
           </div>
           <form action={logout}>
             <Button type="submit" variant="ghost" size="sm" className="text-muted-foreground">

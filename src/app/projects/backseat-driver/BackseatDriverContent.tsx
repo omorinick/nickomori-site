@@ -19,7 +19,7 @@ export function BackseatDriverContent() {
         {/* Upper fold */}
         <div className="mb-16">
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Constructive Distractions</p>
-          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4">Backseat Driver</h1>
+          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4 font-heading">Backseat Driver</h1>
           <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
             A car-maintenance advisor that works for the owner, not the shop — know what your car needs, what it should cost, and whether that upsell is real.
           </p>

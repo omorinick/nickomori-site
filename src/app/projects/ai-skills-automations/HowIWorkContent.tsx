@@ -518,15 +518,15 @@ export function HowIWorkContent() {
         />
 
         {/* Hero */}
-        <div className="mb-10">
-          <h1 className="text-2xl font-semibold text-foreground mb-2">AI Skills & Automations</h1>
-          <p className="text-sm text-muted-foreground mb-3">
-            A working library of automations and domain-encoded skills built at work.
+        <div className="mb-12">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Constructive Distractions</p>
+          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4 font-heading">AI Skills & Automations</h1>
+          <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
+            A working library of automated workflows and domain-encoded AI skills — built at work to solve real operational problems.
           </p>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-            A catalog of automations and AI skills built at work. The automations run on a fixed
-            schedule and address recurring operational problems. The skills encode domain knowledge
-            so it can be applied repeatedly without reconstructing it each time.
+          <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+            The automations run on a fixed schedule. The skills encode institutional knowledge so it
+            can be applied repeatedly without reconstructing it each time.
           </p>
         </div>
 

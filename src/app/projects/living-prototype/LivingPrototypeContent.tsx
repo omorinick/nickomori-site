@@ -96,7 +96,7 @@ export function LivingPrototypeContent() {
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">
             Constructive Distractions
           </p>
-          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4 font-heading">
             Living Prototype
           </h1>
           <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">

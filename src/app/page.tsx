@@ -1,20 +1,17 @@
 import Link from "next/link"
-import { MouseSpotlight } from "@/components/MouseSpotlight"
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen flex items-center justify-center bg-neutral-950 px-6">
-      <MouseSpotlight />
-
+    <main className="relative min-h-screen flex items-center justify-center bg-background px-6">
       <div className="relative z-10 max-w-lg w-full space-y-10">
         <div className="space-y-2">
-          <div className="text-5xl font-light text-white/30 tracking-widest select-none">
+          <div className="text-5xl font-light text-foreground/20 tracking-widest select-none font-heading">
             大森
           </div>
-          <h1 className="text-4xl font-semibold tracking-tight text-white">
+          <h1 className="text-5xl font-bold tracking-tight text-foreground font-heading">
             Nick Omori
           </h1>
-          <p className="text-lg text-neutral-400">
+          <p className="text-lg text-muted-foreground">
             Digital sandbox & working concepts.
           </p>
         </div>
@@ -22,32 +19,33 @@ export default function Home() {
         <nav className="flex flex-col gap-3">
           <Link
             href="/projects"
-            className="group flex items-center justify-between rounded-xl border border-neutral-800 px-5 py-4 hover:border-neutral-600 transition-colors"
+            className="group flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors"
           >
             <div>
-              <p className="font-medium text-white">Constructive Distractions</p>
-              <p className="text-sm text-neutral-400 mt-0.5">
+              <p className="font-medium text-foreground">Constructive Distractions</p>
+              <p className="text-sm text-muted-foreground mt-0.5">
                 I don&apos;t know what I think until I{' '}
                 <span className="line-through opacity-50">write</span>{' '}
                 build it.
               </p>
             </div>
-            <span className="text-neutral-600 group-hover:text-neutral-400 transition-colors">→</span>
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors">→</span>
           </Link>
         </nav>
       </div>
+
       <footer className="absolute bottom-6 left-0 right-0 flex justify-center gap-6 z-10">
         <a
           href="https://www.linkedin.com/in/nickomori/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           LinkedIn
         </a>
         <Link
           href="/vault"
-          className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           Vault
         </Link>

@@ -193,9 +193,10 @@ export function PMToolkitClient() {
           { label: 'Assumption Mapper' },
         ]} />
 
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Assumption Mapper</h1>
-          <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+        <div className="mb-10">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Constructive Distractions</p>
+          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4 font-heading">Assumption Mapper</h1>
+          <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
             Describe a product idea or feature. Get swim lanes, a full assumption map across the five{' '}
             <a href="https://www.producttalk.org/continuous-discovery-habits/" target="_blank" rel="noopener noreferrer"
               className="underline underline-offset-2 hover:text-foreground transition-colors">
@@ -203,7 +204,7 @@ export function PMToolkitClient() {
             </a>{' '}
             dimensions, and a priority matrix — instantly.
           </p>
-          <blockquote className="mt-3 border-l-2 border-border pl-3">
+          <blockquote className="border-l-2 border-border pl-3">
             <p className="text-sm text-muted-foreground italic leading-relaxed">
               &ldquo;The faster we make our ideas tangible, the sooner we will be able to evaluate them, refine them, and zero in on the best solution.&rdquo;
             </p>

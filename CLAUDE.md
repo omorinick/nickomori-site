@@ -49,36 +49,42 @@ git push
 | `OPENAI_API_KEY` | OpenAI GPT-4o for trip briefing + PM Toolkit API routes |
 | `DEMO_PASSWORD` | Demo access gate for AI-powered portfolio tools |
 
-## Design System — Dark Mode Palette
+## Design System — Warm Editorial (Light Mode)
 
-Reference: Linear / Figma dark mode. Surface depth through luminance elevation; no shadows. All tokens defined in `src/app/globals.css`.
+Palette: Warm cream backgrounds, rich dark brown text, copper accent. Headings in Cormorant Garamond, body in Libre Baskerville. Surface depth through luminance elevation; no shadows. All tokens defined in `src/app/globals.css`.
+
+**Fonts:** `font-heading` = Cormorant Garamond (display headings, 大森 logo). `font-sans` = Libre Baskerville (body text, default). Applied via `--font-cormorant` and `--font-libre-baskerville` CSS variables set in `layout.tsx`.
+
+**Dark mode note:** The `.dark` CSS block still exists and is used explicitly by DrugX (`/projects/compliant-market`), which wraps its content in `<div className="dark">` to preserve its dark marketplace aesthetic. Do not add `class="dark"` to the global html element.
 
 ### Surface Hierarchy
-Four elevation levels — each step is a lighter gray:
+Four elevation levels — each step is a slightly deeper warm cream:
 
 | Token | Tailwind class | Approx hex | Use |
 |---|---|---|---|
-| `--background` | `bg-background` | `#252525` | Page background |
-| `--card` | `bg-card` | `#323232` | Cards, panels, lifted surfaces |
-| `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `#393939` | Inputs, hover bg, embedded surfaces |
-| `--surface-overlay` | `bg-surface-overlay` | `#424242` | Modals, tooltips, dropdowns above cards |
+| `--background` | `bg-background` | `#f9f5ef` | Page background (warm cream) |
+| `--card` | `bg-card` | `#f0ebe0` | Cards, panels, lifted surfaces |
+| `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `#e6dfd0` | Inputs, hover bg, embedded surfaces |
+| `--surface-overlay` | `bg-surface-overlay` | `#e0d8c8` | Modals, tooltips, dropdowns above cards |
 
 ### Text Hierarchy
 Three levels only — use nothing outside these:
 
 | Token | Tailwind class | Approx hex | Use |
 |---|---|---|---|
-| `--foreground` | `text-foreground` | `#ededed` | Primary content, headings, values |
-| `--muted-foreground` | `text-muted-foreground` | `#888888` | Labels, descriptions, metadata |
-| `--foreground-subtle` | `text-foreground-subtle` | `#4a4a4a` | Disabled, decorative, placeholder — non-informational only |
+| `--foreground` | `text-foreground` | `#1c1815` | Primary content, headings, values |
+| `--muted-foreground` | `text-muted-foreground` | `#5e5149` | Labels, descriptions, metadata |
+| `--foreground-subtle` | `text-foreground-subtle` | `#b0a898` | Disabled, decorative, placeholder — non-informational only |
 
 ### Borders & Interactive States
 
 | Token | Tailwind class | Approx hex | Use |
 |---|---|---|---|
-| `--border` | `border-border` | `#464646` | Default borders on cards and dividers |
-| `--border-hover` | `border-border-hover` | `#5a5a5a` | Hover state on interactive cards/links |
-| `--ring` | `ring-ring` | `~#808080` | Focus ring on inputs |
+| `--border` | `border-border` | `#ddd5c4` | Default borders on cards and dividers |
+| `--border-hover` | `border-border-hover` | `#c4b8a4` | Hover state on interactive cards/links |
+| `--ring` | `ring-ring` | `#b87333` | Focus ring on inputs (copper) |
+
+Accent / brand color: `--primary` = `#b87333` (copper). Used as `bg-primary text-primary-foreground` for filled buttons and interactive accents.
 
 Standard interactive card pattern:
 ```tsx
@@ -121,11 +127,12 @@ Usage examples:
 
 ### Rules — follow on every page and component
 1. **Use semantic tokens, not hardcoded neutrals.** Never use `bg-neutral-800`, `text-gray-400`, `border-neutral-700`, etc. Always use the tokens above.
-2. **Cards always need a background.** Pair `border-border` with `bg-card` — a border without a bg is invisible on dark.
+2. **Cards always need a background.** Pair `border-border` with `bg-card`.
 3. **Text is exactly three levels.** `text-foreground` → `text-muted-foreground` → `text-foreground-subtle`. Nothing outside these.
 4. **Interactive borders use `border-border-hover`.** Any clickable card or link block: `border-border hover:border-border-hover`.
 5. **Status colors follow the solid/tinted pattern.** Don't invent one-off colored elements — use the status system.
-6. **Homepage is exempt.** `/` uses hardcoded `bg-neutral-950` and `border-neutral-800` intentionally — it's a distinct design. Don't apply these rules there.
+6. **All pages use the design system, including the homepage.** No exemptions. The homepage was redesigned as part of the warm editorial rebrand.
+7. **Never add `class="dark"` to the html element.** The site is light mode. DrugX uses dark mode locally via its own wrapper div.
 
 ### Project Page Hero Pattern
 Document-style project pages (case studies, project write-ups) must use this hero structure to establish visual hierarchy. **The h1 being dramatically larger than everything else is what makes a page feel designed.**
@@ -134,10 +141,10 @@ Document-style project pages (case studies, project write-ups) must use this her
 {/* Category label — always "Constructive Distractions" for /projects pages */}
 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Constructive Distractions</p>
 
-{/* Title — text-4xl minimum, bold, tight tracking */}
-<h1 className="text-4xl font-bold text-foreground tracking-tight mb-4">Project Name</h1>
+{/* Title — font-heading for Cormorant Garamond, text-4xl minimum */}
+<h1 className="text-4xl font-bold text-foreground tracking-tight mb-4 font-heading">Project Name</h1>
 
-{/* Hook line — text-foreground (white), NOT muted. This is the pitch. */}
+{/* Hook line — text-foreground (dark brown), NOT muted. This is the pitch. */}
 <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
   The one-sentence value prop or framing.
 </p>
@@ -148,7 +155,7 @@ Document-style project pages (case studies, project write-ups) must use this her
 </p>
 ```
 
-**Key rule:** Hook text immediately under the title is `text-foreground` (white). It's the most important copy on the page — making it gray buries the lede. Only secondary context drops to `text-muted-foreground`.
+**Key rules:** (1) Add `font-heading` to all h1 elements — this applies Cormorant Garamond. (2) Hook text immediately under the title is `text-foreground` (dark brown). Making it muted buries the lede. Only secondary context drops to `text-muted-foreground`.
 
 ## Key Components & Patterns
 - `src/components/SiteHeader.tsx` — sticky site header with 大森 logo, auto-hides on `/` and DrugX pages

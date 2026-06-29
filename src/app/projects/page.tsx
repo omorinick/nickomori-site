@@ -7,8 +7,8 @@ export default function ProjectsPage() {
     <main className="min-h-screen bg-background px-6 py-10">
       <div className="max-w-4xl mx-auto">
         <PageBreadcrumb crumbs={[{ label: 'Constructive Distractions' }]} />
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Constructive Distractions</h1>
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-3 font-heading">Constructive Distractions</h1>
           <p className="text-sm text-muted-foreground">
             Digital sandbox &amp; working concepts.
           </p>
@@ -81,6 +81,23 @@ export default function ProjectsPage() {
               </p>
             </div>
             <span className="text-muted-foreground group-hover:text-foreground transition-colors ml-4 mt-0.5 flex-shrink-0">→</span>
+          </Link>
+
+          <Link
+            href="/theme-playground.html"
+            target="_blank"
+            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
+          >
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="font-medium text-foreground">Theme Playground</p>
+                <Badge variant="secondary" className="text-xs">Tool</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                A live color and typography explorer — swap palettes, pick fonts, preview the full design system, and export CSS tokens. Built for committing to a rebrand with confidence.
+              </p>
+            </div>
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors ml-4 mt-0.5 flex-shrink-0">↗</span>
           </Link>
         </div>
       </div>
