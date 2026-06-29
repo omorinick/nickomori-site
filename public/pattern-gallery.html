@@ -3,7 +3,6 @@
   Living Prototype — Pattern Storybook.
   The browsable menu of tried-and-true interaction patterns. Every pattern below is running live.
   This file is also the SOURCE: to use a pattern, copy its component from the <script> block.
-  Indexed (with when-to-use rules) in ../references/patterns.md. To add a pattern, see that file.
 -->
 <html lang="en">
 <head>
@@ -16,21 +15,21 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = { theme: { extend: {
-    colors: { ppdeep:'#002991', ppvenmo:'#008CFF', ppbright:'#60CDFF' },
-    fontFamily: { sans:['PayPal Pro','Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+    colors: { accent:'#1a3fcf', accentMid:'#0090ff', accentLight:'#6ec6ff' },
+    fontFamily: { sans:['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
   } } };
 </script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap');
-  body { font-family:'PayPal Pro','Inter',system-ui,sans-serif; background:#fafafa; color:#000; }
+  body { font-family:'Inter',system-ui,sans-serif; background:#fafafa; color:#000; }
   .display { font-weight:900; letter-spacing:-0.04em; line-height:0.95; }
   .heading { font-weight:800; letter-spacing:-0.02em; line-height:1.05; }
   .kicker { font-weight:600; letter-spacing:0.16em; text-transform:uppercase; font-size:0.72rem; }
   .rib-scroll { scrollbar-width:none; } .rib-scroll::-webkit-scrollbar { display:none; }
   @keyframes slidein { from { opacity:0; transform:translateY(-8px) } to { opacity:1; transform:none } }
   input[type=range].lever { -webkit-appearance:none; appearance:none; height:6px; border-radius:999px; background:#e5e5e5; }
-  input[type=range].lever::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; border-radius:999px; background:#002991; cursor:pointer; border:4px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.2); }
-  input[type=range].lever::-moz-range-thumb { width:26px; height:26px; border-radius:999px; background:#002991; cursor:pointer; border:4px solid #fff; }
+  input[type=range].lever::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; border-radius:999px; background:#1a3fcf; cursor:pointer; border:4px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  input[type=range].lever::-moz-range-thumb { width:26px; height:26px; border-radius:999px; background:#1a3fcf; cursor:pointer; border:4px solid #fff; }
 </style>
 </head>
 <body>
@@ -38,9 +37,17 @@
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
-const CHURN = [
-  {label:'1', value:17.3}, {label:'2', value:7.0}, {label:'3', value:3.0},
-  {label:'4', value:1.3}, {label:'5', value:0.8}, {label:'6', value:0.4}, {label:'7', value:0.0},
+// Generic adoption-vs-retention cliff (shape is the point, numbers are illustrative)
+const ADOPTION = [
+  {label:'1', value:18.4}, {label:'2', value:7.2}, {label:'3', value:3.1},
+  {label:'4', value:1.4}, {label:'5', value:0.7}, {label:'6', value:0.3}, {label:'7', value:0.0},
+];
+
+// Generic monthly trend
+const TREND = [
+  {label:'Jan', value:41}, {label:'Feb', value:37}, {label:'Mar', value:43},
+  {label:'Apr', value:49}, {label:'May', value:55}, {label:'Jun', value:61},
+  {label:'Jul', value:67}, {label:'Aug', value:74},
 ];
 
 /* ---------- shared primitives ---------- */
@@ -55,17 +62,17 @@ function CountUpOnMount({ end, decimals=0, prefix='', suffix='' }) {
 }
 
 function ReplayBtn({ onClick }) {
-  return <button onClick={onClick} className="mt-4 text-sm font-semibold text-ppdeep hover:underline">↺ Replay</button>;
+  return <button onClick={onClick} className="mt-4 text-sm font-semibold text-accent hover:underline">↺ Replay</button>;
 }
 
 /* ---------- PATTERN COMPONENTS (copy these) ---------- */
 
 // Metric reveal
 function MetricReveal({ end, decimals, prefix, suffix }) {
-  return <p className="display text-7xl text-ppdeep"><CountUpOnMount end={end} decimals={decimals} prefix={prefix} suffix={suffix} /></p>;
+  return <p className="display text-7xl text-accent"><CountUpOnMount end={end} decimals={decimals} prefix={prefix} suffix={suffix} /></p>;
 }
 
-// Animated chart (bars draw in)
+// Animated bar chart (bars draw in on mount)
 function AnimatedChart({ data, max, highlightIndex, valueSuffix='%' }) {
   const [on, setOn] = useState(false);
   useEffect(() => { const t = setTimeout(() => setOn(true), 60); return () => clearTimeout(t); }, []);
@@ -74,10 +81,57 @@ function AnimatedChart({ data, max, highlightIndex, valueSuffix='%' }) {
       {data.map((d, i) => (
         <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
           <span className="text-xs font-bold mb-1 text-neutral-700" style={{ opacity: on?1:0, transition:'opacity .8s .6s' }}>{d.value}{valueSuffix}</span>
-          <div className="w-full rounded-t-md" style={{ height: on?`${(d.value/max)*100}%`:'0%', background: i===highlightIndex?'#002991':'#cbd5e1', transition:'height 1s ease-out' }} />
+          <div className="w-full rounded-t-md" style={{ height: on?`${(d.value/max)*100}%`:'0%', background: i===highlightIndex?'#1a3fcf':'#cbd5e1', transition:'height 1s ease-out' }} />
           <span className="text-[11px] mt-2 text-neutral-500">{d.label}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+// Line chart (draws left-to-right on mount, with area fill)
+function LineChart({ data, label }) {
+  const [progress, setProgress] = useState(0);
+  const uid = useRef('lc-' + Math.random().toString(36).slice(2));
+  useEffect(() => {
+    let raf; const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min((t-t0)/1400,1);
+      setProgress(1 - Math.pow(1-p, 3));
+      if (p<1) raf=requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  const W=400, H=140, PX=24, PY=16;
+  const maxV = Math.max(...data.map(d=>d.value));
+  const minV = Math.min(...data.map(d=>d.value));
+  const range = (maxV-minV)||1;
+  const pts = data.map((d,i)=>[
+    PX + (i/(data.length-1))*(W-PX*2),
+    H - PY - ((d.value-minV)/range)*(H-PY*2)
+  ]);
+  const linePath = pts.map(([x,y],i)=>`${i===0?'M':'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const areaPath = linePath+` L${pts[pts.length-1][0].toFixed(1)},${H-PY} L${pts[0][0].toFixed(1)},${H-PY} Z`;
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{height:140}}>
+        <defs>
+          <clipPath id={uid.current}>
+            <rect x="0" y="0" width={progress*W} height={H} />
+          </clipPath>
+        </defs>
+        <path d={areaPath} fill="#1a3fcf" fillOpacity="0.08" clipPath={`url(#${uid.current})`} />
+        <path d={linePath} fill="none" stroke="#1a3fcf" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" clipPath={`url(#${uid.current})`} />
+        {pts.map(([x,y],i)=>(
+          <circle key={i} cx={x} cy={y} r="3.5" fill="#1a3fcf"
+            style={{opacity: progress > (i/(pts.length-1))*0.9 ? 1 : 0, transition:'opacity .2s'}} />
+        ))}
+      </svg>
+      <div className="flex justify-between mt-1">
+        {data.map((d,i)=><span key={i} className="text-[10px] text-neutral-400">{d.label}</span>)}
+      </div>
+      {label && <p className="text-neutral-500 text-sm mt-2">{label}</p>}
     </div>
   );
 }
@@ -89,13 +143,13 @@ function ParameterSlider({ data, outputLabel }) {
   const max = Math.max(...data.map(d => d.value));
   return (
     <div className="bg-white rounded-xl border p-6">
-      <div className="flex justify-between text-xs text-neutral-500 mb-2"><span>{data[0].label} product</span><span>{data[data.length-1].label} products</span></div>
+      <div className="flex justify-between text-xs text-neutral-500 mb-2"><span>{data[0].label} feature</span><span>{data[data.length-1].label} features</span></div>
       <input type="range" min="0" max={data.length-1} step="1" value={i} onChange={(e)=>setI(+e.target.value)} className="lever w-full" />
       <div className="mt-6 flex items-end gap-4">
-        <p className="display text-6xl text-ppdeep">{pt.value}<span className="text-2xl align-top">%</span></p>
-        <p className="text-neutral-500 mb-3">{outputLabel} at <strong>{pt.label}</strong> product{pt.label==='1'?'':'s'}</p>
+        <p className="display text-6xl text-accent">{pt.value}<span className="text-2xl align-top">%</span></p>
+        <p className="text-neutral-500 mb-3">{outputLabel} at <strong>{pt.label}</strong> feature{pt.label==='1'?'':'s'}</p>
       </div>
-      <div className="mt-4 h-2.5 rounded-full bg-neutral-200 overflow-hidden"><div className="h-full bg-ppdeep transition-all duration-200" style={{ width:`${(pt.value/max)*100}%` }} /></div>
+      <div className="mt-4 h-2.5 rounded-full bg-neutral-200 overflow-hidden"><div className="h-full bg-accent transition-all duration-200" style={{ width:`${(pt.value/max)*100}%` }} /></div>
     </div>
   );
 }
@@ -106,8 +160,8 @@ function BeforeAfter() {
   return (
     <div>
       <div className="relative h-44 rounded-xl overflow-hidden border select-none">
-        <div className="absolute inset-0 bg-neutral-200 grid place-items-center"><span className="heading text-2xl text-neutral-600">“Holds”</span></div>
-        <div className="absolute inset-0 bg-ppdeep grid place-items-center overflow-hidden" style={{ width:`${pos}%` }}><span className="heading text-2xl text-white whitespace-nowrap">“Reserves”</span></div>
+        <div className="absolute inset-0 bg-neutral-200 grid place-items-center"><span className="heading text-2xl text-neutral-600">Before</span></div>
+        <div className="absolute inset-0 bg-accent grid place-items-center overflow-hidden" style={{ width:`${pos}%` }}><span className="heading text-2xl text-white whitespace-nowrap">After</span></div>
         <div className="absolute top-0 bottom-0 w-0.5 bg-white" style={{ left:`${pos}%` }} />
       </div>
       <input type="range" min="0" max="100" value={pos} onChange={(e)=>setPos(+e.target.value)} className="lever w-full mt-4" />
@@ -122,7 +176,7 @@ function Carousel({ items }) {
       {items.map((it, i) => (
         <div key={i} className="snap-center shrink-0 w-64 bg-white rounded-xl border p-5">
           <p className="kicker text-neutral-400">{i+1} / {items.length}</p>
-          <p className="display text-4xl text-ppdeep mt-2">{it.amt}</p>
+          <p className="display text-4xl text-accent mt-2">{it.amt}</p>
           <p className="heading text-lg mt-2">{it.name}</p>
         </div>
       ))}
@@ -137,7 +191,7 @@ function Tabs({ tabs }) {
   return (
     <div className="bg-white rounded-xl border overflow-hidden">
       <div className="flex border-b">{tabs.map((tb,i)=>(
-        <button key={i} onClick={()=>setT(i)} className={"px-5 py-3 text-sm font-semibold border-b-2 -mb-px "+(t===i?'border-ppdeep text-ppdeep':'border-transparent text-neutral-500')}>{tb.l}</button>
+        <button key={i} onClick={()=>setT(i)} className={"px-5 py-3 text-sm font-semibold border-b-2 -mb-px "+(t===i?'border-accent text-accent':'border-transparent text-neutral-500')}>{tb.l}</button>
       ))}</div>
       <div className="p-5 text-neutral-700">{tabs[t].c}</div>
     </div>
@@ -150,8 +204,8 @@ function ClickExpand({ items }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {items.map((it, i) => (
-        <button key={i} onClick={()=>setOpen(open===i?null:i)} className="text-left bg-white border rounded-xl p-4 hover:border-ppdeep transition-colors">
-          <div className="flex items-center justify-between"><span className="font-bold">{it.t}</span><span className="text-ppdeep text-xl leading-none">{open===i?'−':'+'}</span></div>
+        <button key={i} onClick={()=>setOpen(open===i?null:i)} className="text-left bg-white border rounded-xl p-4 hover:border-accent transition-colors">
+          <div className="flex items-center justify-between"><span className="font-bold">{it.t}</span><span className="text-accent text-xl leading-none">{open===i?'−':'+'}</span></div>
           {open===i && <p className="mt-3 text-sm text-neutral-600">{it.d}</p>}
         </button>
       ))}
@@ -166,7 +220,7 @@ function MasterDetail({ items }) {
     <div className="relative overflow-hidden rounded-xl border bg-white h-72">
       <div className="grid grid-cols-2 gap-3 p-4">
         {items.map((it,i)=>(
-          <button key={i} onClick={()=>setSel(it)} className="text-left border rounded-lg p-4 hover:border-ppdeep transition-colors"><span className="font-bold">{it.t}</span></button>
+          <button key={i} onClick={()=>setSel(it)} className="text-left border rounded-lg p-4 hover:border-accent transition-colors"><span className="font-bold">{it.t}</span></button>
         ))}
       </div>
       <div className={"absolute top-0 right-0 h-full w-2/3 bg-white border-l shadow-2xl p-6 transition-transform duration-300 "+(sel?'translate-x-0':'translate-x-full')}>
@@ -185,13 +239,13 @@ function ModalDemo() {
   const [o, setO] = useState(false);
   return (
     <div className="relative h-44 rounded-xl border bg-white grid place-items-center">
-      <button onClick={()=>setO(true)} className="px-5 py-2.5 bg-ppdeep text-white rounded-lg font-semibold text-sm">Open detail</button>
+      <button onClick={()=>setO(true)} className="px-5 py-2.5 bg-accent text-white rounded-lg font-semibold text-sm">Open detail</button>
       {o && (
         <div className="absolute inset-0 bg-black/50 grid place-items-center" onClick={()=>setO(false)}>
           <div className="bg-white rounded-2xl p-6 w-3/4 max-w-sm" onClick={(e)=>e.stopPropagation()}>
-            <h4 className="heading text-xl">Cross-Sell Surface</h4>
-            <p className="text-sm text-neutral-600 mt-2">The dedicated path from 1 → 2 products. Building the business case with Marketing.</p>
-            <button onClick={()=>setO(false)} className="mt-5 text-ppdeep font-semibold text-sm">Close</button>
+            <h4 className="heading text-xl">Expansion Surface</h4>
+            <p className="text-sm text-neutral-600 mt-2">The path from one product to two. The most direct lever on the retention cliff.</p>
+            <button onClick={()=>setO(false)} className="mt-5 text-accent font-semibold text-sm">Close</button>
           </div>
         </div>
       )}
@@ -205,12 +259,12 @@ function NotificationDemo() {
   const fire = () => { const id = Date.now(); setToasts(t=>[...t,id]); setTimeout(()=>setToasts(t=>t.filter(x=>x!==id)), 3500); };
   return (
     <div className="relative h-64 rounded-xl border bg-white overflow-hidden grid place-items-center">
-      <button onClick={fire} className="px-5 py-2.5 bg-ppdeep text-white rounded-lg font-semibold text-sm">Trigger notification</button>
+      <button onClick={fire} className="px-5 py-2.5 bg-accent text-white rounded-lg font-semibold text-sm">Trigger notification</button>
       <div className="absolute top-3 right-3 w-64 space-y-2">
         {toasts.map(id => (
           <div key={id} className="bg-black text-white rounded-lg p-3 shadow-xl" style={{ animation:'slidein .3s ease' }}>
-            <strong className="text-sm">Reserve released</strong>
-            <div className="text-neutral-300 text-xs mt-1">$2,400 is now available in your balance.</div>
+            <strong className="text-sm">Action needed: complete setup</strong>
+            <div className="text-neutral-300 text-xs mt-1">Finish your account configuration to avoid service interruption.</div>
           </div>
         ))}
       </div>
@@ -221,12 +275,16 @@ function NotificationDemo() {
 // Annotated screenshot (hotspots)
 function Hotspots() {
   const [active, setActive] = useState(null);
-  const spots = [{x:22,y:28,note:'Balance summary — the first thing a merchant checks.'},{x:72,y:48,note:'Reserve banner — reframed from “hold”.'},{x:44,y:78,note:'Next best action — the earned cross-sell.'}];
+  const spots = [
+    {x:22,y:28,note:'Account overview — the first thing a user checks.'},
+    {x:72,y:48,note:'Status indicator — surface the thing that needs attention.'},
+    {x:44,y:78,note:'Recommended action — earned by utility, not forced.'}
+  ];
   return (
     <div className="relative h-64 rounded-xl border overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-200">
       {spots.map((s,i)=>(
         <button key={i} onClick={()=>setActive(active===i?null:i)} style={{ left:s.x+'%', top:s.y+'%' }}
-          className="absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-ppdeep text-white text-xs font-bold grid place-items-center shadow-lg">{i+1}</button>
+          className="absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-accent text-white text-xs font-bold grid place-items-center shadow-lg">{i+1}</button>
       ))}
       {active!==null && <div className="absolute bottom-3 left-3 right-3 bg-white rounded-lg p-3 text-sm shadow-lg">{spots[active].note}</div>}
     </div>
@@ -247,44 +305,52 @@ function PatternCard({ name, component, use, knobs, children }) {
         <p className="text-neutral-500 text-sm mt-1"><span className="font-semibold">Knobs:</span> {knobs}</p>
       </div>
       <div className="p-6 bg-neutral-50">{children}</div>
-      <div className="px-6 py-3 text-xs text-neutral-400 border-t border-neutral-100">Component <code className="text-ppdeep">&lt;{component}&gt;</code> — copy from this file's script block.</div>
+      <div className="px-6 py-3 text-xs text-neutral-400 border-t border-neutral-100">Component <code className="text-accent">&lt;{component}&gt;</code> — copy from this file's script block.</div>
     </section>
   );
 }
 
 function App() {
-  const [k1, setK1] = useState(0), [k2, setK2] = useState(0);
-  const drivers = [{name:'Tech Issues', amt:'$271.9M'},{name:'Pricing', amt:'$262.8M'},{name:'Risk', amt:'$126.9M'}];
+  const [k1, setK1] = useState(0), [k2, setK2] = useState(0), [k3, setK3] = useState(0);
+  const drivers = [
+    {name:'Activation Gaps', amt:'$284M'},
+    {name:'Price Sensitivity', amt:'$241M'},
+    {name:'Trust Barriers', amt:'$98M'},
+  ];
   const initiatives = [
-    {t:'Save Offers', d:'Proactive pricing interventions for at-risk merchants. Launched; measuring retention impact.'},
-    {t:'Risk / Reserves', d:'Reframing “holds” as “reserves.” Addresses $126.9M of risk-driven contraction.'},
-    {t:'Cross-Sell Surface', d:'The dedicated path from 1 → 2 products. Building the business case.'},
-    {t:'Critical Notifications', d:'Rationalize 1000+ notification types. Signal over noise.'},
+    {t:'Retention Offers', d:'Proactive interventions for at-risk accounts. Live; measuring impact on 30-day churn.'},
+    {t:'Status Reframe', d:'Reframing negative-feeling system states into neutral or constructive ones. Directly addresses trust-driven drop-off.'},
+    {t:'Expansion Surface', d:'A dedicated path from one product to two — the most direct lever on the adoption cliff.'},
+    {t:'Signal System', d:'Rationalize notification volume into a governed system. The right message at the right moment, then out of the way.'},
   ];
   return (
     <main className="max-w-3xl mx-auto px-6 py-20">
-      <p className="kicker text-ppdeep">Living Prototype</p>
+      <p className="kicker text-accent">Living Prototype</p>
       <h1 className="display text-5xl md:text-6xl mt-3">Pattern storybook.</h1>
-      <p className="mt-6 text-lg text-neutral-700">The menu of tried-and-true interactions. Every pattern below is running — drag it, click it, replay it. To use one in a prototype, ask for it by name or copy its component from this file. These are throwaway story artifacts, so patterns are copied in, not imported. New patterns get added here only when they earn it — see <code>references/patterns.md</code>.</p>
+      <p className="mt-6 text-lg text-neutral-700">The menu of tried-and-true interactions. Every pattern below is running — drag it, click it, replay it. To use one in a prototype, ask for it by name or copy its component from this file. Patterns are copied in, not imported — every prototype stays one portable file. New patterns are added here only when they earn it.</p>
 
       <Group title="Reveal one thing">
         <PatternCard name="Metric reveal" component="MetricReveal" use="the one number that matters; counts up on view." knobs="value · decimals · prefix/suffix · duration">
-          <div key={k1}><MetricReveal end={30} prefix="$" suffix="B" /></div>
-          <p className="text-neutral-500 text-sm mt-1">TPV at risk</p>
+          <div key={k1}><MetricReveal end={4.2} decimals={1} prefix="$" suffix="B" /></div>
+          <p className="text-neutral-500 text-sm mt-1">Revenue at risk</p>
           <ReplayBtn onClick={()=>setK1(k1+1)} />
         </PatternCard>
       </Group>
 
       <Group title="Show change or a relationship">
-        <PatternCard name="Animated chart" component="AnimatedChart" use="a distribution or “cliff” you want them to see drop; bars draw in." knobs="data · max · highlightIndex · valueSuffix">
-          <div key={k2}><AnimatedChart data={CHURN} max={18} highlightIndex={0} /></div>
-          <p className="text-neutral-500 text-sm mt-2">Churn rate by number of products</p>
+        <PatternCard name="Animated bar chart" component="AnimatedChart" use="a distribution or cliff you want them to see drop; bars draw in on view." knobs="data · max · highlightIndex · valueSuffix">
+          <div key={k2}><AnimatedChart data={ADOPTION} max={20} highlightIndex={0} /></div>
+          <p className="text-neutral-500 text-sm mt-2">Retention rate by number of features adopted</p>
           <ReplayBtn onClick={()=>setK2(k2+1)} />
         </PatternCard>
-        <PatternCard name="Parameter slider" component="ParameterSlider" use="let the audience drag an input and watch the outcome move — belief beats assertion." knobs="data (the points) · range · outputLabel · bar on/off">
-          <ParameterSlider data={CHURN} outputLabel="annual churn" />
+        <PatternCard name="Line chart" component="LineChart" use="a trend over time; line draws left-to-right with area fill, dots appear as the line reaches them." knobs="data (label + value) · label · line color · area fill opacity">
+          <div key={k3}><LineChart data={TREND} label="Monthly active rate (%)" /></div>
+          <ReplayBtn onClick={()=>setK3(k3+1)} />
         </PatternCard>
-        <PatternCard name="Before / after wipe" component="BeforeAfter" use="a direct two-state comparison (old vs. new)." knobs="before · after · orientation · default split">
+        <PatternCard name="Parameter slider" component="ParameterSlider" use="let the audience drag an input and watch the outcome move — belief beats assertion." knobs="data (the points) · range · outputLabel · bar on/off">
+          <ParameterSlider data={ADOPTION} outputLabel="annual churn" />
+        </PatternCard>
+        <PatternCard name="Before / after wipe" component="BeforeAfter" use="a direct two-state comparison — drag to reveal the new state." knobs="before label · after label · orientation · default split position">
           <BeforeAfter />
         </PatternCard>
       </Group>
@@ -294,7 +360,11 @@ function App() {
           <Carousel items={drivers} />
         </PatternCard>
         <PatternCard name="Tabs / segmented control" component="Tabs" use="switch between a few related views in place, no scroll." knobs="tabs (label + content) · default · style">
-          <Tabs tabs={[{l:'Pricing',c:'$262.8M in pricing-driven churn. The lever behind Save Offers.'},{l:'Risk',c:'$126.9M felt as punishment. The case for the Reserves rework.'},{l:'Tech',c:'$271.9M from breakage and failed flows.'}]} />
+          <Tabs tabs={[
+            {l:'Activation',c:'$284M in activation-driven drop-off. The case for an onboarding rework.'},
+            {l:'Pricing',c:'$241M in price-sensitivity churn. The lever behind retention offers.'},
+            {l:'Trust',c:'$98M from friction felt as risk. The case for the status reframe.'}
+          ]} />
         </PatternCard>
       </Group>
 
@@ -311,15 +381,15 @@ function App() {
       </Group>
 
       <Group title="Show the real thing">
-        <PatternCard name="Live component demo" component="NotificationDemo" use="show an actual experience behave — e.g., a notification that appears then auto-dismisses." knobs="the component · trigger (button/auto) · duration · position">
+        <PatternCard name="Live component demo" component="NotificationDemo" use="show an actual experience behave — a notification that appears then auto-dismisses." knobs="the component · trigger (button/auto) · duration · position">
           <NotificationDemo />
         </PatternCard>
-        <PatternCard name="Annotated screenshot" component="Hotspots" use="point at parts of a real screen; numbered hotspots reveal callouts." knobs="image · hotspots (x/y + note)">
+        <PatternCard name="Annotated screenshot" component="Hotspots" use="point at parts of a real screen; numbered hotspots reveal callouts on click." knobs="image · hotspots (x/y + note)">
           <Hotspots />
         </PatternCard>
       </Group>
 
-      <p className="mt-20 text-sm text-neutral-400">PayPal-branded · throwaway artifacts · grow the library from real work.</p>
+      <p className="mt-20 text-sm text-neutral-400">Single-file prototypes · grow the library from real work.</p>
     </main>
   );
 }
