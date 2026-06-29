@@ -23,6 +23,27 @@ export default function VaultPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Link href="/vault/churn-case" className="group block">
+            <Card className="transition-shadow hover:shadow-sm hover:ring-foreground/20 cursor-pointer">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle>Churn & Decline Case</CardTitle>
+                    <CardDescription className="mt-0.5">Living prototype · SCQA · spine-and-ribs</CardDescription>
+                  </div>
+                  <span className="text-muted-foreground group-hover:text-foreground transition-colors text-base leading-none mt-0.5">→</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-1.5 flex-wrap">
+                  {['Leadership case', 'Interactive', '6 patterns'].map(tag => (
+                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
           <Link href="/vault/japan" className="group block">
             <Card className="transition-shadow hover:shadow-sm hover:ring-foreground/20 cursor-pointer">
               <CardHeader>

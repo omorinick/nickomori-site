@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<!--
+  Living Prototype — Pattern Storybook.
+  The browsable menu of tried-and-true interaction patterns. Every pattern below is running live.
+  This file is also the SOURCE: to use a pattern, copy its component from the <script> block.
+  Indexed (with when-to-use rules) in ../references/patterns.md. To add a pattern, see that file.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Living Prototype — Pattern Storybook</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { ppdeep:'#002991', ppvenmo:'#008CFF', ppbright:'#60CDFF' },
+    fontFamily: { sans:['PayPal Pro','Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+  } } };
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap');
+  body { font-family:'PayPal Pro','Inter',system-ui,sans-serif; background:#fafafa; color:#000; }
+  .display { font-weight:900; letter-spacing:-0.04em; line-height:0.95; }
+  .heading { font-weight:800; letter-spacing:-0.02em; line-height:1.05; }
+  .kicker { font-weight:600; letter-spacing:0.16em; text-transform:uppercase; font-size:0.72rem; }
+  .rib-scroll { scrollbar-width:none; } .rib-scroll::-webkit-scrollbar { display:none; }
+  @keyframes slidein { from { opacity:0; transform:translateY(-8px) } to { opacity:1; transform:none } }
+  input[type=range].lever { -webkit-appearance:none; appearance:none; height:6px; border-radius:999px; background:#e5e5e5; }
+  input[type=range].lever::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; border-radius:999px; background:#002991; cursor:pointer; border:4px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  input[type=range].lever::-moz-range-thumb { width:26px; height:26px; border-radius:999px; background:#002991; cursor:pointer; border:4px solid #fff; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const CHURN = [
+  {label:'1', value:17.3}, {label:'2', value:7.0}, {label:'3', value:3.0},
+  {label:'4', value:1.3}, {label:'5', value:0.8}, {label:'6', value:0.4}, {label:'7', value:0.0},
+];
+
+/* ---------- shared primitives ---------- */
+function CountUpOnMount({ end, decimals=0, prefix='', suffix='' }) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    let raf; const t0 = performance.now();
+    const tick = (t) => { const p = Math.min((t-t0)/1400,1); setV(end*(1-Math.pow(1-p,3))); if (p<1) raf=requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf);
+  }, [end]);
+  return <span>{prefix}{v.toFixed(decimals)}{suffix}</span>;
+}
+
+function ReplayBtn({ onClick }) {
+  return <button onClick={onClick} className="mt-4 text-sm font-semibold text-ppdeep hover:underline">↺ Replay</button>;
+}
+
+/* ---------- PATTERN COMPONENTS (copy these) ---------- */
+
+// Metric reveal
+function MetricReveal({ end, decimals, prefix, suffix }) {
+  return <p className="display text-7xl text-ppdeep"><CountUpOnMount end={end} decimals={decimals} prefix={prefix} suffix={suffix} /></p>;
+}
+
+// Animated chart (bars draw in)
+function AnimatedChart({ data, max, highlightIndex, valueSuffix='%' }) {
+  const [on, setOn] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setOn(true), 60); return () => clearTimeout(t); }, []);
+  return (
+    <div className="flex items-end gap-3 h-56">
+      {data.map((d, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+          <span className="text-xs font-bold mb-1 text-neutral-700" style={{ opacity: on?1:0, transition:'opacity .8s .6s' }}>{d.value}{valueSuffix}</span>
+          <div className="w-full rounded-t-md" style={{ height: on?`${(d.value/max)*100}%`:'0%', background: i===highlightIndex?'#002991':'#cbd5e1', transition:'height 1s ease-out' }} />
+          <span className="text-[11px] mt-2 text-neutral-500">{d.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Parameter slider (interactive lever)
+function ParameterSlider({ data, outputLabel }) {
+  const [i, setI] = useState(0);
+  const pt = data[i];
+  const max = Math.max(...data.map(d => d.value));
+  return (
+    <div className="bg-white rounded-xl border p-6">
+      <div className="flex justify-between text-xs text-neutral-500 mb-2"><span>{data[0].label} product</span><span>{data[data.length-1].label} products</span></div>
+      <input type="range" min="0" max={data.length-1} step="1" value={i} onChange={(e)=>setI(+e.target.value)} className="lever w-full" />
+      <div className="mt-6 flex items-end gap-4">
+        <p className="display text-6xl text-ppdeep">{pt.value}<span className="text-2xl align-top">%</span></p>
+        <p className="text-neutral-500 mb-3">{outputLabel} at <strong>{pt.label}</strong> product{pt.label==='1'?'':'s'}</p>
+      </div>
+      <div className="mt-4 h-2.5 rounded-full bg-neutral-200 overflow-hidden"><div className="h-full bg-ppdeep transition-all duration-200" style={{ width:`${(pt.value/max)*100}%` }} /></div>
+    </div>
+  );
+}
+
+// Before / after wipe
+function BeforeAfter() {
+  const [pos, setPos] = useState(50);
+  return (
+    <div>
+      <div className="relative h-44 rounded-xl overflow-hidden border select-none">
+        <div className="absolute inset-0 bg-neutral-200 grid place-items-center"><span className="heading text-2xl text-neutral-600">“Holds”</span></div>
+        <div className="absolute inset-0 bg-ppdeep grid place-items-center overflow-hidden" style={{ width:`${pos}%` }}><span className="heading text-2xl text-white whitespace-nowrap">“Reserves”</span></div>
+        <div className="absolute top-0 bottom-0 w-0.5 bg-white" style={{ left:`${pos}%` }} />
+      </div>
+      <input type="range" min="0" max="100" value={pos} onChange={(e)=>setPos(+e.target.value)} className="lever w-full mt-4" />
+    </div>
+  );
+}
+
+// Horizontal carousel (snap)
+function Carousel({ items }) {
+  return (
+    <div className="rib-scroll flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3">
+      {items.map((it, i) => (
+        <div key={i} className="snap-center shrink-0 w-64 bg-white rounded-xl border p-5">
+          <p className="kicker text-neutral-400">{i+1} / {items.length}</p>
+          <p className="display text-4xl text-ppdeep mt-2">{it.amt}</p>
+          <p className="heading text-lg mt-2">{it.name}</p>
+        </div>
+      ))}
+      <div className="shrink-0 w-1" />
+    </div>
+  );
+}
+
+// Tabs / segmented control
+function Tabs({ tabs }) {
+  const [t, setT] = useState(0);
+  return (
+    <div className="bg-white rounded-xl border overflow-hidden">
+      <div className="flex border-b">{tabs.map((tb,i)=>(
+        <button key={i} onClick={()=>setT(i)} className={"px-5 py-3 text-sm font-semibold border-b-2 -mb-px "+(t===i?'border-ppdeep text-ppdeep':'border-transparent text-neutral-500')}>{tb.l}</button>
+      ))}</div>
+      <div className="p-5 text-neutral-700">{tabs[t].c}</div>
+    </div>
+  );
+}
+
+// Click-to-expand cards
+function ClickExpand({ items }) {
+  const [open, setOpen] = useState(null);
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {items.map((it, i) => (
+        <button key={i} onClick={()=>setOpen(open===i?null:i)} className="text-left bg-white border rounded-xl p-4 hover:border-ppdeep transition-colors">
+          <div className="flex items-center justify-between"><span className="font-bold">{it.t}</span><span className="text-ppdeep text-xl leading-none">{open===i?'−':'+'}</span></div>
+          {open===i && <p className="mt-3 text-sm text-neutral-600">{it.d}</p>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Master-detail side panel
+function MasterDetail({ items }) {
+  const [sel, setSel] = useState(null);
+  return (
+    <div className="relative overflow-hidden rounded-xl border bg-white h-72">
+      <div className="grid grid-cols-2 gap-3 p-4">
+        {items.map((it,i)=>(
+          <button key={i} onClick={()=>setSel(it)} className="text-left border rounded-lg p-4 hover:border-ppdeep transition-colors"><span className="font-bold">{it.t}</span></button>
+        ))}
+      </div>
+      <div className={"absolute top-0 right-0 h-full w-2/3 bg-white border-l shadow-2xl p-6 transition-transform duration-300 "+(sel?'translate-x-0':'translate-x-full')}>
+        {sel && (<div>
+          <button onClick={()=>setSel(null)} className="text-neutral-400 text-sm mb-3">✕ close</button>
+          <h4 className="heading text-2xl">{sel.t}</h4>
+          <p className="text-neutral-600 mt-3">{sel.d}</p>
+        </div>)}
+      </div>
+    </div>
+  );
+}
+
+// Overlay / modal
+function ModalDemo() {
+  const [o, setO] = useState(false);
+  return (
+    <div className="relative h-44 rounded-xl border bg-white grid place-items-center">
+      <button onClick={()=>setO(true)} className="px-5 py-2.5 bg-ppdeep text-white rounded-lg font-semibold text-sm">Open detail</button>
+      {o && (
+        <div className="absolute inset-0 bg-black/50 grid place-items-center" onClick={()=>setO(false)}>
+          <div className="bg-white rounded-2xl p-6 w-3/4 max-w-sm" onClick={(e)=>e.stopPropagation()}>
+            <h4 className="heading text-xl">Cross-Sell Surface</h4>
+            <p className="text-sm text-neutral-600 mt-2">The dedicated path from 1 → 2 products. Building the business case with Marketing.</p>
+            <button onClick={()=>setO(false)} className="mt-5 text-ppdeep font-semibold text-sm">Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Live component demo (notification that auto-dismisses)
+function NotificationDemo() {
+  const [toasts, setToasts] = useState([]);
+  const fire = () => { const id = Date.now(); setToasts(t=>[...t,id]); setTimeout(()=>setToasts(t=>t.filter(x=>x!==id)), 3500); };
+  return (
+    <div className="relative h-64 rounded-xl border bg-white overflow-hidden grid place-items-center">
+      <button onClick={fire} className="px-5 py-2.5 bg-ppdeep text-white rounded-lg font-semibold text-sm">Trigger notification</button>
+      <div className="absolute top-3 right-3 w-64 space-y-2">
+        {toasts.map(id => (
+          <div key={id} className="bg-black text-white rounded-lg p-3 shadow-xl" style={{ animation:'slidein .3s ease' }}>
+            <strong className="text-sm">Reserve released</strong>
+            <div className="text-neutral-300 text-xs mt-1">$2,400 is now available in your balance.</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Annotated screenshot (hotspots)
+function Hotspots() {
+  const [active, setActive] = useState(null);
+  const spots = [{x:22,y:28,note:'Balance summary — the first thing a merchant checks.'},{x:72,y:48,note:'Reserve banner — reframed from “hold”.'},{x:44,y:78,note:'Next best action — the earned cross-sell.'}];
+  return (
+    <div className="relative h-64 rounded-xl border overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-200">
+      {spots.map((s,i)=>(
+        <button key={i} onClick={()=>setActive(active===i?null:i)} style={{ left:s.x+'%', top:s.y+'%' }}
+          className="absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-ppdeep text-white text-xs font-bold grid place-items-center shadow-lg">{i+1}</button>
+      ))}
+      {active!==null && <div className="absolute bottom-3 left-3 right-3 bg-white rounded-lg p-3 text-sm shadow-lg">{spots[active].note}</div>}
+    </div>
+  );
+}
+
+/* ---------- gallery shell ---------- */
+function Group({ title, children }) {
+  return (<div className="mt-16"><h2 className="display text-3xl md:text-4xl mb-2">{title}</h2><div className="grid gap-8 mt-6">{children}</div></div>);
+}
+
+function PatternCard({ name, component, use, knobs, children }) {
+  return (
+    <section className="border border-neutral-200 rounded-2xl overflow-hidden bg-white">
+      <div className="p-6 border-b border-neutral-100">
+        <h3 className="heading text-2xl">{name}</h3>
+        <p className="text-neutral-700 mt-2"><span className="font-semibold">Use for:</span> {use}</p>
+        <p className="text-neutral-500 text-sm mt-1"><span className="font-semibold">Knobs:</span> {knobs}</p>
+      </div>
+      <div className="p-6 bg-neutral-50">{children}</div>
+      <div className="px-6 py-3 text-xs text-neutral-400 border-t border-neutral-100">Component <code className="text-ppdeep">&lt;{component}&gt;</code> — copy from this file's script block.</div>
+    </section>
+  );
+}
+
+function App() {
+  const [k1, setK1] = useState(0), [k2, setK2] = useState(0);
+  const drivers = [{name:'Tech Issues', amt:'$271.9M'},{name:'Pricing', amt:'$262.8M'},{name:'Risk', amt:'$126.9M'}];
+  const initiatives = [
+    {t:'Save Offers', d:'Proactive pricing interventions for at-risk merchants. Launched; measuring retention impact.'},
+    {t:'Risk / Reserves', d:'Reframing “holds” as “reserves.” Addresses $126.9M of risk-driven contraction.'},
+    {t:'Cross-Sell Surface', d:'The dedicated path from 1 → 2 products. Building the business case.'},
+    {t:'Critical Notifications', d:'Rationalize 1000+ notification types. Signal over noise.'},
+  ];
+  return (
+    <main className="max-w-3xl mx-auto px-6 py-20">
+      <p className="kicker text-ppdeep">Living Prototype</p>
+      <h1 className="display text-5xl md:text-6xl mt-3">Pattern storybook.</h1>
+      <p className="mt-6 text-lg text-neutral-700">The menu of tried-and-true interactions. Every pattern below is running — drag it, click it, replay it. To use one in a prototype, ask for it by name or copy its component from this file. These are throwaway story artifacts, so patterns are copied in, not imported. New patterns get added here only when they earn it — see <code>references/patterns.md</code>.</p>
+
+      <Group title="Reveal one thing">
+        <PatternCard name="Metric reveal" component="MetricReveal" use="the one number that matters; counts up on view." knobs="value · decimals · prefix/suffix · duration">
+          <div key={k1}><MetricReveal end={30} prefix="$" suffix="B" /></div>
+          <p className="text-neutral-500 text-sm mt-1">TPV at risk</p>
+          <ReplayBtn onClick={()=>setK1(k1+1)} />
+        </PatternCard>
+      </Group>
+
+      <Group title="Show change or a relationship">
+        <PatternCard name="Animated chart" component="AnimatedChart" use="a distribution or “cliff” you want them to see drop; bars draw in." knobs="data · max · highlightIndex · valueSuffix">
+          <div key={k2}><AnimatedChart data={CHURN} max={18} highlightIndex={0} /></div>
+          <p className="text-neutral-500 text-sm mt-2">Churn rate by number of products</p>
+          <ReplayBtn onClick={()=>setK2(k2+1)} />
+        </PatternCard>
+        <PatternCard name="Parameter slider" component="ParameterSlider" use="let the audience drag an input and watch the outcome move — belief beats assertion." knobs="data (the points) · range · outputLabel · bar on/off">
+          <ParameterSlider data={CHURN} outputLabel="annual churn" />
+        </PatternCard>
+        <PatternCard name="Before / after wipe" component="BeforeAfter" use="a direct two-state comparison (old vs. new)." knobs="before · after · orientation · default split">
+          <BeforeAfter />
+        </PatternCard>
+      </Group>
+
+      <Group title="Move through a set">
+        <PatternCard name="Horizontal carousel" component="Carousel" use="a small set of equals you step through left-to-right." knobs="items · card width · snap · peek · arrows">
+          <Carousel items={drivers} />
+        </PatternCard>
+        <PatternCard name="Tabs / segmented control" component="Tabs" use="switch between a few related views in place, no scroll." knobs="tabs (label + content) · default · style">
+          <Tabs tabs={[{l:'Pricing',c:'$262.8M in pricing-driven churn. The lever behind Save Offers.'},{l:'Risk',c:'$126.9M felt as punishment. The case for the Reserves rework.'},{l:'Tech',c:'$271.9M from breakage and failed flows.'}]} />
+        </PatternCard>
+      </Group>
+
+      <Group title="Reveal more detail">
+        <PatternCard name="Click-to-expand cards" component="ClickExpand" use="a grid where each item opens in place to show more." knobs="items (summary + detail) · single vs. multi-open">
+          <ClickExpand items={initiatives} />
+        </PatternCard>
+        <PatternCard name="Master-detail side panel" component="MasterDetail" use="click an item; rich detail slides in from the right, context stays visible." knobs="items · panel width · slide direction">
+          <MasterDetail items={initiatives} />
+        </PatternCard>
+        <PatternCard name="Overlay / modal" component="ModalDemo" use="focus fully on one item, dim the rest. Use sparingly — it breaks flow." knobs="content · backdrop dismiss · size">
+          <ModalDemo />
+        </PatternCard>
+      </Group>
+
+      <Group title="Show the real thing">
+        <PatternCard name="Live component demo" component="NotificationDemo" use="show an actual experience behave — e.g., a notification that appears then auto-dismisses." knobs="the component · trigger (button/auto) · duration · position">
+          <NotificationDemo />
+        </PatternCard>
+        <PatternCard name="Annotated screenshot" component="Hotspots" use="point at parts of a real screen; numbered hotspots reveal callouts." knobs="image · hotspots (x/y + note)">
+          <Hotspots />
+        </PatternCard>
+      </Group>
+
+      <p className="mt-20 text-sm text-neutral-400">PayPal-branded · throwaway artifacts · grow the library from real work.</p>
+    </main>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<!--
+  FLAGSHIP example — built with the `living-prototype` skill.
+  Story: Churn & Decline leadership case.  Structure: SCQA, answer-first.
+  Spatial grammar: spine-and-ribs.
+  Patterns used (from the storybook): metric reveal · horizontal carousel · animated chart ·
+  parameter slider (1→7) · master-detail side panel · live notification demo.
+  Brand: PayPal (mono + Deep Blue).  Numbers: C&D portfolio analysis + churn-by-#-products table.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Churn & Decline — the retention lever</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { ppdeep:'#002991', ppvenmo:'#008CFF', ppbright:'#60CDFF' },
+    fontFamily: { sans:['PayPal Pro','Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+  } } };
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap');
+  html { scroll-behavior:smooth; }
+  body { font-family:'PayPal Pro','Inter',system-ui,sans-serif; background:#fff; color:#000; }
+  .display { font-weight:900; letter-spacing:-0.04em; line-height:0.93; }
+  .heading { font-weight:800; letter-spacing:-0.02em; line-height:1.05; }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity .9s ease, transform .9s ease; }
+  .reveal.in { opacity:1; transform:none; }
+  .kicker { font-weight:600; letter-spacing:0.18em; text-transform:uppercase; font-size:0.78rem; }
+  .rib-scroll { scrollbar-width:none; } .rib-scroll::-webkit-scrollbar { display:none; }
+  @keyframes slidein { from { opacity:0; transform:translateY(-8px) } to { opacity:1; transform:none } }
+  input[type=range].lever { -webkit-appearance:none; appearance:none; height:6px; border-radius:999px; background:#e5e5e5; outline:none; }
+  input[type=range].lever::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:30px; height:30px; border-radius:999px; background:#002991; cursor:pointer; border:4px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,.25); }
+  input[type=range].lever::-moz-range-thumb { width:30px; height:30px; border-radius:999px; background:#002991; cursor:pointer; border:4px solid #fff; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const CHURN = [
+  {label:'1', value:17.3}, {label:'2', value:7.0}, {label:'3', value:3.0},
+  {label:'4', value:1.3}, {label:'5', value:0.8}, {label:'6', value:0.4}, {label:'7', value:0.0},
+];
+
+function useReveal(threshold = 0.25) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { el.classList.add('in'); io.unobserve(el); } }), { threshold });
+    io.observe(el); return () => io.disconnect();
+  }, [threshold]);
+  return ref;
+}
+
+function useCountUp(end, { duration = 1500, decimals = 0 } = {}) {
+  const [val, setVal] = useState(0);
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    let raf, started = false;
+    const io = new IntersectionObserver((es) => es.forEach(e => {
+      if (e.isIntersecting && !started) {
+        started = true; const t0 = performance.now();
+        const tick = (t) => { const p = Math.min((t-t0)/duration,1); setVal(end*(1-Math.pow(1-p,3))); if (p<1) raf=requestAnimationFrame(tick); };
+        raf = requestAnimationFrame(tick); io.unobserve(el);
+      }
+    }), { threshold: 0.6 });
+    io.observe(el); return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, [end, duration]);
+  return [val.toFixed(decimals), ref];
+}
+
+// Animated chart — bars draw in when scrolled into view
+function AnimatedChart({ data, max, highlightIndex }) {
+  const [on, setOn] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { setOn(true); io.unobserve(el); } }), { threshold: 0.5 });
+    io.observe(el); return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className="flex items-end gap-3 md:gap-5 h-64">
+      {data.map((d, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+          <span className="text-sm font-bold mb-2" style={{ opacity: on?1:0, transition:'opacity .8s .7s', color: i===highlightIndex?'#002991':'#525252' }}>{d.value}%</span>
+          <div className="w-full rounded-t-md" style={{ height: on?`${(d.value/max)*100}%`:'0%', background: i===highlightIndex?'#002991':'#cbd5e1', transition:`height 1s ${i*0.06}s ease-out` }} />
+          <span className="text-xs mt-3 text-neutral-500">{d.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProgressBar() {
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const onScroll = () => { const h = document.documentElement; setW((h.scrollTop/(h.scrollHeight-h.clientHeight))*100); };
+    window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return <div className="fixed top-0 left-0 h-1 bg-ppdeep z-50" style={{ width: w+'%' }} />;
+}
+
+function Spine({ kicker, dark, children }) {
+  const ref = useReveal();
+  return (
+    <section className={"min-h-screen flex flex-col justify-center px-8 md:px-24 " + (dark ? "bg-black text-white" : "")}>
+      <div ref={ref} className="reveal max-w-5xl mx-auto w-full">
+        {kicker && <p className={"kicker mb-7 " + (dark ? "text-ppbright" : "text-ppdeep")}>{kicker}</p>}
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function Hero() {
+  return (
+    <Spine kicker="Churn & Decline · Merchant Experience Platform">
+      <h1 className="display text-5xl md:text-8xl">Most merchant churn<br/>is ours to prevent.</h1>
+      <p className="mt-10 text-xl md:text-2xl max-w-2xl text-neutral-700">And the fastest way to prevent it isn't a save play — it's product depth. Here's the case.</p>
+      <p className="mt-16 text-neutral-400 text-sm">Scroll ↓</p>
+    </Spine>
+  );
+}
+
+function Situation() {
+  return (
+    <Spine kicker="Situation">
+      <h2 className="heading text-4xl md:text-6xl max-w-3xl">Hawk is the screen behind every SMB login.</h2>
+      <p className="mt-8 text-xl md:text-2xl max-w-2xl text-neutral-700">It's where small and mid-size merchants check in, manage money, and decide whether PayPal is still working for them. Which makes it the place we keep them — or lose them.</p>
+    </Spine>
+  );
+}
+
+function Complication() {
+  const [tpv, tpvRef] = useCountUp(30);
+  const [pct, pctRef] = useCountUp(25);
+  const [ctrl, ctrlRef] = useCountUp(94);
+  return (
+    <Spine kicker="Complication" dark>
+      <h2 className="heading text-3xl md:text-5xl max-w-3xl mb-14">About a quarter of the SMB portfolio is walking out the door.</h2>
+      <div className="grid md:grid-cols-3 gap-12">
+        <div><p ref={pctRef} className="display text-6xl md:text-7xl">~{pct}<span className="text-ppbright">%</span></p><p className="mt-4 text-neutral-300 text-lg">of the SMB portfolio churning</p></div>
+        <div><p ref={tpvRef} className="display text-6xl md:text-7xl">${tpv}<span className="text-ppbright">B</span></p><p className="mt-4 text-neutral-300 text-lg">in TPV at risk</p></div>
+        <div><p ref={ctrlRef} className="display text-6xl md:text-7xl">~{ctrl}<span className="text-ppbright">%</span></p><p className="mt-4 text-neutral-300 text-lg">of it is controllable — not inevitable</p></div>
+      </div>
+    </Spine>
+  );
+}
+
+// Horizontal RIB — drivers carousel
+function DriversRib() {
+  const ref = useReveal();
+  const drivers = [
+    { name:"Tech Issues", amt:"$271.9M", note:"Integration friction, breakage, failed flows — the experience stops working." },
+    { name:"Pricing", amt:"$262.8M", note:"Rate sensitivity and value gaps. The lever behind Save Offers." },
+    { name:"Risk", amt:"$126.9M", note:"Holds and reserves felt as punishment. The case for the Reserves rework." },
+  ];
+  return (
+    <section className="min-h-screen flex flex-col justify-center py-24 bg-neutral-50">
+      <div ref={ref} className="reveal px-8 md:px-24 max-w-5xl mx-auto w-full">
+        <p className="kicker text-ppdeep mb-6">Detour · the controllable drivers</p>
+        <h2 className="heading text-3xl md:text-5xl max-w-3xl">Three drivers carry most of the loss.</h2>
+        <p className="mt-5 text-neutral-500 text-lg flex items-center gap-3"><span className="text-ppdeep text-2xl">←</span> scroll the drivers <span className="text-ppdeep text-2xl">→</span></p>
+      </div>
+      <div className="rib-scroll mt-12 flex gap-6 overflow-x-auto snap-x snap-mandatory px-8 md:px-24 pb-6">
+        {drivers.map((d, i) => (
+          <div key={i} className="snap-center shrink-0 w-[78vw] md:w-[34rem] bg-white rounded-3xl border border-neutral-200 p-10 md:p-14 shadow-sm">
+            <p className="kicker text-neutral-400">Driver {i+1} of 3</p>
+            <p className="display text-6xl md:text-7xl text-ppdeep mt-4">{d.amt}</p>
+            <h3 className="heading text-2xl md:text-3xl mt-6">{d.name}</h3>
+            <p className="mt-4 text-neutral-600 text-lg leading-relaxed">{d.note}</p>
+          </div>
+        ))}
+        <div className="shrink-0 w-8" />
+      </div>
+    </section>
+  );
+}
+
+function Question() {
+  return (
+    <Spine kicker="Question">
+      <h2 className="display text-4xl md:text-7xl max-w-4xl">If most of it is controllable,<br/>where's the <span className="text-ppdeep">highest-leverage</span> place to act?</h2>
+    </Spine>
+  );
+}
+
+// Answer — the cliff (animated chart) + the lever (1→7 slider)
+function AnswerCliff() {
+  const ref = useReveal();
+  const [i, setI] = useState(0);
+  const pt = CHURN[i];
+  return (
+    <section className="min-h-screen flex flex-col justify-center px-8 md:px-24 py-24">
+      <div ref={ref} className="reveal max-w-5xl mx-auto w-full">
+        <p className="kicker text-ppdeep mb-7">The answer · product depth</p>
+        <h2 className="heading text-3xl md:text-5xl max-w-3xl">Give a merchant a second product, and churn falls off a cliff.</h2>
+
+        <div className="mt-12 grid lg:grid-cols-2 gap-12 items-center">
+          <div className="bg-neutral-50 rounded-3xl border border-neutral-200 p-8">
+            <p className="text-sm text-neutral-500 mb-6">Annual churn rate by number of products</p>
+            <AnimatedChart data={CHURN} max={18} highlightIndex={1} />
+          </div>
+
+          <div>
+            <p className="text-xl md:text-2xl text-neutral-700 mb-6">Drag the lever. The first cross-sell is almost the entire win.</p>
+            <div className="bg-ppdeep text-white rounded-3xl p-8">
+              <div className="flex justify-between text-xs text-blue-100 mb-2"><span>1 product</span><span>7 products</span></div>
+              <input type="range" min="0" max={CHURN.length-1} step="1" value={i} onChange={(e)=>setI(+e.target.value)} className="lever w-full" />
+              <div className="mt-8 flex items-end gap-4">
+                <p className="display text-7xl">{pt.value}<span className="text-3xl align-top">%</span></p>
+                <p className="text-blue-100 mb-3">churn at <strong className="text-white">{pt.label}</strong> product{pt.label==='1'?'':'s'}</p>
+              </div>
+            </div>
+            <p className="mt-6 text-neutral-600 text-lg">1 → 2 products takes churn from <strong>17.3%</strong> to <strong>7.0%</strong>. Across the book, 2+ product merchants churn <strong>~60% less</strong> — and every product after the second barely moves the needle.</p>
+            <p className="mt-3 text-xs text-neutral-400">Source: churn rate by number of products (portfolio analysis).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Strategy() {
+  return (
+    <Spine kicker="So this is the work">
+      <h2 className="heading text-4xl md:text-6xl max-w-4xl">Turn Hawk from static components into a surface that earns the next product.</h2>
+      <p className="mt-8 text-xl md:text-2xl max-w-2xl text-neutral-700">Dynamic Content Surfaces: governed, personalized content delivery. The discipline is the <strong className="text-ppdeep">85 / 15 principle</strong> — 85% helping merchants monitor and manage, 15% cross-sell <em>earned</em> through utility, never forced.</p>
+    </Spine>
+  );
+}
+
+// Master-detail side panel + live notification demo
+function BuildingBlocks() {
+  const ref = useReveal();
+  const [sel, setSel] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const fire = () => { const id = Date.now(); setToasts(t=>[...t,id]); setTimeout(()=>setToasts(t=>t.filter(x=>x!==id)), 3800); };
+  const items = [
+    { t:"Save Offers", s:"Launched", d:"Proactive pricing interventions for at-risk merchants (P7 Growers, P11 Decliners). Live today; measuring retention impact." },
+    { t:"Risk / Reserves", s:"In progress", d:"Reframing “holds” as “reserves” in language and UX. Directly addresses the $126.9M of risk-driven contraction — the difference between feeling punished and feeling protected." },
+    { t:"Cross-Sell Surface", s:"Building case", d:"A dedicated path from one product to two — the most direct lever on the 17.3% → 7.0% drop. Business case in progress with Marketing." },
+    { t:"Critical Notifications", s:"Planned", d:"Rationalize 1000+ notification types into a governed system. Signal over noise — the right message at the right moment, then out of the way.", demo:true },
+  ];
+  return (
+    <section className="min-h-screen flex flex-col justify-center px-8 md:px-24 py-24">
+      <div ref={ref} className="reveal max-w-5xl mx-auto w-full">
+        <p className="kicker text-ppdeep mb-7">The building blocks</p>
+        <h2 className="heading text-3xl md:text-5xl mb-3 max-w-3xl">Four moves, one direction.</h2>
+        <p className="text-neutral-500 text-lg mb-12">Click any move to see more →</p>
+        <div className="grid md:grid-cols-2 gap-6">
+          {items.map((b, i) => (
+            <button key={i} onClick={()=>setSel(b)} className="text-left border border-neutral-200 rounded-2xl p-8 hover:border-ppdeep hover:shadow-md transition-all">
+              <div className="flex items-center justify-between">
+                <h3 className="heading text-2xl">{b.t}</h3>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-neutral-100 text-ppdeep">{b.s}</span>
+              </div>
+              <p className="mt-3 text-ppdeep text-sm font-semibold">View detail →</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {sel && <div className="fixed inset-0 bg-black/40 z-30" onClick={()=>setSel(null)} />}
+      <div className={"fixed top-0 right-0 h-full w-full md:w-[460px] bg-white shadow-2xl z-40 transition-transform duration-300 "+(sel?"translate-x-0":"translate-x-full pointer-events-none")}>
+        {sel && (
+          <div className="p-10 md:p-12 h-full overflow-y-auto">
+            <button onClick={()=>setSel(null)} className="text-neutral-400 text-sm mb-8">✕ close</button>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-neutral-100 text-ppdeep">{sel.s}</span>
+            <h3 className="display text-4xl mt-5">{sel.t}</h3>
+            <p className="mt-6 text-lg text-neutral-700 leading-relaxed">{sel.d}</p>
+            {sel.demo && (
+              <div className="mt-8">
+                <button onClick={fire} className="px-5 py-3 bg-ppdeep text-white rounded-lg font-semibold text-sm">Preview a critical notification</button>
+                <p className="mt-3 text-sm text-neutral-400">A live mock — appears, then clears itself.</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="fixed top-4 right-4 z-50 w-72 space-y-2">
+        {toasts.map(id => (
+          <div key={id} className="bg-black text-white rounded-lg p-4 shadow-2xl" style={{ animation:"slidein .3s ease" }}>
+            <strong className="text-sm">Action needed: confirm your bank</strong>
+            <div className="text-neutral-300 text-xs mt-1">Verify by Friday to keep payouts on schedule.</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Ask() {
+  return (
+    <Spine kicker="The ask">
+      <h2 className="display text-4xl md:text-7xl max-w-4xl">Back product depth as the<br/>retention strategy.</h2>
+      <p className="mt-8 text-xl md:text-2xl max-w-2xl text-neutral-700">Fund the cross-sell surface as the next building block — the most direct lever on the 17.3% → 7.0% you just watched move.</p>
+      <p className="mt-16 text-neutral-400 text-sm">Built with the living-prototype framework · SCQA · spine-and-ribs · 6 storybook patterns</p>
+    </Spine>
+  );
+}
+
+function App() {
+  return (
+    <main>
+      <ProgressBar />
+      <Hero /><Situation /><Complication /><DriversRib /><Question /><AnswerCliff /><Strategy /><BuildingBlocks /><Ask />
+    </main>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

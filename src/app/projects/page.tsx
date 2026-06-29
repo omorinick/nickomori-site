@@ -56,6 +56,32 @@ export default function ProjectsPage() {
             </div>
             <span className="text-muted-foreground group-hover:text-foreground transition-colors ml-4 mt-0.5 flex-shrink-0">→</span>
           </Link>
+
+          <Link
+            href="/projects/living-prototype"
+            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
+          >
+            <div>
+              <p className="font-medium text-foreground mb-1">Living Prototype</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                A skill for turning raw content into interactive web presentations — animated data, live demos, and interactive exploration, without the constraints of slides.
+              </p>
+            </div>
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors ml-4 mt-0.5 flex-shrink-0">→</span>
+          </Link>
+
+          <Link
+            href="/projects/backseat-driver"
+            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
+          >
+            <div>
+              <p className="font-medium text-foreground mb-1">Backseat Driver</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                A car-maintenance advisor that works for the owner, not the shop — know what your car needs, what it should cost, and whether that upsell is real.
+              </p>
+            </div>
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors ml-4 mt-0.5 flex-shrink-0">→</span>
+          </Link>
         </div>
       </div>
     </main>
