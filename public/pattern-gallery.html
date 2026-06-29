@@ -33,6 +33,13 @@
 </style>
 </head>
 <body>
+<!-- Back bar: lives above the gallery in DOM; hidden on load via JS, revealed on scroll-up -->
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;background:#f0ebe0;border-bottom:1px solid #ddd5c4;">
+  <a href="/projects" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;font-family:'Inter',system-ui,sans-serif;color:#7a6e64;text-decoration:none;" onmouseover="this.style.color='#1c1815'" onmouseout="this.style.color='#7a6e64'">
+    ← Back to Constructive Distractions
+  </a>
+</div>
+<script>window.scrollTo({ top: 44, behavior: 'instant' });</script>
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;

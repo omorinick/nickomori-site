@@ -176,8 +176,7 @@ export function LivingPrototypeContent() {
             A small vocabulary of reusable interaction patterns — each one named, described, and running live in a storybook. When building a prototype, each section maps to an intent, picks a named pattern, copies it in, and sets its knobs. The library stays small: patterns earn their place by recurring across real work.
           </p>
           <Link
-            href="/pattern-gallery.html"
-            target="_blank"
+            href="/projects/pattern-gallery"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Browse the pattern storybook →
