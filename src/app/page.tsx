@@ -53,17 +53,17 @@ export default function Home() {
           Product Manager · San Francisco
         </p>
         <h1 className="font-heading text-6xl font-bold text-foreground tracking-tight leading-[1.05] mb-6 max-w-xl">
-          Building things<br />worth building.
+          Building to learn.
         </h1>
         <p className="text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
-          Experiments at the intersection of AI and product work. A digital sandbox for ideas that deserve to exist.
+          Ideas, experiments, and constructive distractions.
         </p>
         <div className="flex gap-3">
           <Link
             href="/projects"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
           >
-            View work →
+            Explore Projects →
           </Link>
           <a
             href="https://www.linkedin.com/in/nickomori/"
@@ -71,7 +71,7 @@ export default function Home() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border text-foreground font-medium text-sm hover:border-border-hover transition-colors"
           >
-            About me ↗
+            LinkedIn ↗
           </a>
         </div>
       </section>
@@ -150,13 +150,16 @@ export default function Home() {
             Writing
           </h2>
           <p className="text-sm text-muted-foreground mb-10">
-            Ideas worth thinking through. On product, AI, and building things.
+            Ideas worth thinking through.
           </p>
-          <div className="rounded-xl border border-border bg-card px-6 py-8 max-w-2xl">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Nothing published yet — I build before I write. When there&apos;s something worth saying, it&apos;ll be here.
+          <blockquote className="border-l-2 border-primary pl-6 py-1 max-w-2xl">
+            <p className="text-base text-foreground leading-relaxed mb-3">
+              &ldquo;The faster we make our ideas tangible, the sooner we can evaluate them, refine them, and zero in on the best solution.&rdquo;
             </p>
-          </div>
+            <p className="text-sm text-muted-foreground">
+              — Tim Brown, <span className="italic">Change by Design</span>
+            </p>
+          </blockquote>
         </div>
       </section>
 

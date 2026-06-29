@@ -204,11 +204,11 @@ export function PMToolkitClient() {
             </a>{' '}
             dimensions, and a priority matrix — instantly.
           </p>
-          <blockquote className="border-l-2 border-border pl-3">
-            <p className="text-sm text-muted-foreground italic leading-relaxed">
+          <blockquote className="border-l-2 border-primary pl-4">
+            <p className="text-sm text-foreground leading-relaxed">
               &ldquo;The faster we make our ideas tangible, the sooner we will be able to evaluate them, refine them, and zero in on the best solution.&rdquo;
             </p>
-            <p className="text-xs text-muted-foreground mt-1">— Tim Brown, <span className="not-italic">Change by Design</span></p>
+            <p className="text-xs text-muted-foreground mt-1.5">— Tim Brown, <span className="italic">Change by Design</span></p>
           </blockquote>
         </div>
 
