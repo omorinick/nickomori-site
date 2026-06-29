@@ -396,7 +396,7 @@ function AutomationCard({
         dimmed ? 'opacity-40 scale-[0.99]' : '',
       ].join(' ')}
     >
-      <div className="flex items-start justify-between gap-3 mb-2">
+      <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-semibold text-foreground">{automation.name}</p>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <span className={`${colors.badge} px-2 py-0.5 rounded text-xs`}>
@@ -408,13 +408,17 @@ function AutomationCard({
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground leading-relaxed">{automation.summary}</p>
-
       <ToolPills tools={automation.tools} />
 
       {open && (
         <div className="mt-5 space-y-5" onClick={(e) => e.stopPropagation()}>
           <div className="border-t border-border pt-5 space-y-5">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                What it does
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{automation.summary}</p>
+            </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 How it works
@@ -461,20 +465,24 @@ function SkillCard({ skill }: { skill: (typeof skills)[0] }) {
           : 'border-border bg-card hover:border-border-hover hover:-translate-y-0.5',
       ].join(' ')}
     >
-      <div className="flex items-start justify-between gap-3 mb-2">
+      <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-semibold text-foreground">{skill.name}</p>
         <ChevronDown
           className={`w-3.5 h-3.5 text-muted-foreground flex-shrink-0 mt-0.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </div>
 
-      <p className="text-sm text-muted-foreground leading-relaxed">{skill.summary}</p>
-
       <ToolPills tools={skill.tools} />
 
       {open && (
         <div className="mt-5 space-y-5" onClick={(e) => e.stopPropagation()}>
           <div className="border-t border-border pt-5 space-y-5">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                What it does
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{skill.summary}</p>
+            </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 What it encodes
