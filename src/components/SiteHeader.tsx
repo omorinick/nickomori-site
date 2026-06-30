@@ -2,9 +2,17 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
+import { Sun, Moon } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
   if (pathname.startsWith('/projects/compliant-market')) return null
 
   return (
@@ -18,17 +26,28 @@ export function SiteHeader() {
             nickomori.com
           </span>
         </Link>
-        <nav className="flex items-center gap-7">
-          <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Work
-          </Link>
-          <Link href="/#writing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Writing
-          </Link>
-          <Link href="/vault" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Vault
-          </Link>
-        </nav>
+        <div className="flex items-center gap-7">
+          <nav className="flex items-center gap-7">
+            <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Work
+            </Link>
+            <Link href="/#writing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Writing
+            </Link>
+            <Link href="/vault" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Vault
+            </Link>
+          </nav>
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1 -m-1"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={15} strokeWidth={1.75} /> : <Moon size={15} strokeWidth={1.75} />}
+            </button>
+          )}
+        </div>
       </div>
     </header>
   )

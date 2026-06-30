@@ -55,7 +55,7 @@ Palette: Warm cream backgrounds, rich dark brown text, copper accent. Headings i
 
 **Fonts:** `font-heading` = Cormorant Garamond (display headings, 大森 logo). `font-sans` = Libre Baskerville (body text, default). Applied via `--font-cormorant` and `--font-libre-baskerville` CSS variables set in `layout.tsx`.
 
-**Dark mode note:** The `.dark` CSS block still exists and is used explicitly by DrugX (`/projects/compliant-market`), which wraps its content in `<div className="dark">` to preserve its dark marketplace aesthetic. Do not add `class="dark"` to the global html element.
+**Dark mode:** Site supports user-toggled dark mode via `next-themes`. `ThemeProvider` in `layout.tsx` wraps the app; toggle button in `SiteHeader` switches theme. `next-themes` adds `class="dark"` to `<html>` when active — `suppressHydrationWarning` is set on `<html>` to prevent SSR mismatch. Default is `"light"`, system preference not followed. DrugX wraps its content in `<div className="dark">` regardless of site theme, which is fine since the dark CSS variables are already defined.
 
 ### Surface Hierarchy
 Four elevation levels — each step is a slightly deeper warm cream:
@@ -132,7 +132,7 @@ Usage examples:
 4. **Interactive borders use `border-border-hover`.** Any clickable card or link block: `border-border hover:border-border-hover`.
 5. **Status colors follow the solid/tinted pattern.** Don't invent one-off colored elements — use the status system.
 6. **All pages use the design system, including the homepage.** No exemptions. The homepage was redesigned as part of the warm editorial rebrand.
-7. **Never add `class="dark"` to the html element.** The site is light mode. DrugX uses dark mode locally via its own wrapper div.
+7. **Don't hardcode dark mode.** `next-themes` manages the dark class on `<html>` — never set it manually. DrugX still uses its own `<div className="dark">` wrapper for local dark scoping, which is compatible with site-wide dark mode.
 
 ### Project Page Hero Pattern
 Document-style project pages (case studies, project write-ups) must use this hero structure to establish visual hierarchy. **The h1 being dramatically larger than everything else is what makes a page feel designed.**
