@@ -16,10 +16,10 @@ export default function Home() {
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-6">
           Product Manager · San Francisco
         </p>
-        <h1 className="font-heading text-6xl font-bold text-foreground tracking-tight leading-[1.05] mb-6 max-w-xl">
+        <h1 data-parallax className="font-heading text-6xl font-bold text-foreground tracking-tight leading-[1.05] mb-6 max-w-xl">
           Building to learn.
         </h1>
-        <p className="text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
+        <p data-parallax data-parallax-strength="5" className="text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
           Ideas, experiments, and constructive distractions.
         </p>
         <div className="flex gap-3">

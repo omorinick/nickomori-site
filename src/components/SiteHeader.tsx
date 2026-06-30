@@ -7,10 +7,12 @@ import { Sun, Moon, MousePointer2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useCursorEffect, type CursorEffect } from '@/contexts/CursorContext'
 
-const CURSOR_OPTIONS: { value: CursorEffect; label: string }[] = [
-  { value: 'glow',      label: 'Glow' },
-  { value: 'spotlight', label: 'Spotlight' },
-  { value: 'none',      label: 'None' },
+const CURSOR_OPTIONS: { value: CursorEffect; label: string; description: string }[] = [
+  { value: 'none',      label: 'None',          description: 'No mouse effect' },
+  { value: 'glow',      label: 'Cursor Glow',   description: 'Warm ambient light follows cursor — very subtle' },
+  { value: 'magnetic',  label: 'Magnetic',      description: 'Cards pull slightly toward cursor on hover' },
+  { value: 'cursor',    label: 'Custom Cursor',  description: 'Accent dot + lagging ring replaces system cursor' },
+  { value: 'parallax',  label: 'Parallax',      description: 'Hero text shifts subtly with cursor position' },
 ]
 
 export function SiteHeader() {
@@ -22,11 +24,20 @@ export function SiteHeader() {
 
   useEffect(() => setMounted(true), [])
 
+  useEffect(() => {
+    if (!cursorOpen) return
+    const close = (e: MouseEvent) => {
+      if (!(e.target as Element).closest('#cursor-dropdown')) setCursorOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [cursorOpen])
+
   if (pathname.startsWith('/projects/compliant-market')) return null
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card">
-      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <span className="font-heading text-xl font-light tracking-widest text-foreground select-none group-hover:text-muted-foreground transition-colors">
             大森
@@ -45,37 +56,6 @@ export function SiteHeader() {
 
           {mounted && (
             <div className="flex items-center gap-3">
-              {/* Cursor effect selector */}
-              <div
-                className="relative"
-                onMouseEnter={() => setCursorOpen(true)}
-                onMouseLeave={() => setCursorOpen(false)}
-              >
-                <button
-                  className="text-muted-foreground hover:text-foreground transition-colors p-1 -m-1"
-                  aria-label="Cursor effect"
-                >
-                  <MousePointer2 size={15} strokeWidth={1.75} />
-                </button>
-                {cursorOpen && (
-                  <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg py-1 w-28 z-50 shadow-sm">
-                    {CURSOR_OPTIONS.map(opt => (
-                      <button
-                        key={opt.value}
-                        onClick={() => { setEffect(opt.value); setCursorOpen(false) }}
-                        className={`w-full text-left px-3 py-1.5 text-sm transition-colors ${
-                          effect === opt.value
-                            ? 'text-foreground'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* Dark mode toggle */}
               <div className="relative group">
                 <button
@@ -88,6 +68,38 @@ export function SiteHeader() {
                 <span className="absolute right-0 top-full mt-2 bg-card border border-border rounded px-2 py-1 text-xs text-muted-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                   {theme === 'dark' ? 'Light mode' : 'Dark mode'}
                 </span>
+              </div>
+
+              {/* Cursor effect selector */}
+              <div id="cursor-dropdown" className="relative">
+                <button
+                  onClick={() => setCursorOpen(o => !o)}
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1 -m-1"
+                  aria-label="Cursor effect"
+                  aria-expanded={cursorOpen}
+                >
+                  <MousePointer2 size={15} strokeWidth={1.75} />
+                </button>
+
+                {cursorOpen && (
+                  <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl p-1 w-64 z-50 shadow-sm">
+                    <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase px-3 pt-2 pb-1.5">
+                      Mouse Effects
+                    </p>
+                    {CURSOR_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => { setEffect(opt.value); setCursorOpen(false) }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
+                          effect === opt.value ? 'bg-muted' : 'hover:bg-muted/50'
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-foreground mb-0.5">{opt.label}</p>
+                        <p className="text-xs text-muted-foreground leading-snug">{opt.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

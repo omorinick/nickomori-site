@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useState, useEffect } from 'react'
 
-export type CursorEffect = 'glow' | 'spotlight' | 'none'
+export type CursorEffect = 'none' | 'glow' | 'magnetic' | 'cursor' | 'parallax'
+
+const VALID: CursorEffect[] = ['none', 'glow', 'magnetic', 'cursor', 'parallax']
 
 interface CursorContextValue {
   effect: CursorEffect
@@ -19,9 +21,7 @@ export function CursorProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem('cursor-effect') as CursorEffect | null
-    if (saved && ['glow', 'spotlight', 'none'].includes(saved)) {
-      setEffectState(saved)
-    }
+    if (saved && VALID.includes(saved)) setEffectState(saved)
   }, [])
 
   const setEffect = (e: CursorEffect) => {
