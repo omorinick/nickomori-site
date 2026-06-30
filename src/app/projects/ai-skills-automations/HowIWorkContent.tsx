@@ -1,8 +1,47 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { PageBreadcrumb } from '@/components/PageBreadcrumb'
+
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setInView(true) },
+      { threshold }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return { ref, inView }
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  className = '',
+}: {
+  children: React.ReactNode
+  delay?: number
+  className?: string
+}) {
+  const { ref, inView } = useInView(0.08)
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      } ${className}`}
+      style={{ transitionDelay: inView ? `${delay}ms` : '0ms' }}
+    >
+      {children}
+    </div>
+  )
+}
 
 type TimingColor = 'daily' | 'monday' | 'friday' | 'monthly'
 
@@ -572,12 +611,17 @@ export function HowIWorkContent() {
           </p>
         </div>
 
+        {/* Divider */}
+        <div className="border-t border-border mb-16" />
+
         {/* The Automated Cadence */}
-        <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">The Automated Cadence</h2>
-          <p className="text-xs text-muted-foreground mb-6">
-            Five automations run on a fixed schedule. Click a time slot to filter by cadence.
-          </p>
+        <section className="mb-16">
+          <Reveal>
+            <h2 className="text-base font-semibold text-foreground mb-1">The Automated Cadence</h2>
+            <p className="text-xs text-muted-foreground mb-6">
+              Five automations run on a fixed schedule. Click a time slot to filter by cadence.
+            </p>
+          </Reveal>
 
           {/* Cadence strip */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">
@@ -625,13 +669,17 @@ export function HowIWorkContent() {
 
         {/* Domain-Encoded Skills */}
         <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">Domain-Encoded Skills</h2>
+          <Reveal>
+            <h2 className="text-base font-semibold text-foreground mb-1">Domain-Encoded Skills</h2>
+          </Reveal>
+          <Reveal delay={60}>
           <p className="text-xs text-muted-foreground mb-6 max-w-2xl">
             On-demand capabilities triggered as needed. Each one encodes something specific to a
             domain: the schema of a data platform, the field structure of a project tracker, the
             logic of a financial process, the visual rules of a brand system. Deep familiarity
             with a domain is worth encoding once and reusing.
           </p>
+          </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {skills.map((skill) => (
               <SkillCard key={skill.name} skill={skill} />
@@ -640,13 +688,13 @@ export function HowIWorkContent() {
         </section>
 
         {/* Closing */}
-        <div className="pb-10">
+        <Reveal className="pb-10">
           <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
             These were built incrementally as recurring problems surfaced. The specs reflect how
             each one actually works and what it was built to replace. The catalog grows as new
             problems come up.
           </p>
-        </div>
+        </Reveal>
       </div>
     </main>
   )

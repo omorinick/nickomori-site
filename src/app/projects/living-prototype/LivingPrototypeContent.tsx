@@ -1,5 +1,47 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { PageBreadcrumb } from '@/components/PageBreadcrumb'
+
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setInView(true) },
+      { threshold }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return { ref, inView }
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  className = '',
+}: {
+  children: React.ReactNode
+  delay?: number
+  className?: string
+}) {
+  const { ref, inView } = useInView(0.08)
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      } ${className}`}
+      style={{ transitionDelay: inView ? `${delay}ms` : '0ms' }}
+    >
+      {children}
+    </div>
+  )
+}
 
 const capabilities = [
   {
@@ -102,8 +144,8 @@ export function LivingPrototypeContent() {
           <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
             A skill for turning raw content — a Confluence page, a data pull, a rough narrative — into an interactive web presentation.
           </p>
-          <p className="text-sm text-muted-foreground mb-5 max-w-2xl">
-            Built for leadership communication, where the medium usually defaults to a deck. A browser isn't a deck.
+          <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
+            Built for leadership communication, where the medium usually defaults to a deck. A browser isn&apos;t a deck.
           </p>
           <a
             href="/skills/living-prototype.md"
@@ -114,117 +156,135 @@ export function LivingPrototypeContent() {
           </a>
         </div>
 
-        {/* See it in action */}
-        <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">See it in action</h2>
-          <p className="text-xs text-muted-foreground mb-6">
-            Two examples — both single self-contained HTML files.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Link
-              href="/pattern-gallery.html"
-              target="_blank"
-              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-sm font-semibold text-foreground">Pattern Storybook</p>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                Every interaction pattern running live. Drag the sliders, click the panels, replay the animations. Also the source file — patterns are copied from here directly into prototypes.
+        <div className="flex flex-col gap-16">
+          {/* See it in action */}
+          <section>
+            <Reveal>
+              <h2 className="text-base font-semibold text-foreground mb-1">See it in action</h2>
+              <p className="text-xs text-muted-foreground mb-6">
+                Two examples — both single self-contained HTML files.
               </p>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-success bg-success-subtle px-2 py-0.5 rounded">
-                Public
-              </span>
-            </Link>
-
-            <Link
-              href="/vault/churn-case"
-              target="_blank"
-              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-sm font-semibold text-foreground">Retention Strategy — Leadership Presentation</p>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                A full leadership case built with the skill. SCQA structure, spine-and-ribs layout. Six patterns in use: metric reveal, animated chart, horizontal carousel, parameter slider, master-detail panel, live notification demo.
-              </p>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-secondary px-2 py-0.5 rounded">
-                Vault access required
-              </span>
-            </Link>
-          </div>
-        </section>
-
-        {/* The problem with slides */}
-        <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">Why not slides</h2>
-          <p className="text-sm text-muted-foreground mb-4 max-w-2xl leading-relaxed">
-            Slides force every story into the same vehicle: a horizontal sequence of static rectangles. That format works for some things and fights against others. When the story has data worth exploring, or a model worth poking, or a product experience worth showing — slides describe it. A browser can do the thing itself.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {capabilities.map((cap) => (
-              <div key={cap.title} className="rounded-xl border border-border bg-card px-5 py-4">
-                <p className="text-sm font-semibold text-foreground mb-1.5">{cap.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{cap.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* The process */}
-        <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">The process</h2>
-          <p className="text-xs text-muted-foreground mb-6">
-            Six steps, in order. Skipping the intake is the most expensive mistake.
-          </p>
-          <div className="flex flex-col gap-3">
-            {steps.map((step) => (
-              <div key={step.num} className="rounded-xl border border-border bg-card px-5 py-4 flex gap-5">
-                <span className="text-[10px] font-mono text-muted-foreground pt-0.5 flex-shrink-0 w-5">
-                  {step.num}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-foreground mb-1">{step.title}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Spatial grammars */}
-        <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">Choosing the layout</h2>
-          <p className="text-xs text-muted-foreground mb-6">
-            Narrative first, layout second. The spatial grammar serves the story — it isn't picked for novelty.
-          </p>
-          <div className="rounded-xl border border-border overflow-hidden">
-            <div className="grid grid-cols-3 border-b border-border bg-secondary px-4 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Situation</p>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Layout</p>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Why</p>
+            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Reveal delay={80}>
+                <Link
+                  href="/pattern-gallery.html"
+                  target="_blank"
+                  className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block h-full"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="text-sm font-semibold text-foreground">Pattern Storybook</p>
+                    <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    Every interaction pattern running live. Drag the sliders, click the panels, replay the animations. Also the source file — patterns are copied from here directly into prototypes.
+                  </p>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-success bg-success-subtle px-2 py-0.5 rounded">
+                    Public
+                  </span>
+                </Link>
+              </Reveal>
+              <Reveal delay={160}>
+                <Link
+                  href="/vault/churn-case"
+                  target="_blank"
+                  className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block h-full"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="text-sm font-semibold text-foreground">Retention Strategy — Leadership Presentation</p>
+                    <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    A full leadership case built with the skill. SCQA structure, spine-and-ribs layout. Six patterns in use: metric reveal, animated chart, horizontal carousel, parameter slider, master-detail panel, live notification demo.
+                  </p>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+                    Vault access required
+                  </span>
+                </Link>
+              </Reveal>
             </div>
-            {grammars.map((row, i) => (
-              <div
-                key={row.layout}
-                className={`grid grid-cols-3 px-4 py-3 gap-4 ${i < grammars.length - 1 ? 'border-b border-border' : ''}`}
-              >
-                <p className="text-xs text-muted-foreground leading-relaxed">{row.situation}</p>
-                <p className="text-xs font-medium text-foreground">{row.layout}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{row.why}</p>
+          </section>
+
+          {/* Why not slides */}
+          <section>
+            <Reveal>
+              <h2 className="text-base font-semibold text-foreground mb-1">Why not slides</h2>
+              <p className="text-sm text-muted-foreground mb-6 max-w-2xl leading-relaxed">
+                Slides force every story into the same vehicle: a horizontal sequence of static rectangles. That format works for some things and fights against others. When the story has data worth exploring, or a model worth poking, or a product experience worth showing — slides describe it. A browser can do the thing itself.
+              </p>
+            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {capabilities.map((cap, i) => (
+                <Reveal key={cap.title} delay={i * 80}>
+                  <div className="rounded-xl border border-border bg-card px-5 py-4 h-full">
+                    <p className="text-sm font-semibold text-foreground mb-1.5">{cap.title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{cap.description}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+
+          {/* The process */}
+          <section>
+            <Reveal>
+              <h2 className="text-base font-semibold text-foreground mb-1">The process</h2>
+              <p className="text-xs text-muted-foreground mb-6">
+                Six steps, in order. Skipping the intake is the most expensive mistake.
+              </p>
+            </Reveal>
+            <div className="flex flex-col gap-3">
+              {steps.map((step, i) => (
+                <Reveal key={step.num} delay={i * 60}>
+                  <div className="rounded-xl border border-border bg-card px-5 py-4 flex gap-5">
+                    <span className="text-[10px] font-mono text-muted-foreground pt-0.5 flex-shrink-0 w-5">
+                      {step.num}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground mb-1">{step.title}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+
+          {/* Spatial grammars */}
+          <section>
+            <Reveal>
+              <h2 className="text-base font-semibold text-foreground mb-1">Choosing the layout</h2>
+              <p className="text-xs text-muted-foreground mb-6">
+                Narrative first, layout second. The spatial grammar serves the story — it isn&apos;t picked for novelty.
+              </p>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="rounded-xl border border-border overflow-hidden">
+                <div className="grid grid-cols-3 border-b border-border bg-secondary px-4 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Situation</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Layout</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Why</p>
+                </div>
+                {grammars.map((row, i) => (
+                  <div
+                    key={row.layout}
+                    className={`grid grid-cols-3 px-4 py-3 gap-4 ${i < grammars.length - 1 ? 'border-b border-border' : ''}`}
+                  >
+                    <p className="text-xs text-muted-foreground leading-relaxed">{row.situation}</p>
+                    <p className="text-xs font-medium text-foreground">{row.layout}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{row.why}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </Reveal>
+          </section>
 
-
-        {/* Closing */}
-        <div className="pb-10">
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-            The output is always a single file that opens on double-click and presents at whatever size it'll be shown. No build step, no dependencies, no deploy. If the team wants to take it into a production stack, the component structure ports cleanly into any React + Tailwind setup.
-          </p>
+          {/* Closing */}
+          <Reveal className="pb-10">
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+              The output is always a single file that opens on double-click and presents at whatever size it&apos;ll be shown. No build step, no dependencies, no deploy. If the team wants to take it into a production stack, the component structure ports cleanly into any React + Tailwind setup.
+            </p>
+          </Reveal>
         </div>
       </div>
     </main>
