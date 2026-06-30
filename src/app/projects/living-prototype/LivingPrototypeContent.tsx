@@ -114,6 +114,49 @@ export function LivingPrototypeContent() {
           </a>
         </div>
 
+        {/* See it in action */}
+        <section className="mb-12">
+          <h2 className="text-base font-semibold text-foreground mb-1">See it in action</h2>
+          <p className="text-xs text-muted-foreground mb-6">
+            Two examples — both single self-contained HTML files.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Link
+              href="/pattern-gallery.html"
+              target="_blank"
+              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
+            >
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-sm font-semibold text-foreground">Pattern Storybook</p>
+                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                Every interaction pattern running live. Drag the sliders, click the panels, replay the animations. Also the source file — patterns are copied from here directly into prototypes.
+              </p>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-success bg-success-subtle px-2 py-0.5 rounded">
+                Public
+              </span>
+            </Link>
+
+            <Link
+              href="/vault/churn-case"
+              target="_blank"
+              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
+            >
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-sm font-semibold text-foreground">Retention Strategy — Leadership Presentation</p>
+                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                A full leadership case built with the skill. SCQA structure, spine-and-ribs layout. Six patterns in use: metric reveal, animated chart, horizontal carousel, parameter slider, master-detail panel, live notification demo.
+              </p>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+                Vault access required
+              </span>
+            </Link>
+          </div>
+        </section>
+
         {/* The problem with slides */}
         <section className="mb-12">
           <h2 className="text-base font-semibold text-foreground mb-1">Why not slides</h2>
@@ -176,48 +219,6 @@ export function LivingPrototypeContent() {
           </div>
         </section>
 
-        {/* Examples */}
-        <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">Examples</h2>
-          <p className="text-xs text-muted-foreground mb-6">
-            Built with this skill. Both are single self-contained HTML files.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Link
-              href="/pattern-gallery.html"
-              target="_blank"
-              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-sm font-semibold text-foreground">Pattern Storybook</p>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                Every interaction pattern running live. Drag the sliders, click the panels, replay the animations. Also the source file — patterns are copied from here directly into prototypes.
-              </p>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-success bg-success-subtle px-2 py-0.5 rounded">
-                Public
-              </span>
-            </Link>
-
-            <Link
-              href="/vault/churn-case"
-              target="_blank"
-              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-sm font-semibold text-foreground">Retention Strategy — Leadership Presentation</p>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                A full leadership case built with the skill. SCQA structure, spine-and-ribs layout. Six patterns in use: metric reveal, animated chart, horizontal carousel, parameter slider, master-detail panel, live notification demo.
-              </p>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-secondary px-2 py-0.5 rounded">
-                Vault access required
-              </span>
-            </Link>
-          </div>
-        </section>
 
         {/* Closing */}
         <div className="pb-10">
