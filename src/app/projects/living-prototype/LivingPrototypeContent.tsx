@@ -102,9 +102,16 @@ export function LivingPrototypeContent() {
           <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
             A skill for turning raw content — a Confluence page, a data pull, a rough narrative — into an interactive web presentation.
           </p>
-          <p className="text-sm text-muted-foreground mb-8 max-w-2xl">
+          <p className="text-sm text-muted-foreground mb-5 max-w-2xl">
             Built for leadership communication, where the medium usually defaults to a deck. A browser isn't a deck.
           </p>
+          <a
+            href="/skills/living-prototype.md"
+            download
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ↓ Download skill file
+          </a>
         </div>
 
         {/* The problem with slides */}

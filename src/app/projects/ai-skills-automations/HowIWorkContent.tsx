@@ -42,6 +42,7 @@ const automations = [
     timing: 'Weekday mornings',
     timingColor: 'daily' as TimingColor,
     slot: 'MON AM',
+    skillFile: 'daily-context-brief.md',
     tools: ['Slack MCP', 'Google Calendar MCP', 'Gmail MCP', 'Jira MCP'],
     summary:
       'Synthesizes overnight activity into a structured start-of-day briefing. Surfaces action items, flags calendar issues, and closes with a single priority for the day.',
@@ -69,6 +70,7 @@ Get the API governance doc to a reviewable state before the 2:30pm sync.`,
     timing: 'Monday mornings',
     timingColor: 'monday' as TimingColor,
     slot: 'MON AM',
+    skillFile: 'alignment-scan.md',
     tools: ['Slack MCP', 'Jira MCP', 'Confluence MCP', 'Gmail MCP', 'Filesystem MCP'],
     summary:
       'Scans the past 7 days for signals of cross-functional misalignment with active initiatives. Outputs a severity-tiered report saved with the date.',
@@ -98,6 +100,7 @@ Saved: alignment-scan-2025-03-10.md`,
     timing: 'Friday mornings',
     timingColor: 'friday' as TimingColor,
     slot: 'FRI AM',
+    skillFile: 'weekly-ship-log.md',
     tools: ['Jira MCP', 'Slack MCP', 'Filesystem MCP'],
     summary:
       "Proposes structured ship log entries for the week's completed and delivered work. Waits for approval before writing anything.",
@@ -126,6 +129,7 @@ Ready to write 2 entries. Approve?`,
     timing: 'Monday mornings',
     timingColor: 'monday' as TimingColor,
     slot: 'MON AM (following)',
+    skillFile: 'impact-checkin.md',
     tools: ['Filesystem MCP'],
     summary:
       'Reads the ship log and surfaces reminders for entries whose checkpoint dates have arrived or are within 14 days. Includes the original success criteria and where to find the data.',
@@ -151,6 +155,7 @@ Notification experiment measurement plan (shipped Feb 24, 30-day = March 26)
     timing: '1st of each month',
     timingColor: 'monthly' as TimingColor,
     slot: '1ST OF MONTH',
+    skillFile: 'monthly-project-review.md',
     tools: ['Jira MCP', 'Confluence MCP', 'Slack MCP', 'Filesystem MCP'],
     summary:
       'Researches what changed across active projects over the past 30 days and proposes a clean diff. Waits for approval before writing, then generates a condensed version for AI context.',
@@ -182,6 +187,7 @@ Approve to write? A condensed version for your AI context will be generated afte
 const skills = [
   {
     name: 'Analytics Query Skill',
+    skillFile: 'analytics-query.md',
     tools: ['BI Platform MCP'],
     summary:
       'Encodes the full query grammar of a complex enterprise BI platform, including metric definitions, model selection logic, and guardrails against common mistakes.',
@@ -208,6 +214,7 @@ Note: Agent-level breakdown omitted per 6-month query policy.`,
   },
   {
     name: 'Internal Documentation Search',
+    skillFile: 'doc-search.md',
     tools: ['Confluence MCP'],
     summary:
       "Maps the structure of a large internal documentation hub with a fast-path index of commonly referenced pages. Falls back to targeted queries when the fast path doesn't match.",
@@ -230,6 +237,7 @@ Related:
   },
   {
     name: 'Project Tracker Skill',
+    skillFile: 'project-tracker.md',
     tools: ['Jira MCP'],
     summary:
       'A searchable database of 4,500+ custom fields in an enterprise project tracker, plus a story creation workflow with mandatory human review checkpoints.',
@@ -262,6 +270,7 @@ Review carefully. Send to Jira?`,
   },
   {
     name: 'Financial Reconciliation Skill',
+    skillFile: 'financial-reconciliation.md',
     tools: ['Database MCP', 'Filesystem MCP'],
     summary:
       'Encodes the logic for financial reconciliation matching against a library of 2,567 stored procedures. Produces validated, production-ready SQL.',
@@ -290,6 +299,7 @@ Running validation query first:
   },
   {
     name: 'PM Framework Skill',
+    skillFile: 'pm-framework.md',
     tools: [] as string[],
     summary:
       'Encodes the full Pragmatic Product Management Framework across nine disciplines with a 5-level maturity model.',
@@ -311,6 +321,7 @@ FOUNDATIONS (1 of 9)
   },
   {
     name: 'Roadmap Generator',
+    skillFile: 'roadmap-generator.md',
     tools: ['Jira MCP', 'Filesystem MCP'],
     summary:
       'Transforms live project tracker data into two roadmap views: one customer-facing, one for the internal team. Validates data quality before generating.',
@@ -337,6 +348,7 @@ INTERNAL TEAM VIEW
   },
   {
     name: 'Brand Standards Skill',
+    skillFile: 'brand-standards.md',
     tools: [] as string[],
     summary:
       'Encodes a complete brand system: type rules, color proportions, accessibility requirements, and medium-specific usage patterns.',
@@ -441,6 +453,17 @@ function AutomationCard({
                 {automation.example}
               </pre>
             </div>
+
+            <div className="border-t border-border pt-4">
+              <a
+                href={`/skills/${automation.skillFile}`}
+                download
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                ↓ Download skill file
+              </a>
+            </div>
           </div>
         </div>
       )}
@@ -504,6 +527,17 @@ function SkillCard({ skill }: { skill: (typeof skills)[0] }) {
               <pre className="text-xs text-muted-foreground bg-background rounded-lg px-4 py-4 overflow-x-auto leading-relaxed border border-border whitespace-pre-wrap font-mono">
                 {skill.example}
               </pre>
+            </div>
+
+            <div className="border-t border-border pt-4">
+              <a
+                href={`/skills/${skill.skillFile}`}
+                download
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                ↓ Download skill file
+              </a>
             </div>
           </div>
         </div>
