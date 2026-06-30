@@ -2,8 +2,8 @@ import Link from "next/link"
 
 const stats = [
   { value: "8+", label: "Years in product" },
-  { value: "12", label: "Projects shipped" },
-  { value: "3", label: "AI tools in prod" },
+  { value: "Countless", label: "Constructive distractions" },
+  { value: "0", label: "Slide decks" },
 ]
 
 const projects = [
