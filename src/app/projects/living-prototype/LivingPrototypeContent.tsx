@@ -176,20 +176,6 @@ export function LivingPrototypeContent() {
           </div>
         </section>
 
-        {/* Pattern library */}
-        <section className="mb-12">
-          <h2 className="text-base font-semibold text-foreground mb-1">Pattern library</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl mb-4">
-            A small vocabulary of reusable interaction patterns — each one named, described, and running live in a storybook. When building a prototype, each section maps to an intent, picks a named pattern, copies it in, and sets its knobs. The library stays small: patterns earn their place by recurring across real work.
-          </p>
-          <Link
-            href="/projects/pattern-gallery"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Browse the pattern storybook →
-          </Link>
-        </section>
-
         {/* Examples */}
         <section className="mb-12">
           <h2 className="text-base font-semibold text-foreground mb-1">Examples</h2>
@@ -197,23 +183,6 @@ export function LivingPrototypeContent() {
             Built with this skill. Both are single self-contained HTML files.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Link
-              href="/vault/churn-case"
-              target="_blank"
-              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-sm font-semibold text-foreground">Churn & Decline Case</p>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                A leadership case for prioritizing product depth as a retention lever. SCQA structure, spine-and-ribs layout. Six patterns: metric reveal, animated chart, horizontal carousel, parameter slider, master-detail panel, live notification demo.
-              </p>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-secondary px-2 py-0.5 rounded">
-                Vault access required
-              </span>
-            </Link>
-
             <Link
               href="/pattern-gallery.html"
               target="_blank"
@@ -228,6 +197,23 @@ export function LivingPrototypeContent() {
               </p>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-success bg-success-subtle px-2 py-0.5 rounded">
                 Public
+              </span>
+            </Link>
+
+            <Link
+              href="/vault/churn-case"
+              target="_blank"
+              className="group rounded-xl border border-border bg-card px-5 py-4 hover:border-border-hover transition-colors block"
+            >
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-sm font-semibold text-foreground">Retention Strategy — Leadership Presentation</p>
+                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm flex-shrink-0">→</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                A full leadership case built with the skill. SCQA structure, spine-and-ribs layout. Six patterns in use: metric reveal, animated chart, horizontal carousel, parameter slider, master-detail panel, live notification demo.
+              </p>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+                Vault access required
               </span>
             </Link>
           </div>
