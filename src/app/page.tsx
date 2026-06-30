@@ -58,18 +58,21 @@ export default function Home() {
       {/* ── Writing ── */}
       <section id="writing" className="max-w-5xl mx-auto px-6 pb-24">
         <div className="border-t border-border pt-16">
-          <h2 className="font-heading text-3xl font-bold text-foreground tracking-tight mb-2">
-            Writing
-          </h2>
+          <div className="flex items-baseline gap-3 mb-2">
+            <h2 className="font-heading text-3xl font-bold text-foreground tracking-tight">
+              Writing
+            </h2>
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Coming Soon</span>
+          </div>
           <p className="text-sm text-muted-foreground mb-10">
             Ideas worth thinking through.
           </p>
           <blockquote className="border-l-2 border-primary pl-6 py-1 max-w-2xl">
             <p className="text-base text-foreground leading-relaxed mb-3">
-              &ldquo;The faster we make our ideas tangible, the sooner we can evaluate them, refine them, and zero in on the best solution.&rdquo;
+              &ldquo;I don&apos;t know what I think until I write it down.&rdquo;
             </p>
             <p className="text-sm text-muted-foreground">
-              — Tim Brown, <span className="italic">Change by Design</span>
+              — Joan Didion
             </p>
           </blockquote>
         </div>

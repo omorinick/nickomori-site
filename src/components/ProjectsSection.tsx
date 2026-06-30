@@ -105,7 +105,7 @@ export function ProjectsSection() {
           onClick={() => setExpanded(e => !e)}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          {expanded ? 'Show less ↑' : 'Show more'}
+          {expanded ? 'Show less ↑' : 'Show more ↓'}
         </button>
       </div>
     </section>

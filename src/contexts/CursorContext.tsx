@@ -17,7 +17,7 @@ const CursorContext = createContext<CursorContextValue>({
 })
 
 export function CursorProvider({ children }: { children: React.ReactNode }) {
-  const [effect, setEffectState] = useState<CursorEffect>('glow')
+  const [effect, setEffectState] = useState<CursorEffect>('none')
 
   useEffect(() => {
     const saved = localStorage.getItem('cursor-effect') as CursorEffect | null
