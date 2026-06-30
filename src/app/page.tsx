@@ -1,48 +1,12 @@
 import Link from "next/link"
+import { ProjectsSection } from "@/components/ProjectsSection"
 
 const stats = [
   { value: "8+", label: "Years in product" },
-  { value: "Countless", label: "Constructive distractions" },
+  { value: "Countless", label: "Distractions" },
   { value: "0", label: "Slide decks" },
 ]
 
-const projects = [
-  {
-    title: "Theme Playground",
-    type: "Tool",
-    href: "/theme-playground.html",
-    external: true,
-    description: "Live color and typography explorer. Pick a palette, preview the full design system, export CSS tokens.",
-  },
-  {
-    title: "Assumption Mapper",
-    type: "AI Tool",
-    href: "/projects/pm-toolkit",
-    external: false,
-    description: "Describe a product idea. Get a full assumption map across the five Torres discovery dimensions — instantly.",
-  },
-  {
-    title: "AI Skills & Automations",
-    type: "PM Workflow",
-    href: "/projects/ai-skills-automations",
-    external: false,
-    description: "Five automations and seven domain-encoded skills that run my PM workflow at work.",
-  },
-  {
-    title: "Living Prototype",
-    type: "Skill",
-    href: "/projects/living-prototype",
-    external: false,
-    description: "Raw narrative → interactive web presentation. No slides, no constraints.",
-  },
-  {
-    title: "Backseat Driver",
-    type: "In progress",
-    href: "/projects/backseat-driver",
-    external: false,
-    description: "Car-maintenance advisor that works for the owner, not the shop.",
-  },
-]
 
 export default function Home() {
   return (
@@ -89,59 +53,7 @@ export default function Home() {
       </section>
 
       {/* ── Constructive Distractions ── */}
-      <section className="max-w-5xl mx-auto px-6 pb-20">
-        <h2 className="font-heading text-3xl font-bold text-foreground tracking-tight mb-2">
-          Constructive Distractions
-        </h2>
-        <p className="text-sm text-muted-foreground mb-8">
-          Projects built to think, not just to ship.
-        </p>
-        <div className="border-t border-border">
-          {projects.map(({ title, type, href, external, description }) =>
-            external ? (
-              <a
-                key={title}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-4 border-b border-border py-5 hover:opacity-70 transition-opacity"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-3 mb-0.5">
-                    <span className="font-heading text-lg font-bold text-foreground">{title}</span>
-                    <span className="text-xs font-medium text-primary flex-shrink-0">{type}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-snug">{description}</p>
-                </div>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0">↗</span>
-              </a>
-            ) : (
-              <Link
-                key={title}
-                href={href}
-                className="group flex items-center gap-4 border-b border-border py-5 hover:opacity-70 transition-opacity"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-3 mb-0.5">
-                    <span className="font-heading text-lg font-bold text-foreground">{title}</span>
-                    <span className="text-xs font-medium text-primary flex-shrink-0">{type}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-snug">{description}</p>
-                </div>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0">→</span>
-              </Link>
-            )
-          )}
-        </div>
-        <div className="mt-5">
-          <Link
-            href="/projects"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            View all projects →
-          </Link>
-        </div>
-      </section>
+      <ProjectsSection />
 
       {/* ── Writing ── */}
       <section id="writing" className="max-w-5xl mx-auto px-6 pb-24">

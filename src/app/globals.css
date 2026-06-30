@@ -174,6 +174,24 @@
   }
 }
 
+/* Cursor glow — position set via JS on documentElement */
+:root {
+  --cursor-x: -999px;
+  --cursor-y: -999px;
+  --glow-color: rgba(184, 115, 51, 0.065);
+}
+.dark {
+  --glow-color: rgba(196, 154, 60, 0.07);
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(520px circle at var(--cursor-x) var(--cursor-y), var(--glow-color), transparent 70%);
+}
+
 @keyframes shine {
   0%   { transform: translateX(-100%); }
   40%  { transform: translateX(350%); }
