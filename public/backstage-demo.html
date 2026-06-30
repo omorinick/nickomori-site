@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Backstage — live demo</title>
+<style>
+  :root{--accent:#0070e0;--accent-deep:#003087;--ink:#1a1a1a;--muted:#6b7280;--line:#e7e5e4;--bg:#f7f7f5;--green:#1f9d55;--green-bg:#e7f6ee;--amber-bg:#fef3c7;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  a{color:var(--accent);text-decoration:none}
+  .app{display:flex;min-height:100vh}
+  .side{width:230px;flex:0 0 230px;background:#fbfbfa;border-right:1px solid var(--line);padding:22px 16px}
+  .logo{font-weight:800;font-size:22px;color:#003087;padding:0 8px 14px}
+  .logo span{color:var(--accent)}
+  .create{background:#000;color:#fff;border:none;border-radius:22px;padding:10px 16px;font-weight:700;margin:0 8px 18px;cursor:pointer}
+  .nav{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:#3f3f46;font-size:14.5px;font-weight:600;cursor:pointer}
+  .nav.active{background:#e9f2fe;color:var(--accent)}
+  .nav .dot{width:18px;height:18px;border-radius:5px;background:#d4d4d8}
+  .nav.active .dot{background:var(--accent)}
+  .main{flex:1;min-width:0}
+  .topbar{display:flex;align-items:center;gap:16px;padding:16px 28px;border-bottom:1px solid var(--line);background:#fff}
+  .biz{font-size:20px;font-weight:800}
+  .topbar .spacer{flex:1}
+  .bell{position:relative;font-size:20px;cursor:pointer}
+  .bell .b{position:absolute;top:-6px;right:-8px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 5px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700}
+  .content{padding:26px 28px 60px;max-width:1080px}
+  .blabel{color:var(--muted);font-size:14px}
+  .balance{font-size:46px;font-weight:800;letter-spacing:-1px;margin:2px 0 22px}
+  .sec{font-size:18px;font-weight:800;margin:0 0 14px}
+  .tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin-bottom:22px;flex-wrap:wrap}
+  .tab{padding:0 0 12px;font-size:14.5px;color:#71717a;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--ink);border-color:var(--ink)}
+  .tab.alert{color:#b45309}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px}
+  .ucard{border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff}
+  .ucard .h{color:var(--muted);font-size:13.5px;margin-bottom:6px}
+  .ucard .big{font-size:26px;font-weight:800;display:flex;align-items:center;gap:8px}
+  .delta{font-size:12px;font-weight:700;color:var(--green);background:var(--green-bg);padding:2px 7px;border-radius:20px}
+  .ucard p{font-size:13px;color:#52525b;margin:10px 0 6px;line-height:1.4}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:13px;padding:10px 8px;border-bottom:1px solid var(--line)}
+  td{padding:16px 8px;border-bottom:1px solid var(--line)}
+  .paid{background:var(--green-bg);color:var(--green);font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px}
+  .amt{font-weight:800}
+  .view{color:var(--accent);font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+  <!-- Plain HTML prototype. Note the data-backstage="..." attributes — that's the only markup change needed. -->
+  <!-- Click the BACKSTAGE tab on the right edge to open the overlay. -->
+  <div class="app">
+    <aside class="side">
+      <div class="logo">Lumara<span>Pay</span></div>
+      <button class="create" data-backstage="create">+ Create</button>
+      <div class="nav active"><span class="dot"></span>Home</div>
+      <div class="nav"><span class="dot"></span>Activity</div>
+      <div class="nav"><span class="dot"></span>Sales</div>
+      <div class="nav"><span class="dot"></span>Finance</div>
+      <div class="nav"><span class="dot"></span>Operations</div>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="biz">Lunara Skincare Studio</span>
+        <span class="spacer"></span>
+        <span class="bell" data-backstage="bell">&#128276;<span class="b">4</span></span>
+        <span class="avatar">AH</span>
+      </div>
+      <div class="content">
+        <div class="blabel">Available Balance</div>
+        <div class="balance" data-backstage="balance">$8,827.01</div>
+        <h3 class="sec">Recent activity and actions</h3>
+        <div class="tabs">
+          <div class="tab active">Recent Activity</div>
+          <div class="tab alert" data-backstage="overdue">6 Overdue invoices</div>
+          <div class="tab">5 Disputes</div>
+          <div class="tab">8 Customers</div>
+        </div>
+        <div class="cards">
+          <div class="ucard" data-backstage="avgsales">
+            <div class="h">Average monthly sales</div>
+            <div class="big">$15,120.00 <span class="delta">&uarr; +2.5%</span></div>
+            <p>Seasonal bundle promotions drove 60% of new revenue.</p>
+          </div>
+          <div class="ucard" data-backstage="repeat">
+            <div class="h">Repeat customers</div>
+            <div class="big">68% <span class="delta">&uarr; +4.2%</span></div>
+            <p>Encourage loyalty with special discounts.</p>
+          </div>
+          <div class="ucard" data-backstage="paylater">
+            <div class="h">&#128161; Did you know?</div>
+            <p><b>Pay Later</b> can reduce overdue invoices with flexible payment plans.</p>
+            <button class="create" style="margin:6px 0 0;padding:8px 14px">Try Pay Later</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Date</th><th>Order #</th><th>Customer</th><th>Status</th><th>Amount</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Aug 5</td><td>INV-2025-234</td><td>Mia Lang</td><td><span class="paid">Paid</span></td><td class="amt">$300.00</td><td><span class="view" data-backstage="viewrow">View details</span></td></tr>
+            <tr><td>Aug 5</td><td>C-151-5832</td><td>Heather Collins</td><td><span class="paid">Paid</span></td><td class="amt">$520.00</td><td><span class="view" data-backstage="viewrow">View details</span></td></tr>
+            <tr><td>Aug 4</td><td>INV-2025-226</td><td>Amaia Daniels</td><td><span class="paid">Paid</span></td><td class="amt">$440.00</td><td><span class="view" data-backstage="viewrow">View details</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/skills/backstage/backstage.js"></script>
+  <script>
+    Backstage.init({
+      balance: {
+        label: "Available Balance", status: "live",
+        sources: [{ name: "Wallet Ledger", type: "svc", ref: "GET /v1/wallet/balance" },
+                  { name: "Pending Holds", type: "calc", ref: "reserves - disputes" }],
+        calc: "Settled funds minus pending holds and active reserves, in account currency.",
+        io: { request: "GET /v1/wallet/balance?account=ACME-2291", response: '{ "available": 882701, "pending": 12030 }' },
+        presenter: "Real-time balance — it already nets out reserves.",
+        openQuestions: ["Are disputed amounts deducted here or downstream?"],
+        action: "Opened balance detail", narration: "Fetches live wallet balance and subtracts pending holds."
+      },
+      avgsales: {
+        label: "Average monthly sales", status: "live",
+        sources: [{ name: "Reporting DB", type: "db", ref: "fact_merchant_sales" }, { name: "Trend calc", type: "calc", ref: "MoM %" }],
+        calc: "Trailing-3-month average of settled sales; delta vs. prior month.",
+        io: { request: 'POST /reporting/aggregate { metric:"sales", window:"3mo" }', response: '{ "avg_monthly": 1512000, "mom_delta": 0.025 }' },
+        presenter: "Driven by the reporting pipeline — the 'seasonal bundle' nudge comes from the same data, not hardcoded.",
+        action: "Inspected avg monthly sales", narration: "Aggregation over the reporting warehouse, cached 6h."
+      },
+      repeat: {
+        label: "Repeat customers card", status: "tbd",
+        sources: [{ name: "Customer graph", type: "svc", ref: "TBD — which service owns identity?" }],
+        calc: "% of customers with 2+ orders in 90 days. Definition not locked.",
+        io: { request: "// endpoint not yet defined", response: "// mocked at 68%" },
+        presenter: "Flag this: plausible number, but we haven't identified the system of record.",
+        openQuestions: ["Which service owns customer identity across guest checkouts?", "Is 90 days the right window?"],
+        action: "Inspected repeat customers", narration: "No confirmed source — value mocked pending discovery."
+      },
+      overdue: {
+        label: "Overdue invoices tab (6)", status: "live",
+        sources: [{ name: "Invoicing Service", type: "api", ref: "GET /v2/invoicing/search" }],
+        calc: "Count of invoices where status=SENT and due_date < today.",
+        io: { request: "GET /v2/invoicing/search?status=SENT&overdue=true", response: '{ "total_count": 6 }' },
+        presenter: "Tab badges are live counts — that's what makes the dashboard feel real-time.",
+        action: "Opened Overdue invoices", narration: "Live count query against the Invoicing service."
+      },
+      viewrow: {
+        label: "View details (row)", status: "live",
+        sources: [{ name: "Transaction Service", type: "api", ref: "GET /v1/payments/{id}" }, { name: "Customer Service", type: "svc", ref: "GET /v1/customers/{id}" }],
+        calc: "Modal aggregates payment record + customer profile into one view.",
+        io: { request: "GET /v1/payments/INV-2025-234\nGET /v1/customers/mia-lang", response: '{ "payment": {...}, "customer": {...} }' },
+        presenter: "One click fans out to two services and stitches the result.",
+        openQuestions: ["Precompute LTV or fetch live on modal open?"],
+        action: "Clicked View details", narration: "Fans out to Payments + Customers, aggregates into the modal."
+      },
+      bell: {
+        label: "Notifications (4 unread)", status: "mock",
+        sources: [{ name: "Notification Hub", type: "mock", ref: "stubbed feed" }],
+        calc: "Unread count from the notification stream. Currently mocked.",
+        io: { request: "GET /v1/notifications?unread=true", response: "// mocked: { unread: 4 }" },
+        presenter: "Tee up the notification-rationalization story — today it's 1000+ types, no governance.",
+        openQuestions: ["Which notification types are critical/actionable vs. noise?"],
+        action: "Opened notifications", narration: "Mocked unread feed; real source is the Notification Hub."
+      },
+      paylater: {
+        label: "Pay Later offer", status: "tbd",
+        sources: [{ name: "Offer eligibility", type: "svc", ref: "TBD — which engine?" }],
+        calc: "Surfacing this should be eligibility-driven (risk + volume), not static.",
+        io: { request: "// eligibility check not yet wired", response: "// currently always shown" },
+        presenter: "Shown to everyone today; the real version gates on eligibility.",
+        openQuestions: ["Does eligibility come from Risk, Credit, or a Marketing decision service?"],
+        action: "Clicked Pay Later", narration: "Static offer today; should be gated by an eligibility service (TBD)."
+      },
+      create: {
+        label: "+ Create button", status: "live",
+        sources: [{ name: "Capabilities API", type: "api", ref: "GET /v1/merchant/capabilities" }],
+        calc: "Menu options are filtered by the merchant's enabled capabilities.",
+        io: { request: "GET /v1/merchant/capabilities", response: '{ "invoicing": true, "payouts": false }' },
+        presenter: "Even the Create menu is permission-aware.",
+        action: "Opened Create menu", narration: "Reads merchant capabilities to decide which options to show."
+      }
+    }, { blockClicks: true });
+  </script>
+</body>
+</html>

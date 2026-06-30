@@ -58,6 +58,19 @@ export default function ProjectsPage() {
           </Link>
 
           <Link
+            href="/projects/backstage"
+            className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
+          >
+            <div>
+              <p className="font-medium text-foreground mb-1">Backstage</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                An overlay that turns any prototype into a self-explaining demo — showing stakeholders where data comes from, what's real, what's mocked, and what's still open.
+              </p>
+            </div>
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors ml-4 mt-0.5 flex-shrink-0">→</span>
+          </Link>
+
+          <Link
             href="/projects/living-prototype"
             className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
           >
