@@ -33,6 +33,13 @@ const projects = [
     description: "Dark-pattern teardown of a drug-pharma onboarding flow. What compliance often gets wrong.",
   },
   {
+    title: "Assumption Mapper",
+    type: "AI Tool",
+    href: "/projects/pm-toolkit",
+    external: false,
+    description: "Describe a product idea. Get a full assumption map across the five Torres discovery dimensions — instantly.",
+  },
+  {
     title: "Backseat Driver",
     type: "In progress",
     href: "/projects/backseat-driver",

@@ -62,7 +62,7 @@ export default function ProjectsPage() {
             className="group flex items-start justify-between rounded-xl border border-border bg-card px-5 py-5 hover:border-border-hover transition-colors"
           >
             <div>
-              <p className="font-medium text-foreground mb-1">Living Prototype</p>
+              <p className="font-medium text-foreground mb-1">Living Presentation</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 A skill for turning raw content into interactive web presentations — animated data, live demos, and interactive exploration, without the constraints of slides.
               </p>
