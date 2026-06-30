@@ -12,11 +12,11 @@ const projects = [
     description: "Live color and typography explorer. Pick a palette, preview the full design system, export CSS tokens.",
   },
   {
-    title: "Assumption Mapper",
-    type: "AI Tool",
-    href: "/projects/pm-toolkit",
+    title: "Living Presentation",
+    type: "Skill",
+    href: "/projects/living-prototype",
     external: false,
-    description: "Describe a product idea. Get a full assumption map across the five Torres discovery dimensions — instantly.",
+    description: "Raw narrative → interactive web presentation. No slides, no constraints.",
   },
   {
     title: "AI Skills & Automations",
@@ -26,11 +26,11 @@ const projects = [
     description: "Five automations and seven domain-encoded skills that run my PM workflow at work.",
   },
   {
-    title: "Living Prototype",
-    type: "Skill",
-    href: "/projects/living-prototype",
+    title: "DrugX",
+    type: "Case Study",
+    href: "/projects/compliant-market",
     external: false,
-    description: "Raw narrative → interactive web presentation. No slides, no constraints.",
+    description: "Dark-pattern teardown of a drug-pharma onboarding flow. What compliance often gets wrong.",
   },
   {
     title: "Backseat Driver",
@@ -41,7 +41,7 @@ const projects = [
   },
 ]
 
-const PREVIEW = 3
+const PREVIEW = 5
 
 export function ProjectsSection() {
   const [expanded, setExpanded] = useState(false)
@@ -98,7 +98,7 @@ export function ProjectsSection() {
           onClick={() => setExpanded(e => !e)}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          {expanded ? 'Show less ↑' : `+${hidden} more`}
+          {expanded ? 'Show less ↑' : 'Show more'}
         </button>
       </div>
     </section>

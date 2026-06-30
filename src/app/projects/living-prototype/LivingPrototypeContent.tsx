@@ -87,7 +87,7 @@ export function LivingPrototypeContent() {
         <PageBreadcrumb
           crumbs={[
             { label: 'Constructive Distractions', href: '/projects' },
-            { label: 'Living Prototype' },
+            { label: 'Living Presentation' },
           ]}
         />
 
@@ -97,7 +97,7 @@ export function LivingPrototypeContent() {
             Constructive Distractions
           </p>
           <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4 font-heading">
-            Living Prototype
+            Living Presentation
           </h1>
           <p className="text-base text-foreground mb-3 max-w-2xl leading-relaxed">
             A skill for turning raw content — a Confluence page, a data pull, a rough narrative — into an interactive web presentation.
