@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Libre_Baskerville, Geist_Mono } from "next/font/goo
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { CursorGlow } from "@/components/CursorGlow";
+import { CursorProvider } from "@/contexts/CursorContext";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -40,9 +41,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <CursorGlow />
-          <SiteHeader />
-          {children}
+          <CursorProvider>
+            <CursorGlow />
+            <SiteHeader />
+            {children}
+          </CursorProvider>
         </ThemeProvider>
       </body>
     </html>

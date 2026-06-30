@@ -189,7 +189,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 9998;
-  background: radial-gradient(520px circle at var(--cursor-x) var(--cursor-y), var(--glow-color), transparent 70%);
+  background: radial-gradient(var(--glow-radius, 520px) circle at var(--cursor-x) var(--cursor-y), var(--glow-color), transparent 70%);
 }
 
 @keyframes shine {
