@@ -27,7 +27,7 @@ const projects = [
   },
   {
     title: "DrugX",
-    type: "Case Study",
+    type: "Satire",
     href: "/projects/compliant-market",
     external: false,
     description: "A peer-to-peer marketplace for pharmaceutical assets. Third-party verified. No questions asked.",
