@@ -298,6 +298,31 @@ function Hotspots() {
   );
 }
 
+// Scroll reveal (fade + slide up as element enters viewport)
+function RevealItem({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'none' : 'translateY(14px)',
+      transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
+    }}>
+      {children}
+    </div>
+  );
+}
+
 /* ---------- gallery shell ---------- */
 function Group({ title, children }) {
   return (<div className="mt-16"><h2 className="display text-3xl md:text-4xl mb-2">{title}</h2><div className="grid gap-8 mt-6">{children}</div></div>);
@@ -318,7 +343,7 @@ function PatternCard({ name, component, use, knobs, children }) {
 }
 
 function App() {
-  const [k1, setK1] = useState(0), [k2, setK2] = useState(0), [k3, setK3] = useState(0);
+  const [k1, setK1] = useState(0), [k2, setK2] = useState(0), [k3, setK3] = useState(0), [k4, setK4] = useState(0);
   const drivers = [
     {name:'Activation Gaps', amt:'$284M'},
     {name:'Price Sensitivity', amt:'$241M'},
@@ -341,6 +366,26 @@ function App() {
           <div key={k1}><MetricReveal end={4.2} decimals={1} prefix="$" suffix="B" /></div>
           <p className="text-neutral-500 text-sm mt-1">Revenue at risk</p>
           <ReplayBtn onClick={()=>setK1(k1+1)} />
+        </PatternCard>
+        <PatternCard name="Scroll reveal" component="RevealItem" use="fade elements in as they enter the viewport — signals a new beat without animation for animation's sake. Wrap any block: a stat, a card, a row." knobs="delay (stagger between items) · threshold · distance · duration">
+          <div key={k4} className="space-y-3">
+            {[
+              { label: 'Activation Gaps',   value: '$284M', note: 'Primary churn driver' },
+              { label: 'Price Sensitivity',  value: '$241M', note: 'Second-largest lever' },
+              { label: 'Trust Barriers',     value: '$98M',  note: 'Highest-effort fix'  },
+            ].map((item, i) => (
+              <RevealItem key={i} delay={i * 80}>
+                <div className="bg-white rounded-xl border p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">{item.label}</p>
+                    <p className="text-xs text-neutral-500 mt-0.5">{item.note}</p>
+                  </div>
+                  <p className="display text-2xl text-accent">{item.value}</p>
+                </div>
+              </RevealItem>
+            ))}
+          </div>
+          <ReplayBtn onClick={()=>setK4(k4+1)} />
         </PatternCard>
       </Group>
 
