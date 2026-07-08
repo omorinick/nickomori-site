@@ -51,28 +51,10 @@ export default function Home() {
             <p className="text-xs text-foreground-subtle">— Joan Didion</p>
           </blockquote>
 
-          {/* Skeleton placeholder */}
-          <div className="space-y-3">
-            {[
-              { title: "w-2/3", lines: ["w-full", "w-4/5"] },
-              { title: "w-1/2", lines: ["w-full", "w-3/4", "w-5/6"] },
-              { title: "w-3/5", lines: ["w-full", "w-4/5"] },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-border bg-card px-5 py-4 animate-pulse"
-              >
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div className={`h-3.5 bg-muted rounded ${card.title}`} />
-                  <div className="h-3 bg-muted rounded w-14 flex-shrink-0 mt-0.5" />
-                </div>
-                <div className="space-y-2">
-                  {card.lines.map((w, j) => (
-                    <div key={j} className={`h-3 bg-muted rounded ${w}`} />
-                  ))}
-                </div>
-              </div>
-            ))}
+          {/* Coming soon placeholder */}
+          <div className="rounded-xl border border-dashed border-border bg-card/40 px-6 py-10 flex flex-col items-center justify-center text-center select-none">
+            <p className="text-xs font-medium text-foreground-subtle uppercase tracking-widest mb-1">Coming soon</p>
+            <p className="text-sm text-muted-foreground max-w-xs">Essays and notes on product, process, and whatever else is worth writing down.</p>
           </div>
         </div>
       </section>
