@@ -43,18 +43,13 @@ export default function Home() {
             Writing
           </h2>
 
-          {/* Epigraph */}
-          <blockquote className="mb-8 max-w-lg">
-            <p className="text-sm text-muted-foreground leading-relaxed mb-2 italic">
+          {/* Coming soon placeholder */}
+          <div className="rounded-xl border border-dashed border-border bg-card/40 px-6 py-10 flex flex-col items-center justify-center text-center select-none">
+            <p className="text-xs font-medium text-foreground-subtle uppercase tracking-widest mb-3">Coming soon</p>
+            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-4 italic">
               &ldquo;I don&apos;t know what I think until I write it down.&rdquo;
             </p>
             <p className="text-xs text-foreground-subtle">— Joan Didion</p>
-          </blockquote>
-
-          {/* Coming soon placeholder */}
-          <div className="rounded-xl border border-dashed border-border bg-card/40 px-6 py-10 flex flex-col items-center justify-center text-center select-none">
-            <p className="text-xs font-medium text-foreground-subtle uppercase tracking-widest mb-1">Coming soon</p>
-            <p className="text-sm text-muted-foreground max-w-xs">Essays and notes on product, process, and whatever else is worth writing down.</p>
           </div>
         </div>
       </section>
