@@ -49,7 +49,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-7">
           <nav className="flex items-center gap-7">
-            <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Work</Link>
+            <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
             <Link href="/#writing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Writing</Link>
             <Link href="/vault" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Vault</Link>
           </nav>
