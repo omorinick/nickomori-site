@@ -5,11 +5,11 @@ export default function Home() {
   return (
     <div className="bg-background">
       {/* ── Hero ── */}
-      <section className="max-w-5xl mx-auto px-6 pt-20 pb-28">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-28">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-6">
           Product Manager · San Francisco
         </p>
-        <h1 data-parallax className="font-heading text-6xl font-bold text-foreground tracking-tight leading-[1.05] mb-6 max-w-xl">
+        <h1 data-parallax className="font-heading text-4xl sm:text-6xl font-bold text-foreground tracking-tight leading-[1.05] mb-6 max-w-xl">
           Nick Omori
         </h1>
         <p data-parallax data-parallax-strength="5" className="text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
@@ -37,7 +37,7 @@ export default function Home() {
       <ProjectsSection />
 
       {/* ── Writing ── */}
-      <section id="writing" className="max-w-5xl mx-auto px-6 pb-24">
+      <section id="writing" className="max-w-5xl mx-auto px-4 sm:px-6 pb-24">
         <div className="border-t border-border pt-16">
           <h2 className="font-heading text-3xl font-bold text-foreground tracking-tight mb-8">
             Writing
@@ -56,7 +56,7 @@ export default function Home() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-border">
-        <div className="max-w-5xl mx-auto px-6 py-8 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex items-center justify-between">
           <p className="text-xs text-muted-foreground">© 2026 nickomori.com</p>
           <div className="flex gap-5">
             <a

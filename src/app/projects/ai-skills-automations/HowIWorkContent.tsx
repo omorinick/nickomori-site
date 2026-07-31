@@ -589,7 +589,7 @@ export function HowIWorkContent() {
   const [activeSlot, setActiveSlot] = useState<string | null>(null)
 
   return (
-    <main className="min-h-screen bg-background px-6 py-10">
+    <main className="min-h-screen bg-background px-4 sm:px-6 py-10">
       <div className="max-w-5xl mx-auto">
         <PageBreadcrumb
           crumbs={[

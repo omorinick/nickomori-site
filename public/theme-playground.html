@@ -22,6 +22,7 @@ input[type="range"].hsl-slider::-moz-range-thumb { width: 18px; height: 18px; bo
 select { appearance: none; -webkit-appearance: none; }
 .swatch-btn { transition: all 0.15s; }
 .swatch-btn:hover { opacity: 0.85; }
+.phone-scroll::-webkit-scrollbar { width: 0; }
 </style>
 </head>
 <body>
@@ -173,6 +174,14 @@ const MOUSE_EFFECTS = [
   { id: 'parallax',  label: 'Parallax',      desc: 'Hero text shifts subtly with cursor position' },
 ];
 
+// ─── Mobile nav options ───────────────────────────────────────────────────────
+
+const MOBILE_NAV_OPTIONS = [
+  { id: 'hamburger', label: 'Dropdown',  desc: '☰ expands nav links below the header bar' },
+  { id: 'drawer',    label: 'Drawer',    desc: '☰ slides a panel in from the right edge' },
+  { id: 'minimal',   label: 'Minimal',   desc: 'Logo only — nav links hidden on mobile' },
+];
+
 // ─── Font loader ─────────────────────────────────────────────────────────────
 
 function useGoogleFont(googlePath) {
@@ -218,6 +227,63 @@ function hslToHex(h, s, l) {
   return '#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');
 }
 
+// ─── Animation helper ────────────────────────────────────────────────────────
+
+// Returns { mounted, visible }
+// mounted: true while open OR during exit delay (keeps element in DOM for exit animation)
+// visible: true only after two RAF frames on enter, so browser paints the start state first
+function useAnimatedOpen(open, exitDelay = 300) {
+  const [mounted, setMounted] = useState(open);
+  const [visible, setVisible] = useState(open);
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      const raf = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setVisible(true))
+      );
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setMounted(false), exitDelay);
+      return () => clearTimeout(t);
+    }
+  }, [open, exitDelay]);
+  return { mounted, visible };
+}
+
+// ─── View toggle ─────────────────────────────────────────────────────────────
+
+function ViewToggle({ value, onChange }) {
+  const tabs = [
+    { id: 'desktop', label: '⬜ Desktop' },
+    { id: 'mobile',  label: '📱 Mobile' },
+  ];
+  return (
+    <div style={{ display: 'flex', background: '#1a1a1a', borderRadius: '9px', padding: '3px', gap: '2px' }}>
+      {tabs.map(tab => {
+        const active = value === tab.id;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => onChange(tab.id)}
+            style={{
+              flex: 1, padding: '7px 0', borderRadius: '7px',
+              fontSize: '11px', fontWeight: active ? 600 : 400,
+              background: active ? '#2e2e2e' : 'transparent',
+              color: active ? '#fff' : '#555',
+              border: `1px solid ${active ? '#3e3e3e' : 'transparent'}`,
+              cursor: 'pointer', transition: 'all 0.15s',
+              letterSpacing: '0.01em',
+            }}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Color picker popover ────────────────────────────────────────────────────
 
 function ColorPickerPopover({ value, onChange, anchorRect, onClose }) {
@@ -245,43 +311,33 @@ function ColorPickerPopover({ value, onChange, anchorRect, onClose }) {
 
   const [h, s, l] = hsl;
 
-  // Position to the right of the anchor, clamped to viewport
   const top = Math.min(anchorRect.top - 8, (typeof window !== 'undefined' ? window.innerHeight : 800) - 260);
   const left = anchorRect.right + 10;
 
-  const slider = (gradient) => ({
-    background: gradient,
-    width: '100%',
-    marginBottom: '10px',
-  });
+  const slider = (gradient) => ({ background: gradient, width: '100%', marginBottom: '10px' });
 
   return (
     <div ref={ref} style={{ position: 'fixed', top, left, zIndex: 9999, background: '#1c1c1c', border: '1px solid #333', borderRadius: '12px', padding: '14px', width: '214px', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
-      {/* Preview strip */}
       <div style={{ width: '100%', height: '32px', borderRadius: '7px', background: value, marginBottom: '14px', border: '1px solid #2e2e2e' }} />
 
-      {/* Hue */}
       <label style={{ fontSize: '10px', color: '#555', display: 'block', marginBottom: '5px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Hue</label>
       <input type="range" className="hsl-slider" min="0" max="360" value={h}
         onChange={e => update(+e.target.value, s, l)}
         style={{ ...slider(`linear-gradient(to right,hsl(0,100%,50%),hsl(60,100%,50%),hsl(120,100%,50%),hsl(180,100%,50%),hsl(240,100%,50%),hsl(300,100%,50%),hsl(360,100%,50%))`) }}
       />
 
-      {/* Saturation */}
       <label style={{ fontSize: '10px', color: '#555', display: 'block', marginBottom: '5px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Saturation</label>
       <input type="range" className="hsl-slider" min="0" max="100" value={s}
         onChange={e => update(h, +e.target.value, l)}
         style={{ ...slider(`linear-gradient(to right,hsl(${h},0%,${l}%),hsl(${h},100%,${l}%))`) }}
       />
 
-      {/* Lightness */}
       <label style={{ fontSize: '10px', color: '#555', display: 'block', marginBottom: '5px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Lightness</label>
       <input type="range" className="hsl-slider" min="0" max="100" value={l}
         onChange={e => update(h, s, +e.target.value)}
         style={{ ...slider(`linear-gradient(to right,hsl(${h},${s}%,0%),hsl(${h},${s}%,50%),hsl(${h},${s}%,100%))`), marginBottom: '12px' }}
       />
 
-      {/* Hex */}
       <input
         type="text"
         value={hexInput}
@@ -289,10 +345,7 @@ function ColorPickerPopover({ value, onChange, anchorRect, onClose }) {
         onChange={e => {
           const v = e.target.value;
           setHexInput(v);
-          if (/^#[0-9a-fA-F]{6}$/.test(v)) {
-            onChange(v);
-            setHsl(hexToHsl(v));
-          }
+          if (/^#[0-9a-fA-F]{6}$/.test(v)) { onChange(v); setHsl(hexToHsl(v)); }
         }}
         style={{ width: '100%', padding: '6px 9px', borderRadius: '6px', border: '1px solid #2e2e2e', background: '#111', color: '#bbb', fontFamily: 'monospace', fontSize: '12px', outline: 'none' }}
       />
@@ -345,10 +398,7 @@ function MagneticCard({ style, children, enabled }) {
       onMouseMove={(e) => {
         if (!enabled || !ref.current) return;
         const rect = ref.current.getBoundingClientRect();
-        setDelta({
-          x: (e.clientX - (rect.left + rect.width / 2)) * 0.1,
-          y: (e.clientY - (rect.top + rect.height / 2)) * 0.1,
-        });
+        setDelta({ x: (e.clientX - (rect.left + rect.width / 2)) * 0.1, y: (e.clientY - (rect.top + rect.height / 2)) * 0.1 });
       }}
       onMouseLeave={() => setDelta({ x: 0, y: 0 })}
     >
@@ -382,78 +432,194 @@ function CustomCursor({ accent, mousePos }) {
 
   return (
     <>
-      {/* Lagging ring */}
-      <div
-        ref={ringRef}
-        style={{
-          position: 'fixed',
-          width: 28,
-          height: 28,
-          borderRadius: '50%',
-          border: `1.5px solid ${accent}`,
-          opacity: visible ? 0.5 : 0,
-          transform: 'translate(-50%, -50%)',
-          pointerEvents: 'none',
-          zIndex: 9999,
-          left: mousePos.x,
-          top: mousePos.y,
-        }}
-      />
-      {/* Precise dot */}
-      <div
-        style={{
-          position: 'fixed',
-          left: mousePos.x,
-          top: mousePos.y,
-          width: 8,
-          height: 8,
-          borderRadius: '50%',
-          background: accent,
-          opacity: visible ? 1 : 0,
-          transform: 'translate(-50%, -50%)',
-          pointerEvents: 'none',
-          zIndex: 9999,
-        }}
-      />
+      <div ref={ringRef} style={{ position: 'fixed', width: 28, height: 28, borderRadius: '50%', border: `1.5px solid ${accent}`, opacity: visible ? 0.5 : 0, transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 9999, left: mousePos.x, top: mousePos.y }} />
+      <div style={{ position: 'fixed', left: mousePos.x, top: mousePos.y, width: 8, height: 8, borderRadius: '50%', background: accent, opacity: visible ? 1 : 0, transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 9999 }} />
     </>
+  );
+}
+
+// ─── Mobile nav ───────────────────────────────────────────────────────────────
+
+function MobileNav({ p, hFont, bFont, navStyle, onHamburgerClick }) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const card = { background: p.bgCard, borderBottom: `1px solid ${p.border}` };
+
+  const logo = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={{ fontFamily: hFont.family, fontWeight: 300, fontSize: '16px', color: `${p.fg}30`, letterSpacing: '0.15em' }}>大森</span>
+      <span style={{ fontSize: '13px', fontWeight: 600, color: p.fg }}>nickomori.com</span>
+    </div>
+  );
+
+  if (navStyle === 'minimal') {
+    return (
+      <div style={{ ...card, padding: '0 20px', height: '52px', display: 'flex', alignItems: 'center' }}>
+        {logo}
+      </div>
+    );
+  }
+
+  const isDrawer = navStyle === 'drawer';
+  const handleClick = isDrawer ? onHamburgerClick : () => setDropdownOpen(o => !o);
+
+  return (
+    <div style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+      <div style={{ ...card, padding: '0 20px', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {logo}
+        <button onClick={handleClick} style={{ background: 'none', border: 'none', cursor: 'pointer', color: p.fgMuted, fontSize: '18px', lineHeight: 1, padding: '4px' }}>
+          {!isDrawer && dropdownOpen ? '✕' : '☰'}
+        </button>
+      </div>
+      {!isDrawer && (
+        <div style={{
+          overflow: 'hidden',
+          maxHeight: dropdownOpen ? '240px' : '0px',
+          opacity: dropdownOpen ? 1 : 0,
+          transition: 'max-height 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease',
+          background: p.bgCard,
+        }}>
+          {['Projects', 'Writing', 'Vault'].map(link => (
+            <div key={link} style={{ padding: '14px 20px', borderBottom: `1px solid ${p.border}`, fontSize: '15px', color: p.fg, fontFamily: bFont.family, cursor: 'pointer' }}>
+              {link}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
 // ─── Preview site ─────────────────────────────────────────────────────────────
 
-function PreviewSite({ p, hFont, bFont, mouseEffect, mousePos }) {
-  // Parallax calculations
+function PreviewSite({ p, hFont, bFont, mouseEffect, mousePos, viewMode, mobileNav, onHamburgerClick }) {
+  const isMobile = viewMode === 'mobile';
+
+  // Parallax (desktop only)
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
   const mx = mousePos.x > -900 ? mousePos.x : vw / 2;
   const my = mousePos.y > -900 ? mousePos.y : vh / 2;
   const dx = mx - vw / 2;
   const dy = my - vh / 2;
-  const pxH1  = mouseEffect === 'parallax' ? { transform: `translate(${dx * 0.009}px, ${dy * 0.007}px)`, transition: 'transform 0.2s ease' } : {};
-  const pxSub = mouseEffect === 'parallax' ? { transform: `translate(${dx * 0.005}px, ${dy * 0.004}px)`, transition: 'transform 0.2s ease' } : {};
-  const pxTag = mouseEffect === 'parallax' ? { transform: `translate(${dx * 0.003}px, ${dy * 0.002}px)`, transition: 'transform 0.2s ease' } : {};
+  const pxH1  = !isMobile && mouseEffect === 'parallax' ? { transform: `translate(${dx * 0.009}px, ${dy * 0.007}px)`, transition: 'transform 0.2s ease' } : {};
+  const pxSub = !isMobile && mouseEffect === 'parallax' ? { transform: `translate(${dx * 0.005}px, ${dy * 0.004}px)`, transition: 'transform 0.2s ease' } : {};
+  const pxTag = !isMobile && mouseEffect === 'parallax' ? { transform: `translate(${dx * 0.003}px, ${dy * 0.002}px)`, transition: 'transform 0.2s ease' } : {};
 
   const primaryBtn = { background: p.accent, color: p.accentFg, border: 'none' };
   const ghostBtn = { background: 'transparent', color: p.fg, border: `1.5px solid ${p.fg}` };
   const card = { background: p.bgCard, border: `1px solid ${p.border}` };
 
+  if (isMobile) {
+    return (
+      <div style={{ background: p.bg, minHeight: '100%', fontFamily: bFont.family, color: p.fg }}>
+
+        <MobileNav p={p} hFont={hFont} bFont={bFont} navStyle={mobileNav} onHamburgerClick={onHamburgerClick} />
+
+        <div style={{ padding: '0 20px 60px' }}>
+
+          {/* Hero */}
+          <div style={{ padding: '40px 0 32px' }}>
+            <p style={{ fontSize: '10px', color: p.fgMuted, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '14px' }}>Product Manager · San Francisco</p>
+            <h1 style={{ fontFamily: hFont.family, fontSize: '36px', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '16px', color: p.fg }}>
+              Building to learn.
+            </h1>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, color: p.fgMuted, marginBottom: '24px' }}>
+              Ideas, experiments, and constructive distractions.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button style={{ ...primaryBtn, padding: '13px 22px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, fontFamily: bFont.family, cursor: 'pointer', textAlign: 'center' }}>Explore Projects →</button>
+              <button style={{ ...ghostBtn, padding: '12px 22px', borderRadius: '8px', fontSize: '14px', fontWeight: 500, fontFamily: bFont.family, cursor: 'pointer', textAlign: 'center' }}>LinkedIn ↗</button>
+            </div>
+          </div>
+
+          {/* Stats — single column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '40px' }}>
+            {[{ n: '8+', label: 'Years in product' }, { n: '12', label: 'Projects shipped' }, { n: '3', label: 'AI tools in prod' }].map(({ n, label }) => (
+              <div key={n} style={{ ...card, borderRadius: '12px', padding: '18px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontFamily: hFont.family, fontSize: '28px', fontWeight: 700, color: p.accent, lineHeight: 1 }}>{n}</div>
+                <div style={{ fontSize: '13px', color: p.fgMuted }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Project list */}
+          <div style={{ marginBottom: '40px' }}>
+            <h2 style={{ fontFamily: hFont.family, fontSize: '22px', fontWeight: 600, marginBottom: '4px', color: p.fg }}>Constructive Distractions</h2>
+            <p style={{ fontSize: '13px', color: p.fgMuted, marginBottom: '16px' }}>Projects built to think, not just to ship.</p>
+            <div style={{ borderTop: `1px solid ${p.border}` }}>
+              {[
+                { title: 'Assumption Mapper', desc: 'Describe a product idea. Get a structured assumption map across all five Torres dimensions.', tag: 'AI Tool' },
+                { title: 'Backseat Driver', desc: 'A car-maintenance advisor that works for the owner, not the shop.', tag: 'In progress' },
+                { title: 'DrugX', desc: 'A peer-to-peer marketplace for pharmaceutical assets. No questions asked.', tag: 'Satire' },
+              ].map(({ title, desc, tag }) => (
+                <div key={title} style={{ borderBottom: `1px solid ${p.border}`, padding: '16px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', cursor: 'pointer' }}>
+                  <div style={{ flex: 1, paddingRight: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 600, color: p.fg, fontFamily: hFont.family }}>{title}</span>
+                      <span style={{ fontSize: '11px', color: p.accent }}>{tag}</span>
+                    </div>
+                    <p style={{ fontSize: '13px', color: p.fgMuted, lineHeight: 1.5 }}>{desc}</p>
+                  </div>
+                  <span style={{ color: p.fgSubtle, fontSize: '16px', flexShrink: 0, marginTop: '2px' }}>→</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Typography */}
+          <div style={{ ...card, borderRadius: '14px', padding: '22px', marginBottom: '24px' }}>
+            <p style={{ fontSize: '10px', color: p.fgSubtle, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>Typography sample</p>
+            <div style={{ fontFamily: hFont.family, fontSize: '30px', fontWeight: 700, lineHeight: 1.1, color: p.fg, marginBottom: '8px' }}>Display heading</div>
+            <div style={{ fontFamily: hFont.family, fontSize: '20px', fontWeight: 600, color: p.fg, marginBottom: '8px' }}>Section heading</div>
+            <p style={{ fontSize: '14px', lineHeight: 1.65, color: p.fg, marginBottom: '8px' }}>Primary body text. Good typography is invisible — it just gets out of the way.</p>
+            <p style={{ fontSize: '12px', lineHeight: 1.55, color: p.fgMuted }}>Muted / secondary text. Used for descriptions and context.</p>
+          </div>
+
+          {/* Status + buttons — stacked single column */}
+          <div style={{ ...card, borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
+            <p style={{ fontSize: '10px', color: p.fgSubtle, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '14px' }}>Status & actions</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
+              <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '99px', background: p.accentSubtle, color: p.accent }}>Active</span>
+              <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '99px', background: p.bgSecondary, color: p.fg, border: `1px solid ${p.border}` }}>Pending</span>
+              <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '99px', background: p.bgSecondary, color: p.fgMuted }}>Draft</span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button style={{ ...primaryBtn, flex: 1, padding: '10px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, fontFamily: bFont.family, cursor: 'pointer' }}>Primary</button>
+              <button style={{ ...ghostBtn, flex: 1, padding: '10px', borderRadius: '7px', fontSize: '13px', fontWeight: 500, fontFamily: bFont.family, cursor: 'pointer' }}>Ghost</button>
+            </div>
+          </div>
+
+          {/* Blockquote */}
+          <div style={{ borderLeft: `3px solid ${p.accent}`, paddingLeft: '16px', marginBottom: '40px' }}>
+            <p style={{ fontFamily: hFont.family, fontSize: '17px', lineHeight: 1.55, color: p.fg, marginBottom: '8px' }}>
+              "The faster we make ideas tangible, the sooner we can evaluate and refine them."
+            </p>
+            <p style={{ fontSize: '12px', color: p.fgMuted }}>— Tim Brown</p>
+          </div>
+
+        </div>
+
+        {/* Footer */}
+        <div style={{ borderTop: `1px solid ${p.border}`, padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <span style={{ fontSize: '12px', color: p.fgMuted }}>© 2026 Nick Omori</span>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            {['LinkedIn', 'GitHub', 'Vault'].map(l => (
+              <span key={l} style={{ fontSize: '12px', color: p.accent, cursor: 'pointer' }}>{l}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Desktop layout ────────────────────────────────────────────────────────
+
   return (
     <div style={{ position: 'relative', background: p.bg, minHeight: '100vh', fontFamily: bFont.family, color: p.fg }}>
 
-      {/* Glow overlay */}
       {mouseEffect === 'glow' && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          zIndex: 9998,
-          background: `radial-gradient(520px circle at ${mousePos.x}px ${mousePos.y}px, ${hexToRgba(p.accent, 0.07)}, transparent 70%)`,
-          opacity: mousePos.x > -900 ? 1 : 0,
-          transition: 'opacity 0.3s',
-        }} />
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9998, background: `radial-gradient(520px circle at ${mousePos.x}px ${mousePos.y}px, ${hexToRgba(p.accent, 0.07)}, transparent 70%)`, opacity: mousePos.x > -900 ? 1 : 0, transition: 'opacity 0.3s' }} />
       )}
-
-      {/* Custom cursor */}
       {mouseEffect === 'cursor' && <CustomCursor accent={p.accent} mousePos={mousePos} />}
 
       {/* Nav */}
@@ -535,7 +701,6 @@ function PreviewSite({ p, hFont, bFont, mouseEffect, mousePos }) {
 
         {/* Elements grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '56px' }}>
-          {/* Chips + buttons */}
           <div style={{ ...card, borderRadius: '12px', padding: '24px' }}>
             <p style={{ fontSize: '10px', color: p.fgSubtle, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>Status & actions</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
@@ -550,7 +715,6 @@ function PreviewSite({ p, hFont, bFont, mouseEffect, mousePos }) {
             </div>
           </div>
 
-          {/* Form */}
           <div style={{ ...card, borderRadius: '12px', padding: '24px' }}>
             <p style={{ fontSize: '10px', color: p.fgSubtle, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>Form elements</p>
             <div style={{ marginBottom: '10px' }}>
@@ -625,6 +789,12 @@ function App() {
   const [colorsOpen, setColorsOpen] = useState(false);
   const [mouseEffect, setMouseEffect] = useState('none');
   const [mousePos, setMousePos] = useState({ x: -999, y: -999 });
+  const [viewMode, setViewMode] = useState('desktop');
+  const [mobileNav, setMobileNav] = useState('hamburger');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { mounted: drawerMounted, visible: drawerVisible } = useAnimatedOpen(drawerOpen, 300);
+
+  useEffect(() => setDrawerOpen(false), [mobileNav, viewMode]);
 
   const template = TEMPLATES.find(t => t.id === templateId);
   const headingFont = HEADING_FONTS.find(f => f.id === headingFontId);
@@ -647,17 +817,10 @@ function App() {
   const updateColor = (key, val) => setPalette(p => ({ ...p, [key]: val }));
 
   const CSS_VAR_MAP = {
-    bg: '--background',
-    bgCard: '--card',
-    bgSecondary: '--secondary',
-    fg: '--foreground',
-    fgMuted: '--muted-foreground',
-    fgSubtle: '--foreground-subtle',
-    border: '--border',
-    borderHover: '--border-hover',
-    accent: '--primary',
-    accentFg: '--primary-foreground',
-    accentSubtle: '--accent-subtle',
+    bg: '--background', bgCard: '--card', bgSecondary: '--secondary',
+    fg: '--foreground', fgMuted: '--muted-foreground', fgSubtle: '--foreground-subtle',
+    border: '--border', borderHover: '--border-hover',
+    accent: '--primary', accentFg: '--primary-foreground', accentSubtle: '--accent-subtle',
   };
 
   const exportCSS = () => {
@@ -674,6 +837,13 @@ function App() {
   const sidebarStyle = { background: '#141414', color: '#d0d0d0', display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto' };
   const sectionLabel = { fontSize: '10px', color: '#555', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px', display: 'block' };
   const selectStyle = { width: '100%', padding: '7px 10px', borderRadius: '7px', border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#d0d0d0', fontSize: '12px', cursor: 'pointer', outline: 'none' };
+  const optionBtn = (active) => ({
+    display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+    padding: '8px 10px', borderRadius: '8px', textAlign: 'left', cursor: 'pointer',
+    border: `1px solid ${active ? '#444' : '#1e1e1e'}`,
+    background: active ? '#222' : 'transparent',
+    transition: 'all 0.1s',
+  });
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
@@ -687,7 +857,31 @@ function App() {
           <div style={{ fontSize: '11px', color: '#555' }}>nickomori.com</div>
         </div>
 
+        {/* View toggle */}
+        <div style={{ padding: '12px 18px', borderBottom: '1px solid #1e1e1e' }}>
+          <ViewToggle value={viewMode} onChange={setViewMode} />
+        </div>
+
         <div style={{ flex: 1, padding: '16px 18px', overflowY: 'auto' }}>
+
+          {/* Mobile nav options — only visible in mobile mode */}
+          {viewMode === 'mobile' && (
+            <div style={{ marginBottom: '22px' }}>
+              <span style={sectionLabel}>Mobile Nav</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {MOBILE_NAV_OPTIONS.map(opt => {
+                  const active = mobileNav === opt.id;
+                  return (
+                    <button key={opt.id} onClick={() => setMobileNav(opt.id)} style={optionBtn(active)}>
+                      <span style={{ fontSize: '12px', color: active ? '#fff' : '#aaa', fontWeight: active ? 500 : 400 }}>{opt.label}</span>
+                      <span style={{ fontSize: '10px', color: '#555', marginTop: '1px' }}>{opt.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: '10px', height: '1px', background: '#1e1e1e' }} />
+            </div>
+          )}
 
           {/* Mode toggle */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -704,11 +898,7 @@ function App() {
               {TEMPLATES.map(t => {
                 const isActive = templateId === t.id;
                 return (
-                  <button
-                    key={t.id}
-                    onClick={() => selectTemplate(t)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', border: `1px solid ${isActive ? '#444' : '#1e1e1e'}`, background: isActive ? '#222' : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s' }}
-                  >
+                  <button key={t.id} onClick={() => selectTemplate(t)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', border: `1px solid ${isActive ? '#444' : '#1e1e1e'}`, background: isActive ? '#222' : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s' }}>
                     <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
                       {t.swatches.map((c, i) => (
                         <div key={i} style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: c, border: '1px solid rgba(255,255,255,0.08)' }} />
@@ -755,52 +945,38 @@ function App() {
                 <select value={headingFontId} onChange={e => setHeadingFontId(e.target.value)} style={selectStyle}>
                   {HEADING_FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                 </select>
-                <div style={{ fontSize: '13px', color: '#555', marginTop: '5px', fontFamily: headingFont?.family, lineHeight: 1.2 }}>
-                  Big heading text.
-                </div>
+                <div style={{ fontSize: '13px', color: '#555', marginTop: '5px', fontFamily: headingFont?.family, lineHeight: 1.2 }}>Big heading text.</div>
               </div>
               <div>
                 <label style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '5px' }}>Body</label>
                 <select value={bodyFontId} onChange={e => setBodyFontId(e.target.value)} style={selectStyle}>
                   {BODY_FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                 </select>
-                <div style={{ fontSize: '12px', color: '#555', marginTop: '5px', fontFamily: bodyFont?.family }}>
-                  Body text reads like this.
-                </div>
+                <div style={{ fontSize: '12px', color: '#555', marginTop: '5px', fontFamily: bodyFont?.family }}>Body text reads like this.</div>
               </div>
             </div>
           </div>
 
-          {/* Mouse Effects */}
-          <div style={{ marginBottom: '22px' }}>
-            <span style={sectionLabel}>Mouse Effects</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {MOUSE_EFFECTS.map(effect => {
-                const isActive = mouseEffect === effect.id;
-                return (
-                  <button
-                    key={effect.id}
-                    onClick={() => setMouseEffect(effect.id)}
-                    style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                      padding: '8px 10px', borderRadius: '8px', textAlign: 'left', cursor: 'pointer',
-                      border: `1px solid ${isActive ? '#444' : '#1e1e1e'}`,
-                      background: isActive ? '#222' : 'transparent',
-                      transition: 'all 0.1s',
-                    }}
-                  >
-                    <span style={{ fontSize: '12px', color: isActive ? '#fff' : '#aaa', fontWeight: isActive ? 500 : 400 }}>{effect.label}</span>
-                    <span style={{ fontSize: '10px', color: '#555', marginTop: '1px' }}>{effect.desc}</span>
-                  </button>
-                );
-              })}
+          {/* Mouse Effects — desktop only */}
+          {viewMode === 'desktop' && (
+            <div style={{ marginBottom: '22px' }}>
+              <span style={sectionLabel}>Mouse Effects</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {MOUSE_EFFECTS.map(effect => {
+                  const isActive = mouseEffect === effect.id;
+                  return (
+                    <button key={effect.id} onClick={() => setMouseEffect(effect.id)} style={optionBtn(isActive)}>
+                      <span style={{ fontSize: '12px', color: isActive ? '#fff' : '#aaa', fontWeight: isActive ? 500 : 400 }}>{effect.label}</span>
+                      <span style={{ fontSize: '10px', color: '#555', marginTop: '1px' }}>{effect.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {mouseEffect !== 'none' && (
+                <p style={{ fontSize: '10px', color: '#444', marginTop: '8px', lineHeight: 1.5 }}>Move your cursor over the preview →</p>
+              )}
             </div>
-            {mouseEffect !== 'none' && (
-              <p style={{ fontSize: '10px', color: '#444', marginTop: '8px', lineHeight: 1.5 }}>
-                Move your cursor over the preview →
-              </p>
-            )}
-          </div>
+          )}
 
         </div>
 
@@ -820,11 +996,106 @@ function App() {
 
       {/* ── Preview ── */}
       <div
-        style={{ flex: 1, overflowY: 'auto', background: '#0a0a0a', cursor: mouseEffect === 'cursor' ? 'none' : 'auto' }}
-        onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+        style={{ flex: 1, overflowY: 'auto', background: '#0a0a0a', cursor: mouseEffect === 'cursor' && viewMode === 'desktop' ? 'none' : 'auto', display: 'flex', flexDirection: viewMode === 'mobile' ? 'column' : 'block', alignItems: viewMode === 'mobile' ? 'center' : undefined }}
+        onMouseMove={(e) => viewMode === 'desktop' && setMousePos({ x: e.clientX, y: e.clientY })}
         onMouseLeave={() => setMousePos({ x: -999, y: -999 })}
       >
-        <PreviewSite p={palette} hFont={headingFont} bFont={bodyFont} mouseEffect={mouseEffect} mousePos={mousePos} />
+        {viewMode === 'mobile' ? (
+          <div style={{ padding: '40px 20px 60px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {/* Device label */}
+            <div style={{ marginBottom: '16px', fontSize: '11px', color: '#444', letterSpacing: '0.08em', textTransform: 'uppercase' }}>iPhone 14 Pro · 390px</div>
+
+            {/* Phone shell */}
+            <div style={{
+              width: '390px',
+              border: '9px solid #2a2a2a',
+              borderRadius: '48px',
+              overflow: 'hidden',
+              boxShadow: '0 0 0 1px #1a1a1a, 0 32px 80px rgba(0,0,0,0.7), inset 0 0 0 1px #3a3a3a',
+              position: 'relative',
+              background: palette.bg,
+            }}>
+              {/* Status bar */}
+              <div style={{ height: '44px', background: palette.bgCard, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', position: 'relative', borderBottom: `1px solid ${palette.border}` }}>
+                {/* Notch */}
+                <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '110px', height: '28px', background: '#2a2a2a', borderRadius: '0 0 18px 18px', zIndex: 10 }} />
+                <span style={{ fontSize: '11px', fontWeight: 600, color: palette.fg, zIndex: 11 }}>9:41</span>
+                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', zIndex: 11 }}>
+                  <span style={{ fontSize: '10px', color: palette.fg }}>●●●</span>
+                  <span style={{ fontSize: '10px', color: palette.fg }}>WiFi</span>
+                  <span style={{ fontSize: '10px', color: palette.fg }}>🔋</span>
+                </div>
+              </div>
+
+              {/* Scrollable content + drawer overlay */}
+              <div style={{ height: '720px', position: 'relative', overflow: 'hidden' }}>
+                <div className="phone-scroll" style={{ height: '100%', overflowY: 'auto' }}>
+                  <PreviewSite
+                    p={palette}
+                    hFont={headingFont}
+                    bFont={bodyFont}
+                    mouseEffect="none"
+                    mousePos={{ x: -999, y: -999 }}
+                    viewMode="mobile"
+                    mobileNav={mobileNav}
+                    onHamburgerClick={() => setDrawerOpen(o => !o)}
+                  />
+                </div>
+
+                {/* Drawer panel — stays mounted during exit animation */}
+                {mobileNav === 'drawer' && drawerMounted && (
+                  <>
+                    {/* Scrim — fades in/out */}
+                    <div
+                      onClick={() => setDrawerOpen(false)}
+                      style={{
+                        position: 'absolute', inset: 0, zIndex: 20,
+                        background: 'rgba(0,0,0,0.45)',
+                        opacity: drawerVisible ? 1 : 0,
+                        transition: 'opacity 0.28s ease',
+                      }}
+                    />
+                    {/* Panel — slides in/out from right */}
+                    <div style={{
+                      position: 'absolute', top: 0, right: 0, bottom: 0, width: '72%',
+                      background: palette.bgCard, borderLeft: `1px solid ${palette.border}`,
+                      zIndex: 21, display: 'flex', flexDirection: 'column', padding: '20px',
+                      transform: drawerVisible ? 'translateX(0)' : 'translateX(100%)',
+                      transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: palette.fg, fontFamily: bodyFont.family }}>Menu</span>
+                        <button
+                          onClick={() => setDrawerOpen(false)}
+                          style={{ background: 'none', border: 'none', color: palette.fgMuted, cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}
+                        >✕</button>
+                      </div>
+                      {['Projects', 'Writing', 'Vault'].map(link => (
+                        <div key={link} style={{ padding: '15px 0', borderBottom: `1px solid ${palette.border}`, fontSize: '16px', color: palette.fg, fontFamily: bodyFont.family, cursor: 'pointer' }}>
+                          {link}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Home indicator */}
+            <div style={{ marginTop: '12px', width: '120px', height: '4px', borderRadius: '2px', background: '#2a2a2a' }} />
+          </div>
+        ) : (
+          <PreviewSite
+            p={palette}
+            hFont={headingFont}
+            bFont={bodyFont}
+            mouseEffect={mouseEffect}
+            mousePos={mousePos}
+            viewMode="desktop"
+            mobileNav={mobileNav}
+            onHamburgerClick={() => {}}
+          />
+        )}
       </div>
 
     </div>

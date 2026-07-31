@@ -200,7 +200,7 @@ function GapMatrix() {
 
 export function BackseatDriverContent() {
   return (
-    <main className="min-h-screen bg-background px-6 py-10">
+    <main className="min-h-screen bg-background px-4 sm:px-6 py-10">
       <div className="max-w-4xl mx-auto">
         <PageBreadcrumb
           crumbs={[

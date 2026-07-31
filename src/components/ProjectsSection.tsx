@@ -56,7 +56,7 @@ export function ProjectsSection() {
   const hidden = projects.length - PREVIEW
 
   return (
-    <section className="max-w-5xl mx-auto px-6 pb-20">
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
       <h2 className="font-heading text-3xl font-bold text-foreground tracking-tight mb-2">
         Constructive Distractions
       </h2>

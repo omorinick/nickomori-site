@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { Sun, Moon, MousePointer2 } from 'lucide-react'
+import { Sun, Moon, MousePointer2, Menu } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useCursorEffect, type CursorEffect } from '@/contexts/CursorContext'
 
@@ -21,8 +21,12 @@ export function SiteHeader() {
   const { effect, setEffect } = useCursorEffect()
   const [mounted, setMounted] = useState(false)
   const [cursorOpen, setCursorOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => setMounted(true), [])
+
+  // Close mobile menu on route change
+  useEffect(() => { setMenuOpen(false) }, [pathname])
 
   useEffect(() => {
     if (!cursorOpen) return
@@ -47,7 +51,8 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-7">
+        {/* Desktop nav — hidden on mobile */}
+        <div className="hidden md:flex items-center gap-7">
           <nav className="flex items-center gap-7">
             <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
             <Link href="/#writing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Writing</Link>
@@ -56,7 +61,6 @@ export function SiteHeader() {
 
           {mounted && (
             <div className="flex items-center gap-3">
-              {/* Dark mode toggle */}
               <div className="relative group">
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -70,7 +74,6 @@ export function SiteHeader() {
                 </span>
               </div>
 
-              {/* Cursor effect selector */}
               <div id="cursor-dropdown" className="relative">
                 <button
                   onClick={() => setCursorOpen(o => !o)}
@@ -104,6 +107,43 @@ export function SiteHeader() {
             </div>
           )}
         </div>
+
+        {/* Mobile right side — theme toggle + hamburger */}
+        <div className="flex md:hidden items-center gap-4">
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1 -m-1"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={16} strokeWidth={1.75} /> : <Moon size={16} strokeWidth={1.75} />}
+            </button>
+          )}
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            className="text-muted-foreground hover:text-foreground transition-colors p-1 -m-1"
+            aria-label="Open menu"
+            aria-expanded={menuOpen}
+          >
+            <Menu size={18} strokeWidth={1.75} />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile dropdown — always mounted, animated via max-height */}
+      <div
+        className="md:hidden border-t border-border bg-card overflow-hidden"
+        style={{
+          maxHeight: menuOpen ? '200px' : '0px',
+          opacity: menuOpen ? 1 : 0,
+          transition: 'max-height 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease',
+        }}
+      >
+        <nav className="px-4 py-1">
+          <Link href="/projects" onClick={() => setMenuOpen(false)} className="flex items-center py-3.5 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-border">Projects</Link>
+          <Link href="/#writing" onClick={() => setMenuOpen(false)} className="flex items-center py-3.5 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-border">Writing</Link>
+          <Link href="/vault" onClick={() => setMenuOpen(false)} className="flex items-center py-3.5 text-sm text-muted-foreground hover:text-foreground transition-colors">Vault</Link>
+        </nav>
       </div>
     </header>
   )
