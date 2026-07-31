@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# nickomori.com
 
-## Getting Started
+Nick Omori's personal website: a digital sandbox for product ideas, small tools, AI workflows, interactive narratives, and other constructive distractions.
 
-First, run the development server:
+The site is intentionally broader than a traditional portfolio. It is a place to build in public, follow curiosities, and share working concepts. The work offers a view into how Nick approaches product problems without turning the site into a polished résumé in website form.
+
+## What is here
+
+- **Constructive Distractions** — public experiments, product concepts, AI tools, and reusable skills
+- **Writing** — a future home for writing published through Substack
+- **Vault** — password-gated personal artifacts and interactive tools
+
+Current public projects include the Assumption Mapper, AI Skills & Automations, Backstage, Living Presentation, DrugX, Theme Playground, and Backseat Driver.
+
+## Stack
+
+- Next.js 16 App Router
+- React 19 and TypeScript
+- Tailwind CSS v4 and shadcn/ui
+- OpenAI for server-side AI features
+- Recharts and Three.js for interactive visualizations
+- Vercel hosting, GitHub source control, and Cloudflare DNS
+
+## Local development
+
+Install dependencies and start the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Useful checks:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+```
 
-## Learn More
+## Environment variables
 
-To learn more about Next.js, take a look at the following resources:
+Create `.env.local` with the variables needed for the features you are running:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+VAULT_PASSWORD=
+OPENAI_API_KEY=
+DEMO_PASSWORD=
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `VAULT_PASSWORD` gates `/vault`.
+- `OPENAI_API_KEY` powers the trip briefing and Assumption Mapper API routes.
+- `DEMO_PASSWORD` unlocks the Assumption Mapper after its free demo uses.
 
-## Deploy on Vercel
+Never commit `.env.local` or expose these values through `NEXT_PUBLIC_` variables.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Routes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Route | Access | Purpose |
+|---|---|---|
+| `/` | Public | Homepage and featured projects |
+| `/projects` | Public | Constructive Distractions index |
+| `/projects/[slug]` | Public | Individual projects and experiments |
+| `/vault` | Password-gated | Personal artifacts and tools |
+| `/vault/[slug]` | Password-gated | Individual Vault artifacts |
+
+## Deployment
+
+The production site is hosted on Vercel at [nickomori.com](https://nickomori.com). Pushes to `main` deploy through the connected GitHub repository.

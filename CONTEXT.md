@@ -1,63 +1,102 @@
 # Project Context — nickomori.com
 
-> Update this file at the end of every session. Read it at the start of every session.
+> Current-state reference for future sessions. Update this file when shipped behavior, active decisions, or near-term priorities change. Product intent belongs in `VISION.md`; technical rules belong in `CLAUDE.md`; history belongs in git.
 
-## Current Status
-Live at nickomori.com. Dark mode, ramen favicon, full vault with Japan itinerary.
+## Current status
 
-## What's Been Built
+- Live at [nickomori.com](https://nickomori.com)
+- Source is on GitHub; pushes to `main` deploy through Vercel
+- Public site, public project library, and password-gated Vault are operational
+- Assumption Mapper is operational in production
+- Writing is a placeholder awaiting a Substack connection
+- Backseat Driver is a business case and in-progress product concept, not yet a mobile app
+
+## Product positioning
+
+This is Nick's personal website and digital sandbox, not a conventional résumé site. It holds hobbies, experiments, useful tools, and working concepts. Nick shares it with recruiters, but the career signal should emerge from the work rather than explicit portfolio framing.
+
+## Shipped public experience
 
 ### Homepage (`/`)
-- 大森 kanji display, "Nick Omori", tagline: "Digital sandbox & working concepts."
-- Nav cards: Constructive Distractions (`/portfolio`) and Vault (`/vault`)
-- Mouse spotlight animation (radial gradient follows cursor)
-- LinkedIn footer link
-- Ramen bowl favicon (`src/app/icon.png`)
 
-### Design System
-- shadcn/ui installed — Button, Card, Badge, Input, Textarea in `src/components/ui/`
-- `cn()` utility in `src/lib/utils.ts`
-- `PageBreadcrumb` component at `src/components/PageBreadcrumb.tsx` — used on all inner pages
-- Dark mode forced globally via `class="dark"` on `<html>`
+- Nick Omori hero and “Digital sandbox & working concepts” positioning
+- Featured Constructive Distractions with an expandable project list
+- LinkedIn link and Vault entry point
+- Writing placeholder
+- Sticky site header with theme and cursor-effect controls
+
+### Constructive Distractions (`/projects`)
+
+- **Assumption Mapper** (`/projects/pm-toolkit`) — live AI tool that generates a happy path, assumptions across five Teresa Torres dimensions, a priority matrix, and a Markdown export. Two free calls are available before the shared demo-code gate.
+- **DrugX** (`/projects/compliant-market`) — satirical StockX-style pharmaceutical marketplace with dosage interactions, market data, a Three.js pill, and deliberately deadpan product copy. No transactions occur.
+- **AI Skills & Automations** (`/projects/ai-skills-automations`) — working library of reusable PM workflows and downloadable skill files.
+- **Backstage** (`/projects/backstage`) — reusable prototype overlay exposing live, mocked, and unresolved data sources; includes a live demo and downloadable vanilla/React implementations.
+- **Living Presentation** (`/projects/living-prototype`) — method and reusable skill for turning raw material into interactive web-native narratives.
+- **Backseat Driver** (`/projects/backseat-driver`) — owner-aligned car-maintenance concept and supporting business case; marked as in progress.
+- **Theme Playground** (`/theme-playground.html`) — standalone palette, typography, interaction, and CSS-token exploration tool.
+
+### Design system
+
+- Warm editorial palette with cream, dark brown, and copper semantic tokens
+- Inter body text, Libre Baskerville headings, and Cormorant Garamond display accents
+- Light mode by default with a user-controlled dark mode
+- Optional cursor glow, magnetic, custom-cursor, and parallax effects; default is none
+- Shared shadcn/ui primitives and semantic surface, text, border, and status tokens
+
+## Shipped private experience
 
 ### Vault (`/vault/*`)
-- Password-gated via `src/proxy.ts` + cookie auth
-- Vault index shows Japan 2026 artifact card
-- Login page at `/vault/login`
 
-### Japan 2026 Living Itinerary (`/vault/japan`)
-- Full trip data: `src/data/trips/japan-2026.ts` (16 cards, 4 cities, travel segments)
-- 4-tab interface: Itinerary / Today / Morning / Evening
-- Activity checkboxes with localStorage persistence
-- Morning briefing via OpenAI GPT-4o-mini (`/api/trip/briefing`)
-- Evening check-in with star rating + day advancement
-- Generic components in `src/components/trip/` (reusable for future trips)
+- Lightweight passphrase gate implemented by `src/proxy.ts` and server actions
+- Thirty-day HTTP-only authentication cookie
+- Intended to discourage indexing and casual access, not protect highly sensitive data
 
-### Constructive Distractions (`/portfolio`)
-- "Please request access." placeholder — ready to populate with projects
+### Japan 2026 (`/vault/japan`)
 
-### Projects (`/projects`)
-- Empty state stub with shadcn Card
+- File-based trip covering Tokyo, Hakone, Kyoto, and Hiroshima
+- Itinerary, Today, Morning, and Evening views
+- Activity completion and trip state persisted in `localStorage`
+- GPT-4o-mini morning briefing through `/api/trip/briefing`
+- Evening rating and day-advancement flow
+- Generic trip components that can support future itineraries
 
-## Active Decisions / Constraints
-- No database — localStorage for trip state, file-based for content
-- No auth libraries — cookie gate is intentional for now
-- Portfolio route is `/portfolio` even though public label is "Constructive Distractions"
-- Japan itinerary components are light-themed (dark mode not applied to trip UI)
-- `OPENAI_API_KEY` must be instantiated inside the POST handler, not at module level
+### Churn & Decline Case (`/vault/churn-case`)
 
-## Environment Variables (both .env.local and Vercel)
-- `VAULT_PASSWORD` — vault passphrase
-- `OPENAI_API_KEY` — GPT-4o-mini for morning briefing
+- Interactive leadership case delivered as a self-contained HTML artifact
+- Uses an SCQA narrative and spine-and-ribs presentation structure
 
-## What's Next
-- Populate Constructive Distractions with first real project
-- Dark mode pass on Japan itinerary components (currently light-themed)
-- Projects page first entry
+## Active technical decisions
 
-## Session Log
-- **2026-05-24** — Built vault + auth, GitHub repo, Vercel deploy, Cloudflare DNS, homepage, CLAUDE.md + CONTEXT.md system
-- **2026-05-24** — Built Japan 2026 living itinerary: full data file, all components, OpenAI briefing, localStorage state
-- **2026-05-24** — Added shadcn/ui, PageBreadcrumb, dark mode, ramen favicon, mouse spotlight, 大森, tagline, LinkedIn footer
-- **2026-06-01** — Renamed Portfolio → Constructive Distractions, updated copy throughout
-- **2026-06-02** — Updated global ~/.claude/CLAUDE.md, created ~/claude-playbook.md, refreshed CLAUDE.md + CONTEXT.md
+- No database: project/trip content is file-based and client-only state uses `localStorage`.
+- No full authentication product: shared cookie gates are intentional at the site's current sensitivity and scale.
+- AI calls remain server-side under `src/app/api/`; secrets never use `NEXT_PUBLIC_` variables.
+- OpenAI clients are instantiated inside request handlers so builds do not require runtime secrets.
+- `/projects` is the canonical public project route; “Constructive Distractions” is its editorial label.
+- DrugX intentionally has an isolated dark visual treatment and several visual-only marketplace controls.
+
+## Environment variables
+
+| Variable | Purpose |
+|---|---|
+| `VAULT_PASSWORD` | Shared passphrase for the private Vault |
+| `OPENAI_API_KEY` | Trip briefing and Assumption Mapper API calls |
+| `DEMO_PASSWORD` | Assumption Mapper access after free demo uses |
+
+Variables must exist in `.env.local` for local work and in the relevant Vercel environments for deployed features.
+
+## Near-term direction
+
+- Connect the Writing section to Nick's Substack
+- Develop Backseat Driver into a mobile app
+- Improve the Assumption Mapper based on usage
+- Continue adding reusable AI skills and automations
+- Potentially create a football or fantasy-football game inspired by 82-0
+
+## Known limitations
+
+- Writing has no published integration yet.
+- Backseat Driver is not yet an application.
+- Vault authentication is intentionally lightweight.
+- Assumption Mapper output is session-only and its matrix can become crowded with large assumption sets.
+- Several DrugX interactions are intentionally non-functional because it is a satirical portfolio artifact, not a marketplace.
+- There is no automated application test suite currently configured.

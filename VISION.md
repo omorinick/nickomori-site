@@ -1,122 +1,90 @@
-# nickomori.com — Project Vision & Roadmap
+# nickomori.com — Vision and Direction
 
-## What This Is
+## What this is
 
-A personal website with two distinct purposes:
+nickomori.com is Nick Omori's personal website and digital sandbox: a place for hobbies, product ideas, AI experiments, interactive tools, writing, and unfinished concepts worth exploring.
 
-1. **Public portfolio** — PM work samples, case studies, and projects for recruiters and interviewers
-2. **Private vault** — a personal repository of AI-generated artifacts (itineraries, research docs, interactive tools) accessible from anywhere, more useful than cloud storage for interactive or web-native content
+It is not meant to read like a perfectly managed portfolio or a résumé translated into web pages. The work should feel self-directed and alive. Nick shares the site with recruiters and collaborators because the projects naturally reveal how he thinks, what he is curious about, and how he turns ideas into tangible things.
 
-The site should feel like a living, evolving product — not a static resume page.
+The site has two complementary spaces:
 
----
+1. **Public sandbox** — Constructive Distractions, writing, product concepts, reusable skills, and experiments
+2. **Private Vault** — personal artifacts that benefit from being interactive or available on the web, without being intended for general discovery
 
-## Core Design Decisions (Already Made)
+## Why it exists
 
-- **Framework:** Next.js (App Router) + TypeScript
-- **Styling:** Tailwind CSS
-- **Hosting:** Vercel (connected to GitHub, auto-deploys on push)
-- **Domain:** nickomori.com via Cloudflare
-- **Auth approach:** Lightweight passphrase-based cookie gate for `/vault` — not cryptographically serious, but sufficient to keep content off Google and away from casual visitors. Can upgrade to Clerk/NextAuth later if needed.
-- **Design:** AI-led to start. May incorporate a theme from Google Stitch once visual direction is clearer.
+- Create a durable home for ideas that do not fit neatly into work, social media, or cloud storage
+- Learn by building and make product thinking visible through real artifacts
+- Explore AI as a practical creative and product tool, not just a topic to discuss
+- Develop reusable workflows and skills instead of producing only one-off outputs
+- Give interested recruiters and collaborators an honest view of Nick's judgment, taste, curiosity, and technical fluency
+- Keep the freedom to publish things that are playful, satirical, incomplete, or simply personally useful
 
----
+Career value is a welcome outcome, but it should come from the substance of the work rather than overt portfolio packaging.
 
-## Route Structure
+## Product principles
 
-| Route | Access | Purpose |
-|---|---|---|
-| `/` | Public | Homepage, name, tagline, links to portfolio |
-| `/portfolio` | Public | PM case studies, work samples, resume artifacts |
-| `/vault` | Password-gated | Personal AI artifacts — itineraries, research, tools |
-| `/vault/[slug]` | Password-gated | Individual artifact pages |
+### Personal first
 
----
+Build things Nick genuinely wants to explore or use. Do not manufacture projects solely to fill a portfolio category.
 
-## What's Been Done
+### Show the work
 
-- [x] Node.js installed (v24)
-- [x] Next.js project scaffolded with Tailwind, TypeScript, App Router, src/ dir
-- [x] Dev server running locally at localhost:3000
-- [x] GitHub account created
-- [x] Vercel account created
-- [x] Domain registered at Cloudflare (nickomori.com)
-- [ ] Homepage scaffold (in progress)
-- [ ] Vault page + password gate
-- [ ] GitHub repo initialized and pushed
-- [ ] Vercel connected to GitHub repo
-- [ ] Cloudflare DNS pointed to Vercel
+Prefer functioning tools, interactive explanations, and real artifacts over claims about skills. A visitor should be able to infer the capability from the thing itself.
 
----
+### Useful and playful can coexist
 
-## Next Steps (Immediate)
+The site can hold serious PM workflows, family travel tools, satire, sports games, design experiments, and writing without forcing them into one professional theme.
 
-1. **Finish homepage scaffold** — name, tagline, link to vault
-2. **Build vault page** — password gate using middleware + cookie, placeholder artifact card inside
-3. **Initialize git repo** → push to GitHub → connect to Vercel → point Cloudflare DNS
-4. **Confirm nickomori.com is live**
+### AI provides leverage; judgment remains human
 
----
+Use AI to create raw material, accelerate exploration, and encode reusable processes. The product framing, choices, evaluation, and final point of view remain Nick's.
 
-## Phase 2 — AI Skills Portfolio (High Priority)
+### Honest prototypes
 
-Inspired by the current PM market and AI adoption curve, the portfolio section should go beyond traditional case studies and become a demonstration of AI-augmented PM craft. Specifically:
+Make it clear when something is a concept, in progress, mocked, or production-ready. A convincing demo should not require pretending every part is complete.
 
-### The Concept
-Build a visible, structured collection of AI "skills" — each one showing:
-- What the skill/workflow does
-- What tools and prompts power it
-- What output it produces (with real examples)
-- Why it matters for product work
+### Ship, observe, iterate
 
-Think of it as: *an agent per skill, explaining how it was built, what it interacts with, what it produces.*
+Treat the site as a living product. Small releases and changing opinions are expected. Avoid premature infrastructure, but do not accumulate avoidable design or documentation debt.
 
-### Why This Matters
-- Differentiates in interviews — shows AI fluency, not just awareness
-- Signals that you're building new muscle, not just talking about AI
-- Creates a compounding asset — each new thing you build with AI can become a portfolio entry
-- Directly addresses what the market is starting to reward (see: Coinbase 14% layoff citing AI efficiency)
+### Portable and appropriately simple
 
-### Skill Categories to Build Toward
-- **PM Research Agent** — competitive analysis, user insight synthesis
-- **Narrative Generator** — takes raw data, outputs structured PRD sections or stakeholder memos
-- **Trip/Event Planner** — interactive AI-generated itineraries (already have Japan trip as a real example)
-- **Decision Frameworks** — structured tradeoff docs on demand
-- **Meeting Prep** — generates context briefs from a company/role description
+Keep content and code portable. File-based content, local browser state, and lightweight access control are appropriate until real usage creates a reason for more infrastructure.
 
-### Portfolio Entry Format (per skill)
-```
-/portfolio/skills/[skill-name]
-- What it does (1 paragraph)
-- How it works (tools, prompts, workflow diagram)
-- Real output example (embedded or linked)
-- What I'd build next
-```
+## Current product areas
 
----
+### Constructive Distractions
 
-## Vault Content Ideas (Private)
+The public collection of working concepts. It currently spans:
 
-- Japan trip itinerary (Tokyo, Hakone, Kyoto, Hiroshima) — already exists, good first artifact
-- AI research documents
-- MBA notes and frameworks
-- Interactive planning tools
+- AI-assisted PM tools and reusable operational skills
+- Interactive approaches to product storytelling and prototype demos
+- Product concepts and business cases
+- Design-system tools and visual experiments
+- Satirical product experiences
 
----
+### Writing
 
-## Guiding Principles
+A future home for Nick's writing, connected to Substack rather than maintained as a separate publishing system without a clear need.
 
-- **No premature optimization** — get live first, iterate on design after
-- **No design debt** — keep it minimal until there's a real visual direction
-- **Portable by default** — code lives in GitHub, hosting is swappable, no platform lock-in
-- **Each Claude Code session needs context** — always reference this file at the start of a new session
-- **The site is a product** — treat it like one. Ship, observe, iterate.
+### Vault
 
----
+A password-gated shelf for personal, interactive artifacts. The gate is intended to prevent indexing and casual access, not to secure highly sensitive information.
 
-## How to Work on This
+## Near-term direction
 
-Each Claude Code session, start with:
-> "I'm working on nickomori.com. Read VISION.md first, then let's work on [specific thing]."
+1. **Connect Writing to Substack** so published writing has a visible home on the site.
+2. **Develop Backseat Driver into a mobile app**, moving it from business case and product concept toward a usable owner-aligned maintenance advisor.
+3. **Improve the Assumption Mapper** based on real usage while preserving its core thesis: AI creates the starting material and the PM does the thinking.
+4. **Continue adding AI skills and automations** when a real workflow is worth encoding and sharing.
+5. **Explore a football or fantasy-football game** inspired by the compact, replayable appeal of the NBA game 82-0.
 
-This keeps continuity without re-explaining from scratch.
+These are directions, not commitments to a fixed release order. The site should retain room for new curiosities.
+
+## Long-term considerations
+
+- Introduce stronger authentication only if the Vault begins holding truly sensitive material.
+- Add persistent cloud data only when a project needs cross-device or multi-user state.
+- Add a content management system only if writing or project publishing becomes painful in code.
+- Preserve the distinction between a personal sandbox and a polished corporate portfolio as the site grows.

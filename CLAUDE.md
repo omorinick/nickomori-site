@@ -3,7 +3,9 @@
 # nickomori.com — Claude Code Instructions
 
 ## What this project is
-Personal website for Nick Omori (PM). Public-facing sections (Constructive Distractions, Projects) and a private vault for personal AI artifacts. Hosted on Vercel, domain on Cloudflare, repo on GitHub.
+Nick Omori's personal website and digital sandbox for hobbies, product ideas, AI experiments, interactive tools, writing, and working concepts. Nick shares it with recruiters, but it should not be framed or designed like a conventional résumé site. Public work lives under Constructive Distractions; personal artifacts live in the private Vault.
+
+Read `VISION.md` for product intent and `CONTEXT.md` for the current shipped state. Keep this file focused on technical working rules.
 
 ## Stack
 - Next.js 16.2.4 (App Router) — NOTE: `middleware` is now called `proxy` in this version, see AGENTS.md
@@ -32,7 +34,7 @@ git push
 |---|---|---|---|
 | `/` | — | Public | Homepage |
 | `/projects` | Constructive Distractions | Public | PM projects, automations, demos |
-| `/projects/[slug]` | — | Public or pw-gated | Individual project |
+| `/projects/[slug]` | — | Public | Individual project |
 | `/vault` | Vault | Password-gated | Personal AI artifacts (linked from footer) |
 | `/vault/[slug]` | — | Password-gated | Individual artifact |
 
@@ -51,9 +53,9 @@ git push
 
 ## Design System — Warm Editorial (Light Mode)
 
-Palette: Warm cream backgrounds, rich dark brown text, copper accent. Headings in Cormorant Garamond, body in Libre Baskerville. Surface depth through luminance elevation; no shadows. All tokens defined in `src/app/globals.css`.
+Palette: Warm cream backgrounds, rich dark brown text, copper accent. Surface depth comes primarily through luminance elevation. All tokens are defined in `src/app/globals.css`.
 
-**Fonts:** `font-heading` = Cormorant Garamond (display headings, 大森 logo). `font-sans` = Libre Baskerville (body text, default). Applied via `--font-cormorant` and `--font-libre-baskerville` CSS variables set in `layout.tsx`.
+**Fonts:** `font-sans` = Inter for body text. `font-heading` = Libre Baskerville for headings. `font-display` = Cormorant Garamond for the 大森 wordmark and display accents. Font variables are set in `layout.tsx`.
 
 **Dark mode:** Site supports user-toggled dark mode via `next-themes`. `ThemeProvider` in `layout.tsx` wraps the app; toggle button in `SiteHeader` switches theme. `next-themes` adds `class="dark"` to `<html>` when active — `suppressHydrationWarning` is set on `<html>` to prevent SSR mismatch. Default is `"light"`, system preference not followed. DrugX wraps its content in `<div className="dark">` regardless of site theme, which is fine since the dark CSS variables are already defined.
 
@@ -65,7 +67,7 @@ Four elevation levels — each step is a slightly deeper warm cream:
 | `--background` | `bg-background` | `#f9f5ef` | Page background (warm cream) |
 | `--card` | `bg-card` | `#f0ebe0` | Cards, panels, lifted surfaces |
 | `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `#e6dfd0` | Inputs, hover bg, embedded surfaces |
-| `--surface-overlay` | `bg-surface-overlay` | `#e0d8c8` | Modals, tooltips, dropdowns above cards |
+| `--surface-overlay` | `bg-surface-overlay` | `#e8e0d0` | Modals, tooltips, dropdowns above cards |
 
 ### Text Hierarchy
 Three levels only — use nothing outside these:
@@ -73,7 +75,7 @@ Three levels only — use nothing outside these:
 | Token | Tailwind class | Approx hex | Use |
 |---|---|---|---|
 | `--foreground` | `text-foreground` | `#1c1815` | Primary content, headings, values |
-| `--muted-foreground` | `text-muted-foreground` | `#5e5149` | Labels, descriptions, metadata |
+| `--muted-foreground` | `text-muted-foreground` | `#7a6e64` | Labels, descriptions, metadata |
 | `--foreground-subtle` | `text-foreground-subtle` | `#b0a898` | Disabled, decorative, placeholder — non-informational only |
 
 ### Borders & Interactive States
@@ -135,13 +137,13 @@ Usage examples:
 7. **Don't hardcode dark mode.** `next-themes` manages the dark class on `<html>` — never set it manually. DrugX still uses its own `<div className="dark">` wrapper for local dark scoping, which is compatible with site-wide dark mode.
 
 ### Project Page Hero Pattern
-Document-style project pages (case studies, project write-ups) must use this hero structure to establish visual hierarchy. **The h1 being dramatically larger than everything else is what makes a page feel designed.**
+Document-style project pages (case studies, project write-ups) must use this hero structure to establish visual hierarchy. The h1 should be dramatically larger than the surrounding copy.
 
 ```tsx
 {/* Category label — always "Constructive Distractions" for /projects pages */}
 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Constructive Distractions</p>
 
-{/* Title — font-heading for Cormorant Garamond, text-4xl minimum */}
+{/* Title — font-heading for Libre Baskerville, text-4xl minimum */}
 <h1 className="text-4xl font-bold text-foreground tracking-tight mb-4 font-heading">Project Name</h1>
 
 {/* Hook line — text-foreground (dark brown), NOT muted. This is the pitch. */}
@@ -155,16 +157,16 @@ Document-style project pages (case studies, project write-ups) must use this her
 </p>
 ```
 
-**Key rules:** (1) Add `font-heading` to all h1 elements — this applies Cormorant Garamond. (2) Hook text immediately under the title is `text-foreground` (dark brown). Making it muted buries the lede. Only secondary context drops to `text-muted-foreground`.
+**Key rules:** (1) Add `font-heading` to document-style h1 elements — this applies Libre Baskerville. (2) Hook text immediately under the title is `text-foreground` (dark brown). Making it muted buries the lede. Only secondary context drops to `text-muted-foreground`.
 
 ## Key Components & Patterns
-- `src/components/SiteHeader.tsx` — sticky site header with 大森 logo, auto-hides on `/` and DrugX pages
+- `src/components/SiteHeader.tsx` — sticky site header with 大森 logo, theme toggle, and cursor-effect selector; hidden on DrugX pages
 - `src/components/PageBreadcrumb.tsx` — shared breadcrumb nav used on all inner pages
 - `src/components/trip/` — Japan itinerary components (generic, reusable for future trips)
 - `src/data/trips/japan-2026.ts` — trip data types and JAPAN_2026 export
 - `src/app/api/trip/briefing/route.ts` — OpenAI POST handler (instantiate client inside handler, not at module level)
 - `src/app/icon.png` — ramen bowl favicon (no icon.tsx — static PNG takes precedence)
-- Dark mode forced globally via `class="dark"` on `<html>` in `src/app/layout.tsx`
+- `src/components/ThemeProvider.tsx` — light mode by default, user-controlled dark mode, system preference disabled
 
 ## Architectural Rules — do not break these
 1. **AI API calls are server-side only.** Any OpenAI/Anthropic call goes through `/app/api/`. Never `NEXT_PUBLIC_` on keys. Never call AI from a client component.

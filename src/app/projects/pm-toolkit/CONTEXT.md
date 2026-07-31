@@ -12,7 +12,7 @@ A live interactive PM demo tool at `/projects/pm-toolkit` on nickomori.com. The 
 
 The core thesis (worth knowing for any copy or UI work): **AI is best at generating the raw material. The PM does the actual thinking.** This comes from Stanford d.school design thinking — "yes-and" — where kickstarting the brainstorm is the hardest part, and iteration is much easier once you have something to react to.
 
-This is the flagship demo in "Constructive Distractions" (`/projects`). It's the thing Nick would point a recruiter or PM peer to.
+This is one of the core working tools in "Constructive Distractions" (`/projects`) and a concrete example of Nick's AI-assisted PM practice.
 
 ---
 
@@ -56,15 +56,9 @@ Steps after input:
 
 ## Current status
 
-**Code is complete and committed. Not yet tested end-to-end with a live OpenAI response.**
+**Operational in production.** The full OpenAI flow is working at `/projects/pm-toolkit`, including the free-use limit and shared demo-code gate.
 
-The OpenAI API key in `.env.local` is hitting a **429 quota error** (billing limit exceeded on the account). The code handles this gracefully (shows "AI service temporarily unavailable" message), but the tool won't actually work until this is resolved.
-
-**Before pushing to production, two things are required:**
-1. Add billing credits at [platform.openai.com](https://platform.openai.com) → Billing
-2. Add `DEMO_PASSWORD` to Vercel dashboard: Settings → Environment Variables → Production + Preview
-
-The local placeholder is `DEMO_PASSWORD=letmein2026` in `.env.local`.
+`OPENAI_API_KEY` and `DEMO_PASSWORD` must remain configured in the relevant Vercel environments and in `.env.local` for local testing. Do not record their values in this file.
 
 ---
 
@@ -94,26 +88,19 @@ The local placeholder is `DEMO_PASSWORD=letmein2026` in `.env.local`.
 
 **The `applyCookies` function** in `route.ts` uses a type assertion to access `currentUses` from the `checkAccess` return type. It works and TypeScript passes, but it's slightly awkward — worth cleaning up if the access control logic ever changes.
 
-**The homepage (`/`) uses hardcoded Tailwind neutral colors**, not the semantic design tokens. That's intentional — it's a different design. Don't apply the card/surface token rules there.
+**The homepage (`/`) uses the shared semantic design tokens.** Keep it consistent with the warm editorial system while allowing its layout to remain more expressive than document-style project pages.
 
 ---
 
 ## Design system note
 
-The site uses a three-layer dark surface hierarchy (defined in `src/app/globals.css`):
-- Background: `#161616`
-- Card/panel: `#242424`
-- Input/elevated: `#2E2E2E`
-- Border: `#393939`
-
-All inner pages (everything under `/projects`) should use `border-border bg-card` for surfaces, `text-foreground` for primary text, `text-muted-foreground` for secondary. Never hardcode `border-neutral-800` on inner pages — it won't follow the palette.
+The site uses the warm editorial semantic tokens defined in `src/app/globals.css`, with light mode as the default and a user-controlled dark variant. All inner pages should use `border-border bg-card` for surfaces, `text-foreground` for primary text, and `text-muted-foreground` for secondary text. Do not hardcode neutral palette classes that bypass the shared theme.
 
 ---
 
 ## Next steps (v2)
 
-1. **Fix OpenAI billing** → end-to-end test the tool
-2. **Add `DEMO_PASSWORD` to Vercel** → push to production
-3. **Learning plan generator** — the natural v2 feature: take the top-right quadrant assumptions, group into pre-launch and post-launch validation activities (interviews, prototypes, metric monitors, experiments, etc.), assign to PM/Designer/Eng
-4. **Miro/FigJam export** — use Miro REST API or FigJam plugin to push swim lane steps and assumption chips directly into a board as sticky notes
-5. **Matrix UX improvements** — filter by quadrant, de-clutter overlapping chips, mobile layout
+1. **Learning plan generator** — take the top-right quadrant assumptions, group them into pre-launch and post-launch validation activities, and assign likely owners
+2. **Miro/FigJam export** — push swim-lane steps and assumption chips into a board as sticky notes
+3. **Matrix UX improvements** — filter by quadrant, reduce overlapping chips, and improve the mobile layout
+4. **Usage-led refinement** — observe real demo usage and improve the input, output quality, and explanation of the framework
