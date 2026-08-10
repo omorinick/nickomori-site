@@ -37,12 +37,14 @@ git push
 | `/projects/[slug]` | — | Public | Individual project |
 | `/vault` | Vault | Password-gated | Personal AI artifacts (linked from footer) |
 | `/vault/[slug]` | — | Password-gated | Individual artifact |
+| `/case-studies/[slug]` | — | Password-gated (per-slug) | One-off case study shared with an external reviewer; own passphrase, not the Vault's |
 
 ## Authentication
 - Vault gate: `src/proxy.ts` (Next.js 16 renamed middleware → proxy)
 - Passphrase: `VAULT_PASSWORD` env var (`.env.local` locally, Vercel dashboard in prod)
 - Cookie: `vault-auth`, 30-day expiry, httpOnly
 - Server actions: `src/app/vault/actions.ts`
+- Case-study gate: same `src/proxy.ts`, but per-slug — passphrase is `CASE_STUDY_PASSWORD_<SLUG_UPPER_SNAKE>`, cookie is `case-study-auth-<slug>`, server actions in `src/app/case-studies/actions.ts`. Slug registry: `src/data/case-studies/registry.ts`. Unauthenticated `/api/case-studies/*` requests get a 401 JSON body, not a redirect (the comments UI polls via `fetch`).
 
 ## Environment Variables
 | Variable | Purpose |
@@ -50,6 +52,8 @@ git push
 | `VAULT_PASSWORD` | Vault login passphrase |
 | `OPENAI_API_KEY` | OpenAI GPT-4o for trip briefing + PM Toolkit API routes |
 | `DEMO_PASSWORD` | Demo access gate for AI-powered portfolio tools |
+| `CASE_STUDY_PASSWORD_<SLUG>` | Per-case-study passphrase, e.g. `CASE_STUDY_PASSWORD_ACME` for `/case-studies/acme` |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Upstash Redis (case-study comments) — Marketplace-provisioned, read via `src/lib/redis.ts` |
 
 ## Design System — Warm Editorial (Light Mode)
 
@@ -177,7 +181,7 @@ Document-style project pages (case studies, project write-ups) must use this her
 
 ## What NOT to do
 - Don't add auth libraries (Clerk, NextAuth) — cookie gate is intentional
-- Don't add a database yet — file-based content until volume justifies it
+- Don't add a database yet — file-based content until volume justifies it. Exception: case-study comments use Upstash Redis (`src/lib/redis.ts`) because comments must be visible across different people's devices, which `localStorage` can't do — don't extend that datastore to unrelated features without the same cross-device justification
 - Don't use `NEXT_PUBLIC_` on anything sensitive
 - Don't add comments explaining what code does — only comment on non-obvious *why*
 - Don't modify Japan itinerary component internals without reading the data model first

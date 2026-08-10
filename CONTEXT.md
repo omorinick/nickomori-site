@@ -65,12 +65,23 @@ This is Nick's personal website and digital sandbox, not a conventional résumé
 - Interactive leadership case delivered as a self-contained HTML artifact
 - Uses an SCQA narrative and spine-and-ribs presentation structure
 
+## Shipped shareable experience
+
+### Case Studies (`/case-studies/[slug]`)
+
+- Reusable infrastructure for sending a single past-project case study to one external reviewer (e.g. a hiring manager) without exposing the Vault
+- Each slug has its own passphrase (`CASE_STUDY_PASSWORD_<SLUG>` env var) and its own cookie, gated in `src/proxy.ts` alongside the Vault gate but independent of it
+- Registry of known slugs lives in `src/data/case-studies/registry.ts`; content is bespoke TSX per case study (not a shared template), each section wrapped in a `data-slide-id` container
+- Figma-style floating comment pins (`src/components/case-study/CommentLayer.tsx`): click to place, hover to expand from an initials avatar into name/date/text, edit/delete your own comment (no replies/threads), ~3s polling so viewers see updates without refreshing
+- Comment identity is a typed name + a random token stored in the browser's `localStorage` — no accounts; edit/delete are enforced server-side by token match, not just hidden client-side
+- First real backing datastore on this site (Upstash Redis via the Vercel Marketplace, `src/lib/redis.ts`) — a deliberate, scoped exception to the "no database" rule below, made because comments must be visible across different people's devices and persist over days, which `localStorage` can't do
+
 ## Active technical decisions
 
-- No database: project/trip content is file-based and client-only state uses `localStorage`.
-- No full authentication product: shared cookie gates are intentional at the site's current sensitivity and scale.
+- No database for project/trip content: it stays file-based, and client-only state uses `localStorage`. The one exception is case-study comments (above), which need cross-device shared state.
+- No full authentication product: shared cookie gates are intentional at the site's current sensitivity and scale — this now includes per-slug case-study passwords, not just the single Vault password.
 - AI calls remain server-side under `src/app/api/`; secrets never use `NEXT_PUBLIC_` variables.
-- OpenAI clients are instantiated inside request handlers so builds do not require runtime secrets.
+- OpenAI clients are instantiated inside request handlers so builds do not require runtime secrets. The Redis client (`src/lib/redis.ts`) follows the same lazy-init pattern.
 - `/projects` is the canonical public project route; “Constructive Distractions” is its editorial label.
 - DrugX intentionally has an isolated dark visual treatment and several visual-only marketplace controls.
 
@@ -81,6 +92,8 @@ This is Nick's personal website and digital sandbox, not a conventional résumé
 | `VAULT_PASSWORD` | Shared passphrase for the private Vault |
 | `OPENAI_API_KEY` | Trip briefing and Assumption Mapper API calls |
 | `DEMO_PASSWORD` | Assumption Mapper access after free demo uses |
+| `CASE_STUDY_PASSWORD_<SLUG>` | Passphrase for one case study page, e.g. `CASE_STUDY_PASSWORD_ACME` gates `/case-studies/acme` |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Upstash Redis (case-study comments), auto-provisioned via `vercel integration add upstash/upstash-kv` |
 
 Variables must exist in `.env.local` for local work and in the relevant Vercel environments for deployed features.
 
