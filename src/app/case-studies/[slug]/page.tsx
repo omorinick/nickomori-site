@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { isKnownCaseStudySlug, CASE_STUDY_REGISTRY } from '@/data/case-studies/registry'
 import { logout } from '../actions'
+import { CommentLayer } from '@/components/case-study/CommentLayer'
 
 export default async function CaseStudyPage({
   params,
@@ -23,8 +24,11 @@ export default async function CaseStudyPage({
             </button>
           </form>
         </div>
-        <p className="text-muted-foreground">Content coming soon.</p>
+        <section data-slide-id="intro" className="relative min-h-40 rounded-lg border border-border bg-card p-6">
+          <p className="text-muted-foreground">Content coming soon.</p>
+        </section>
       </div>
+      <CommentLayer slug={slug} />
     </main>
   )
 }
