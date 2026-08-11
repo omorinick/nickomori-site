@@ -62,18 +62,20 @@ This is Nick's personal website and digital sandbox, not a conventional résumé
 
 ### Churn & Decline Case (`/vault/churn-case`)
 
-- Interactive leadership case delivered as a self-contained HTML artifact
+- Interactive leadership case delivered as a self-contained HTML artifact (`src/data/artifacts/churn-decline-case.html`)
 - Uses an SCQA narrative and spine-and-ribs presentation structure
+- Superseded for external sharing by the TSX port at `/case-studies/churn-case` (below), which adds the comment layer; this original Vault artifact is unchanged and still live as the source-of-truth narrative content
 
 ## Shipped shareable experience
 
 ### Case Studies (`/case-studies/[slug]`)
 
-- Reusable infrastructure for sending a single past-project case study to one external reviewer (e.g. a hiring manager) without exposing the Vault
+- Reusable infrastructure for sending a single past-project case study to one external reviewer (e.g. a hiring manager) without exposing the Vault. Also the "interactive review build" output mode of the `living-prototype` skill (`public/skills/living-prototype.md`) — any future deck that needs external inline feedback follows this same pattern, not just past-project case studies
 - Each slug has its own passphrase (`CASE_STUDY_PASSWORD_<SLUG>` env var) and its own cookie, gated in `src/proxy.ts` alongside the Vault gate but independent of it
-- Registry of known slugs lives in `src/data/case-studies/registry.ts`; content is bespoke TSX per case study (not a shared template), each section wrapped in a `data-slide-id` container
-- Figma-style floating comment pins (`src/components/case-study/CommentLayer.tsx`): click to place, hover to expand from an initials avatar into name/date/text, edit/delete your own comment (no replies/threads), ~3s polling so viewers see updates without refreshing
-- Comment identity is a typed name + a random token stored in the browser's `localStorage` — no accounts; edit/delete are enforced server-side by token match, not just hidden client-side
+- Registry of known slugs lives in `src/data/case-studies/registry.ts`; content is bespoke TSX per case study (not a shared template) in `src/components/case-study/content/<slug>.tsx`, registered in that folder's `index.tsx` dispatch map, each narrative section wrapped in a `data-slide-id` container
+- `churn-case` is the first (beta) deck built this way — a TSX port of the Vault artifact above, kept in its original PayPal-blue brand rather than this site's palette (same reasoning as DrugX's isolated visual treatment)
+- Figma-style floating comment pins (`src/components/case-study/CommentLayer.tsx`), click to place, hover to expand from an initials avatar into name/date/text, ~3s polling so viewers see updates without refreshing. Full feature set: threaded replies (one level) with a reply-count badge, a "Show all comments" panel (hover the toggle to reveal it) that lists every thread and opens/highlights whichever one you click, a persistent comment-count badge on the toggle, a one-time name prompt with an "Edit name" option in the same hover menu, and a brief first-session bounce nudge on the toggle (stops on hover)
+- **Anyone viewing can edit or delete any comment — not just their own.** There's no account system and ownership isn't tracked (comment identity is just a typed name in `localStorage`, no auth token); this was a deliberate simplification requested over the initial per-owner-only model, since there's no login and Nick would otherwise have no way to moderate/manage comments he doesn't personally own
 - First real backing datastore on this site (Upstash Redis via the Vercel Marketplace, `src/lib/redis.ts`) — a deliberate, scoped exception to the "no database" rule below, made because comments must be visible across different people's devices and persist over days, which `localStorage` can't do
 
 ## Active technical decisions
