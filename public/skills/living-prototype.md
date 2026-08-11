@@ -6,11 +6,14 @@ description: >
   leadership or executive presentation, a product narrative, a business case, a strategy readout, a
   vision pitch, or any time they say "deck," "presentation," "slides," "tell the story," "walk them
   through," "pitch," "readout," or want to communicate data or a vision to leadership — even if they
-  don't explicitly ask for a "prototype." This skill picks the right narrative structure AND the right
-  spatial layout (vertical scroll, horizontal sequence, interactive explorable, or a spine-and-ribs
-  mix), then renders a single-file React + Tailwind prototype the user can open and present. Prefer
-  this over static formats when the goal is to communicate a story or make a case to leadership, not
-  to produce a formal filed document.
+  don't explicitly ask for a "prototype" — or they say "feedback," "comments," "leave notes," "review
+  this," or want stakeholders to annotate a deck directly. This skill picks the right narrative
+  structure AND the right spatial layout (vertical scroll, horizontal sequence, interactive
+  explorable, or a spine-and-ribs mix), then renders either a single-file React + Tailwind prototype
+  the user can open and present, or — when people need to leave inline feedback — an interactive
+  build with Figma-style comment pins, hosted as a link with its own passphrase. Prefer this over
+  static formats when the goal is to communicate a story or make a case to leadership, not to produce
+  a formal filed document.
 ---
 
 # Living Prototype
@@ -40,7 +43,7 @@ skeptical, and want the point up front.
 Work through these six steps in order. Don't skip the intake — guessing the audience or the ask is
 the most expensive mistake you can make.
 
-### 1. Intake — get the three things you can't guess
+### 1. Intake — get the things you can't guess
 
 Before building anything, confirm these. Ask the user directly if any are unclear; don't invent them.
 
@@ -50,6 +53,10 @@ Before building anything, confirm these. Ask the user directly if any are unclea
 - **The audience and the mode.** Who's in the room, what do they already believe, and how will they
   consume this — **presented live** (you're narrating, they watch) or **read async** (sent as a link,
   they self-navigate)? This single distinction drives most of the layout choice.
+- **Feedback.** Does anyone need to leave inline comments — an external stakeholder reviewing on
+  their own time, a team annotating before a live readout? This is a separate axis from the one
+  above and decides the *render* format (step 5): a portable file, or an interactive review build.
+  Default to the portable file unless this comes up.
 - **The raw material and constraints.** The data, the narrative beats, screens to show, hard numbers,
   time limit, and any brand/format constraints.
 
@@ -107,8 +114,50 @@ Skip this step only when the user has explicitly said "just build it."
 
 ### 5. Render — build the prototype
 
-Build a **single self-contained HTML file** using React + Tailwind via CDN, styled with your brand's
-design tokens. The file should open on double-click with no build step and no dependencies.
+Two output formats. Default to the portable file — reach for the interactive build only when intake
+step 1 surfaced a real need for inline feedback.
+
+**Portable file (default).** Build a **single self-contained HTML file** using React + Tailwind via
+CDN, styled with your brand's design tokens. The file should open on double-click with no build step
+and no dependencies.
+
+**Interactive review build (when inline comments matter).** Trade portability for that: build the
+deck as a real page in the nickomori.com Next.js app instead of a single HTML file, with a
+Figma-style comment layer wired in. The comment layer is already built and fully reusable — this is
+a wiring job, not new engineering, and it's the same pattern regardless of what the deck is about:
+
+1. Register the deck: add `{ slug, title }` to `src/data/case-studies/registry.ts`.
+2. Build the content as a real client component at `src/components/case-study/content/<slug>.tsx` —
+   plain TSX, not a string of HTML. Use the narrative structure and spatial grammar you already chose
+   (SCQA, spine-and-ribs, etc.), styled with this site's design tokens or the deck's own brand (see
+   `churn-case.tsx` for a precedent that keeps an external brand's colors instead of the site's —
+   same reasoning as DrugX's isolated visual treatment elsewhere on this site). Wrap each top-level
+   narrative beat in `<section data-slide-id="unique-id">` — that's the only contract the comment
+   layer needs; it's how pins anchor to content and survive reflow/resize.
+3. Register the content component in the `CASE_STUDY_CONTENT` map in
+   `src/components/case-study/content/index.tsx`.
+4. Set a passphrase: add `CASE_STUDY_PASSWORD_<SLUG_UPPER_SNAKE>` to `.env.local` for local testing,
+   and the same variable name in Vercel's dashboard (Production, plus Preview if needed) before it'll
+   work once deployed.
+
+`src/app/case-studies/[slug]/page.tsx` already dispatches to your content component and mounts the
+comment layer once the above four steps are done — nothing else to wire.
+
+What you get for free from `<CommentLayer />` — don't rebuild any of this:
+
+- Click-to-place floating comment pins, anchored per-section, position holds through resize.
+- Hover-to-expand from an initials avatar to the full comment; a custom cursor and a "Click anywhere
+  to comment" banner while placing one.
+- Threaded replies (one level deep), with a reply-count badge on the pin.
+- Anyone viewing can edit or delete any comment — there's no account system, so per-person ownership
+  isn't tracked; that's intentional given the review audience, not an oversight.
+- A "Show all comments" panel (hover the toggle to reveal it) listing every thread; clicking one
+  scrolls to and opens it, panel stays open, selected thread highlighted. A count badge on the toggle
+  shows total comment volume without opening anything.
+- A one-time name prompt, persisted per browser and shared across every deck built this way, with an
+  "Edit name" option in the same hover menu.
+- A brief first-session bounce on the toggle so a first-time visitor notices it; stops on hover.
+- Live updates via ~3s polling — no refresh needed, works for a live workshop as well as async review.
 
 **How to brand it:** At the top of the file, set Tailwind config colors matching your brand. Use a
 mostly-monochrome palette with one accent color used sparingly (~4–10% of each composition). The
@@ -142,7 +191,9 @@ Build principles, in priority order:
 - [ ] Interaction patterns pulled from the library where one fit (not reinvented)?
 - [ ] Brand: mostly mono, one accent used sparingly, big tight-tracked headings, accessible contrast
       (body ≥ 4.5:1)?
-- [ ] Opens and runs from a double-click; works at the size it'll be shown (projected vs. laptop)?
+- [ ] Portable file opens and runs from a double-click; interactive build loads cleanly at
+      `/case-studies/<slug>` behind its passphrase? Works at the size it'll be shown (projected vs.
+      laptop)?
 - [ ] Numbers are real and sourced — never invent figures. If a number is a placeholder, label it.
 
 ---
@@ -163,10 +214,12 @@ recur.
 
 ## Output and handoff
 
-- Deliver the prototype as a single `.html` file.
-- Name it for the story, not the format: `churn-decline-case.html`, not `presentation.html`.
-- If the user wants to take it into their production stack, note that the same component structure
-  drops into any React / TypeScript / Tailwind setup — the hooks and components port cleanly.
+- **Portable file:** deliver as a single `.html` file, named for the story not the format
+  (`churn-decline-case.html`, not `presentation.html`).
+- **Interactive review build:** deliver as a link + passphrase (`/case-studies/<slug>`), not a file —
+  there's nothing to hand over besides the URL and the password.
+- If the user wants to take a portable file into their production stack, note that the same component
+  structure drops into any React / TypeScript / Tailwind setup — the hooks and components port cleanly.
 - Offer, but don't assume: a matching one-page leave-behind, a speaker-notes version, or a trimmed
   read-mode variant of the same story.
 
