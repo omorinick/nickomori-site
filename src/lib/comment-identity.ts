@@ -1,6 +1,5 @@
 export interface CommentIdentity {
   name: string
-  token: string
 }
 
 const STORAGE_KEY = 'nickomori-comment-identity'
@@ -16,7 +15,7 @@ export function getStoredIdentity(): CommentIdentity | null {
 }
 
 export function storeIdentity(name: string): CommentIdentity {
-  const identity: CommentIdentity = { name, token: crypto.randomUUID() }
+  const identity: CommentIdentity = { name }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(identity))
   return identity
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import type { PublicComment } from '@/lib/comments'
+import type { CommentRecord } from '@/lib/comments'
 
 const POLL_INTERVAL_MS = 3000
 
@@ -10,19 +10,18 @@ export interface NewCommentInput {
   xPct: number
   yPct: number
   authorName: string
-  ownerToken: string
   text: string
 }
 
-export function useCaseStudyComments(slug: string, viewerToken: string) {
-  const [comments, setComments] = useState<PublicComment[]>([])
+export function useCaseStudyComments(slug: string) {
+  const [comments, setComments] = useState<CommentRecord[]>([])
 
   const fetchComments = useCallback(async () => {
-    const res = await fetch(`/api/case-studies/${slug}/comments?token=${encodeURIComponent(viewerToken)}`)
+    const res = await fetch(`/api/case-studies/${slug}/comments`)
     if (!res.ok) return
     const data = await res.json()
     setComments(data.comments)
-  }, [slug, viewerToken])
+  }, [slug])
 
   useEffect(() => {
     fetchComments()
@@ -51,7 +50,7 @@ export function useCaseStudyComments(slug: string, viewerToken: string) {
       stop()
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [fetchComments, viewerToken])
+  }, [fetchComments])
 
   const create = useCallback(
     async (input: NewCommentInput) => {
@@ -70,11 +69,11 @@ export function useCaseStudyComments(slug: string, viewerToken: string) {
   )
 
   const update = useCallback(
-    async (id: string, text: string, ownerToken: string) => {
+    async (id: string, text: string) => {
       const res = await fetch(`/api/case-studies/${slug}/comments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, ownerToken }),
+        body: JSON.stringify({ text }),
       })
       if (res.ok) {
         const data = await res.json()
@@ -86,12 +85,8 @@ export function useCaseStudyComments(slug: string, viewerToken: string) {
   )
 
   const remove = useCallback(
-    async (id: string, ownerToken: string) => {
-      const res = await fetch(`/api/case-studies/${slug}/comments/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ownerToken }),
-      })
+    async (id: string) => {
+      const res = await fetch(`/api/case-studies/${slug}/comments/${id}`, { method: 'DELETE' })
       if (res.ok) {
         setComments((prev) => prev.filter((c) => c.id !== id))
       }

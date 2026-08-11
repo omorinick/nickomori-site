@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { MessageCirclePlus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { useCaseStudyComments } from '@/hooks/useCaseStudyComments'
 import { getStoredIdentity, storeIdentity, initials, type CommentIdentity } from '@/lib/comment-identity'
 import { NameCaptureDialog } from './NameCaptureDialog'
@@ -25,7 +25,7 @@ export function CommentLayer({ slug }: { slug: string }) {
   const [draft, setDraft] = useState<Draft | null>(null)
   const [slideElements, setSlideElements] = useState<Record<string, HTMLElement>>({})
 
-  const { comments, create, update, remove } = useCaseStudyComments(slug, identity?.token ?? '')
+  const { comments, create, update, remove } = useCaseStudyComments(slug)
 
   useEffect(() => {
     setIdentity(getStoredIdentity())
@@ -40,6 +40,11 @@ export function CommentLayer({ slug }: { slug: string }) {
     })
     setSlideElements(map)
   }, [])
+
+  useEffect(() => {
+    document.body.classList.toggle('case-study-commenting', commentMode)
+    return () => document.body.classList.remove('case-study-commenting')
+  }, [commentMode])
 
   // Entering comment mode as soon as the name dialog's state flips would let a
   // click land on the dialog's still-animating-out backdrop, which swallows it.
@@ -100,7 +105,7 @@ export function CommentLayer({ slug }: { slug: string }) {
       ? createPortal(
           <div
             data-comment-pin="draft"
-            className="absolute -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2"
+            className="absolute -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-2"
             style={{ left: `${draft.xPct}%`, top: `${draft.yPct}%` }}
           >
             <Avatar size="sm" className="ring-2 ring-primary shadow-sm">
@@ -117,7 +122,6 @@ export function CommentLayer({ slug }: { slug: string }) {
                     xPct: draft.xPct,
                     yPct: draft.yPct,
                     authorName: identity.name,
-                    ownerToken: identity.token,
                     text,
                   })
                   setDraft(null)
@@ -139,10 +143,10 @@ export function CommentLayer({ slug }: { slug: string }) {
             key={comment.id}
             comment={comment}
             onUpdate={async (text) => {
-              await update(comment.id, text, identity!.token)
+              await update(comment.id, text)
             }}
             onDelete={async () => {
-              await remove(comment.id, identity!.token)
+              await remove(comment.id)
             }}
           />,
           el
@@ -158,29 +162,32 @@ export function CommentLayer({ slug }: { slug: string }) {
         onSubmit={handleNameSubmit}
       />
 
-      <div className="fixed bottom-6 right-6 z-50" data-comment-toggle="true">
-        {commentMode ? (
-          <Button
-            type="button"
-            size="icon"
-            variant="secondary"
-            className="rounded-full shadow-md size-11"
-            onClick={() => setCommentMode(false)}
-            aria-label="Cancel commenting"
-          >
-            <X />
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            size="icon"
-            className="rounded-full shadow-md size-11"
-            onClick={enterCommentMode}
-            aria-label="Add a comment"
-          >
-            <MessageCirclePlus />
-          </Button>
+      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2" data-comment-toggle="true">
+        {commentMode && (
+          <span className="text-sm font-medium text-foreground bg-card border border-border rounded-full px-4 py-2.5 shadow-md animate-in fade-in slide-in-from-right-2 duration-200">
+            Click anywhere to comment
+          </span>
         )}
+        <button
+          type="button"
+          onClick={commentMode ? () => setCommentMode(false) : enterCommentMode}
+          aria-label={commentMode ? 'Cancel commenting' : 'Add a comment'}
+          className={cn(
+            'group/toggle flex items-center h-11 rounded-full shadow-md transition-[width] duration-200 overflow-hidden',
+            commentMode
+              ? 'w-11 justify-center bg-secondary text-secondary-foreground'
+              : 'min-w-11 bg-primary text-primary-foreground'
+          )}
+        >
+          {!commentMode && (
+            <span className="max-w-0 group-hover/toggle:max-w-24 group-hover/toggle:pl-4 overflow-hidden whitespace-nowrap transition-all duration-200 text-sm font-medium">
+              Comment
+            </span>
+          )}
+          <span className="flex items-center justify-center size-11 shrink-0">
+            {commentMode ? <X /> : <MessageCirclePlus />}
+          </span>
+        </button>
       </div>
     </>
   )

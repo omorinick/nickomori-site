@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { isKnownCaseStudySlug } from '@/data/case-studies/registry'
-import { commentsKey, toPublicComment, validateCommentEdit, type CommentRecord } from '@/lib/comments'
+import { commentsKey, validateCommentEdit, type CommentRecord } from '@/lib/comments'
 
 export async function PATCH(
   request: NextRequest,
@@ -28,9 +28,6 @@ export async function PATCH(
   if (!existing) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
-  if (existing.ownerToken !== body.ownerToken) {
-    return NextResponse.json({ error: 'forbidden' }, { status: 403 })
-  }
 
   const updated: CommentRecord = {
     ...existing,
@@ -39,11 +36,11 @@ export async function PATCH(
   }
   await redis.hset(commentsKey(slug), { [id]: updated })
 
-  return NextResponse.json({ comment: toPublicComment(updated, body.ownerToken) })
+  return NextResponse.json({ comment: updated })
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ slug: string; id: string }> }
 ) {
   const { slug, id } = await params
@@ -51,18 +48,10 @@ export async function DELETE(
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
 
-  const body = await request.json().catch(() => null)
-  if (!body || typeof body.ownerToken !== 'string' || body.ownerToken.length === 0) {
-    return NextResponse.json({ error: 'ownerToken is required' }, { status: 400 })
-  }
-
   const redis = getRedis()
   const existing = await redis.hget<CommentRecord>(commentsKey(slug), id)
   if (!existing) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
-  }
-  if (existing.ownerToken !== body.ownerToken) {
-    return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
 
   await redis.hdel(commentsKey(slug), id)

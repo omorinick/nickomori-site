@@ -2,26 +2,18 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { isKnownCaseStudySlug } from '@/data/case-studies/registry'
-import {
-  commentsKey,
-  toPublicComment,
-  validateCommentInput,
-  type CommentRecord,
-} from '@/lib/comments'
+import { commentsKey, validateCommentInput, type CommentRecord } from '@/lib/comments'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   if (!isKnownCaseStudySlug(slug)) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
 
-  const viewerToken = request.nextUrl.searchParams.get('token') ?? ''
   const raw = await getRedis().hgetall<Record<string, CommentRecord>>(commentsKey(slug))
-  const comments = Object.values(raw ?? {})
-    .map((record) => toPublicComment(record, viewerToken))
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  const comments = Object.values(raw ?? {}).sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
   return NextResponse.json({ comments })
 }
@@ -49,7 +41,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     xPct: body.xPct,
     yPct: body.yPct,
     authorName: body.authorName,
-    ownerToken: body.ownerToken,
     text: body.text,
     createdAt: now,
     updatedAt: now,
@@ -57,5 +48,5 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   await getRedis().hset(commentsKey(slug), { [record.id]: record })
 
-  return NextResponse.json({ comment: toPublicComment(record, body.ownerToken) }, { status: 201 })
+  return NextResponse.json({ comment: record }, { status: 201 })
 }

@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { initials } from '@/lib/comment-identity'
 import { CommentComposer } from './CommentComposer'
-import type { PublicComment } from '@/lib/comments'
+import type { CommentRecord } from '@/lib/comments'
 
 function relativeDate(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime()
@@ -24,7 +24,7 @@ export function CommentPin({
   onUpdate,
   onDelete,
 }: {
-  comment: PublicComment
+  comment: CommentRecord
   onUpdate: (text: string) => Promise<void>
   onDelete: () => Promise<void>
 }) {
@@ -33,7 +33,7 @@ export function CommentPin({
   return (
     <div
       data-comment-pin="saved"
-      className="absolute -translate-x-1/2 -translate-y-1/2 z-40"
+      className="absolute -translate-x-1/2 -translate-y-1/2 z-30"
       style={{ left: `${comment.xPct}%`, top: `${comment.yPct}%` }}
     >
       <Popover onOpenChange={(open) => !open && setEditing(false)}>
@@ -70,16 +70,14 @@ export function CommentPin({
                 <span className="text-xs text-muted-foreground">{relativeDate(comment.createdAt)}</span>
               </div>
               <p className="text-sm text-foreground whitespace-pre-wrap">{comment.text}</p>
-              {comment.isOwner && (
-                <div className="flex justify-end gap-1 mt-1">
-                  <Button type="button" variant="ghost" size="xs" onClick={() => setEditing(true)}>
-                    Edit
-                  </Button>
-                  <Button type="button" variant="ghost" size="xs" onClick={onDelete}>
-                    Delete
-                  </Button>
-                </div>
-              )}
+              <div className="flex justify-end gap-1 mt-1">
+                <Button type="button" variant="ghost" size="xs" onClick={() => setEditing(true)}>
+                  Edit
+                </Button>
+                <Button type="button" variant="ghost" size="xs" onClick={onDelete}>
+                  Delete
+                </Button>
+              </div>
             </div>
           )}
         </PopoverContent>
