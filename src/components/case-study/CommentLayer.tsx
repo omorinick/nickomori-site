@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { MessageCirclePlus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCaseStudyComments } from '@/hooks/useCaseStudyComments'
+import { groupIntoThreads } from '@/lib/comments'
 import { getStoredIdentity, storeIdentity, initials, type CommentIdentity } from '@/lib/comment-identity'
 import { NameCaptureDialog } from './NameCaptureDialog'
 import { CommentPin } from './CommentPin'
@@ -23,9 +24,11 @@ export function CommentLayer({ slug }: { slug: string }) {
   const [showNameDialog, setShowNameDialog] = useState(false)
   const [commentMode, setCommentMode] = useState(false)
   const [draft, setDraft] = useState<Draft | null>(null)
+  const [replyingThreadId, setReplyingThreadId] = useState<string | null>(null)
   const [slideElements, setSlideElements] = useState<Record<string, HTMLElement>>({})
 
   const { comments, create, update, remove } = useCaseStudyComments(slug)
+  const threads = groupIntoThreads(comments)
 
   useEffect(() => {
     setIdentity(getStoredIdentity())
@@ -46,31 +49,39 @@ export function CommentLayer({ slug }: { slug: string }) {
     return () => document.body.classList.remove('case-study-commenting')
   }, [commentMode])
 
-  // Entering comment mode as soon as the name dialog's state flips would let a
-  // click land on the dialog's still-animating-out backdrop, which swallows it.
-  // Deferring to onOpenChangeComplete waits for that transition to actually finish.
-  const enterCommentModeAfterNameRef = useRef(false)
+  // Any action that authors a new comment (placing a pin, starting a reply) needs a
+  // name first. Queue the action as data — not a closure — so it isn't stale by the
+  // time the name dialog's close animation actually finishes and it's safe to run.
+  const pendingActionRef = useRef<'enter-comment-mode' | { reply: string } | null>(null)
 
-  const enterCommentMode = useCallback(() => {
-    if (!identity) {
+  const requireIdentity = useCallback(
+    (action: 'enter-comment-mode' | { reply: string }) => {
+      if (identity) {
+        if (action === 'enter-comment-mode') setCommentMode(true)
+        else setReplyingThreadId(action.reply)
+        return
+      }
+      pendingActionRef.current = action
       setShowNameDialog(true)
-      return
-    }
-    setCommentMode(true)
-  }, [identity])
+    },
+    [identity]
+  )
 
   const handleNameSubmit = useCallback((name: string) => {
-    const newIdentity = storeIdentity(name)
-    setIdentity(newIdentity)
-    enterCommentModeAfterNameRef.current = true
+    setIdentity(storeIdentity(name))
     setShowNameDialog(false)
   }, [])
 
+  // Entering comment mode as soon as the name dialog's state flips would let a click
+  // land on the dialog's still-animating-out backdrop, which swallows it — deferring to
+  // onOpenChangeComplete waits for that transition to actually finish first.
   const handleNameDialogClosed = useCallback((open: boolean) => {
-    if (!open && enterCommentModeAfterNameRef.current) {
-      enterCommentModeAfterNameRef.current = false
-      setCommentMode(true)
-    }
+    if (open) return
+    const action = pendingActionRef.current
+    pendingActionRef.current = null
+    if (!action) return
+    if (action === 'enter-comment-mode') setCommentMode(true)
+    else setReplyingThreadId(action.reply)
   }, [])
 
   // Placement anchors to the nearest [data-slide-id] ancestor so pins keep
@@ -135,18 +146,26 @@ export function CommentLayer({ slug }: { slug: string }) {
 
   return (
     <>
-      {comments.map((comment) => {
-        const el = slideElements[comment.slideId]
+      {threads.map((thread) => {
+        const el = slideElements[thread.root.slideId]
         if (!el) return null
         return createPortal(
           <CommentPin
-            key={comment.id}
-            comment={comment}
-            onUpdate={async (text) => {
-              await update(comment.id, text)
+            key={thread.root.id}
+            thread={thread}
+            isReplying={replyingThreadId === thread.root.id}
+            onStartReply={() => requireIdentity({ reply: thread.root.id })}
+            onCancelReply={() => setReplyingThreadId(null)}
+            onUpdateComment={async (id, text) => {
+              await update(id, text)
             }}
-            onDelete={async () => {
-              await remove(comment.id)
+            onDeleteComment={async (id) => {
+              await remove(id)
+            }}
+            onReply={async (text) => {
+              if (!identity) return
+              await create({ parentId: thread.root.id, authorName: identity.name, text })
+              setReplyingThreadId(null)
             }}
           />,
           el
@@ -170,7 +189,7 @@ export function CommentLayer({ slug }: { slug: string }) {
         )}
         <button
           type="button"
-          onClick={commentMode ? () => setCommentMode(false) : enterCommentMode}
+          onClick={commentMode ? () => setCommentMode(false) : () => requireIdentity('enter-comment-mode')}
           aria-label={commentMode ? 'Cancel commenting' : 'Add a comment'}
           className={cn(
             'group/toggle flex items-center h-11 rounded-full shadow-md transition-[width] duration-200 overflow-hidden',

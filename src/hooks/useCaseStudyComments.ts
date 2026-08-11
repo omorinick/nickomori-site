@@ -6,11 +6,14 @@ import type { CommentRecord } from '@/lib/comments'
 const POLL_INTERVAL_MS = 3000
 
 export interface NewCommentInput {
-  slideId: string
-  xPct: number
-  yPct: number
   authorName: string
   text: string
+  // A root comment needs a position; a reply only needs parentId — the
+  // server inherits its root's position.
+  slideId?: string
+  xPct?: number
+  yPct?: number
+  parentId?: string
 }
 
 export function useCaseStudyComments(slug: string) {
@@ -88,7 +91,8 @@ export function useCaseStudyComments(slug: string) {
     async (id: string) => {
       const res = await fetch(`/api/case-studies/${slug}/comments/${id}`, { method: 'DELETE' })
       if (res.ok) {
-        setComments((prev) => prev.filter((c) => c.id !== id))
+        // Mirrors the server's cascade: deleting a root also drops its replies.
+        setComments((prev) => prev.filter((c) => c.id !== id && c.parentId !== id))
       }
       return res.ok
     },

@@ -54,6 +54,17 @@ export async function DELETE(
     return NextResponse.json({ error: 'not found' }, { status: 404 })
   }
 
+  // Deleting a root also deletes its replies — an orphaned reply with no pin to live under would just be lost.
+  if (!existing.parentId) {
+    const all = await redis.hgetall<Record<string, CommentRecord>>(commentsKey(slug))
+    const replyIds = Object.values(all ?? {})
+      .filter((record) => record.parentId === id)
+      .map((record) => record.id)
+    if (replyIds.length > 0) {
+      await redis.hdel(commentsKey(slug), ...replyIds)
+    }
+  }
+
   await redis.hdel(commentsKey(slug), id)
 
   return NextResponse.json({ ok: true })
