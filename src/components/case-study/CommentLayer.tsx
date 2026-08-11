@@ -14,6 +14,7 @@ import { CommentListPanel } from './CommentListPanel'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 const HIGHLIGHT_DURATION_MS = 1600
+const NUDGE_DURATION_MS = 4000
 
 interface Draft {
   slideId: string
@@ -31,6 +32,7 @@ export function CommentLayer({ slug }: { slug: string }) {
   const [slideElements, setSlideElements] = useState<Record<string, HTMLElement>>({})
   const [showListPanel, setShowListPanel] = useState(false)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [nudging, setNudging] = useState(false)
 
   const { comments, create, update, remove } = useCaseStudyComments(slug)
   const threads = groupIntoThreads(comments)
@@ -53,6 +55,17 @@ export function CommentLayer({ slug }: { slug: string }) {
     document.body.classList.toggle('case-study-commenting', commentMode)
     return () => document.body.classList.remove('case-study-commenting')
   }, [commentMode])
+
+  // Nudge once per tab session so a first-time visitor notices the button, without
+  // bouncing forever if they never interact with it.
+  useEffect(() => {
+    const key = `case-study-nudge-seen-${slug}`
+    if (sessionStorage.getItem(key)) return
+    sessionStorage.setItem(key, '1')
+    setNudging(true)
+    const timeout = setTimeout(() => setNudging(false), NUDGE_DURATION_MS)
+    return () => clearTimeout(timeout)
+  }, [slug])
 
   // Any action that authors a new comment (placing a pin, starting a reply) needs a
   // name first. Queue the action as data — not a closure — so it isn't stale by the
@@ -229,12 +242,14 @@ export function CommentLayer({ slug }: { slug: string }) {
             <button
               type="button"
               onClick={commentMode ? () => setCommentMode(false) : () => requireIdentity('enter-comment-mode')}
+              onMouseEnter={() => setNudging(false)}
               aria-label={commentMode ? 'Cancel commenting' : 'Add a comment'}
               className={cn(
                 'group/toggle flex items-center h-11 rounded-full shadow-md transition-[width] duration-200 overflow-hidden',
                 commentMode
                   ? 'w-11 justify-center bg-secondary text-secondary-foreground'
-                  : 'min-w-11 bg-primary text-primary-foreground'
+                  : 'min-w-11 bg-primary text-primary-foreground',
+                nudging && !commentMode && 'animate-bounce'
               )}
             >
               {!commentMode && (
