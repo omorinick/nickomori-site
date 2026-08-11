@@ -2,15 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { MessageCirclePlus, X } from 'lucide-react'
+import { List, MessageCirclePlus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCaseStudyComments } from '@/hooks/useCaseStudyComments'
-import { groupIntoThreads } from '@/lib/comments'
+import { groupIntoThreads, type CommentThread } from '@/lib/comments'
 import { getStoredIdentity, storeIdentity, initials, type CommentIdentity } from '@/lib/comment-identity'
 import { NameCaptureDialog } from './NameCaptureDialog'
 import { CommentPin } from './CommentPin'
 import { CommentComposer } from './CommentComposer'
+import { CommentListPanel } from './CommentListPanel'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+
+const HIGHLIGHT_DURATION_MS = 1600
 
 interface Draft {
   slideId: string
@@ -26,6 +29,8 @@ export function CommentLayer({ slug }: { slug: string }) {
   const [draft, setDraft] = useState<Draft | null>(null)
   const [replyingThreadId, setReplyingThreadId] = useState<string | null>(null)
   const [slideElements, setSlideElements] = useState<Record<string, HTMLElement>>({})
+  const [showListPanel, setShowListPanel] = useState(false)
+  const [highlightedId, setHighlightedId] = useState<string | null>(null)
 
   const { comments, create, update, remove } = useCaseStudyComments(slug)
   const threads = groupIntoThreads(comments)
@@ -109,6 +114,16 @@ export function CommentLayer({ slug }: { slug: string }) {
     return () => document.removeEventListener('click', handleClick, true)
   }, [commentMode])
 
+  const jumpToThread = useCallback(
+    (thread: CommentThread) => {
+      slideElements[thread.root.slideId]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setShowListPanel(false)
+      setHighlightedId(thread.root.id)
+      setTimeout(() => setHighlightedId(null), HIGHLIGHT_DURATION_MS)
+    },
+    [slideElements]
+  )
+
   if (!hydrated) return null
 
   const draftPin =
@@ -153,6 +168,7 @@ export function CommentLayer({ slug }: { slug: string }) {
           <CommentPin
             key={thread.root.id}
             thread={thread}
+            highlighted={highlightedId === thread.root.id}
             isReplying={replyingThreadId === thread.root.id}
             onStartReply={() => requireIdentity({ reply: thread.root.id })}
             onCancelReply={() => setReplyingThreadId(null)}
@@ -181,32 +197,57 @@ export function CommentLayer({ slug }: { slug: string }) {
         onSubmit={handleNameSubmit}
       />
 
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2" data-comment-toggle="true">
-        {commentMode && (
-          <span className="text-sm font-medium text-foreground bg-card border border-border rounded-full px-4 py-2.5 shadow-md animate-in fade-in slide-in-from-right-2 duration-200">
-            Click anywhere to comment
-          </span>
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2" data-comment-toggle="true">
+        {showListPanel && (
+          <CommentListPanel threads={threads} onJumpTo={jumpToThread} onClose={() => setShowListPanel(false)} />
         )}
-        <button
-          type="button"
-          onClick={commentMode ? () => setCommentMode(false) : () => requireIdentity('enter-comment-mode')}
-          aria-label={commentMode ? 'Cancel commenting' : 'Add a comment'}
-          className={cn(
-            'group/toggle flex items-center h-11 rounded-full shadow-md transition-[width] duration-200 overflow-hidden',
-            commentMode
-              ? 'w-11 justify-center bg-secondary text-secondary-foreground'
-              : 'min-w-11 bg-primary text-primary-foreground'
+
+        <div className="group/toggle-wrap relative flex items-center gap-2">
+          {!commentMode && !showListPanel && (
+            <button
+              type="button"
+              onClick={() => setShowListPanel(true)}
+              className="absolute bottom-full right-0 mb-2 flex items-center gap-2 rounded-full bg-card border border-border shadow-md px-4 py-2 text-sm font-medium text-foreground whitespace-nowrap opacity-0 translate-y-1 pointer-events-none group-hover/toggle-wrap:opacity-100 group-hover/toggle-wrap:translate-y-0 group-hover/toggle-wrap:pointer-events-auto transition-all duration-200"
+            >
+              <List className="size-3.5" />
+              Show all comments
+            </button>
           )}
-        >
-          {!commentMode && (
-            <span className="max-w-0 group-hover/toggle:max-w-24 group-hover/toggle:pl-4 overflow-hidden whitespace-nowrap transition-all duration-200 text-sm font-medium">
-              Comment
+
+          {commentMode && (
+            <span className="text-sm font-medium text-foreground bg-card border border-border rounded-full px-4 py-2.5 shadow-md animate-in fade-in slide-in-from-right-2 duration-200">
+              Click anywhere to comment
             </span>
           )}
-          <span className="flex items-center justify-center size-11 shrink-0">
-            {commentMode ? <X /> : <MessageCirclePlus />}
-          </span>
-        </button>
+
+          <div className="relative">
+            {!commentMode && comments.length > 0 && (
+              <span className="absolute -top-1 -right-1 z-10 min-w-[18px] h-[18px] px-1 rounded-full bg-foreground text-background text-[10px] leading-[18px] text-center font-medium ring-2 ring-background pointer-events-none">
+                {comments.length}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={commentMode ? () => setCommentMode(false) : () => requireIdentity('enter-comment-mode')}
+              aria-label={commentMode ? 'Cancel commenting' : 'Add a comment'}
+              className={cn(
+                'group/toggle flex items-center h-11 rounded-full shadow-md transition-[width] duration-200 overflow-hidden',
+                commentMode
+                  ? 'w-11 justify-center bg-secondary text-secondary-foreground'
+                  : 'min-w-11 bg-primary text-primary-foreground'
+              )}
+            >
+              {!commentMode && (
+                <span className="max-w-0 group-hover/toggle:max-w-24 group-hover/toggle:pl-4 overflow-hidden whitespace-nowrap transition-all duration-200 text-sm font-medium">
+                  Comment
+                </span>
+              )}
+              <span className="flex items-center justify-center size-11 shrink-0">
+                {commentMode ? <X /> : <MessageCirclePlus />}
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
     </>
   )
