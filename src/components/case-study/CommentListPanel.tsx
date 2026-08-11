@@ -1,14 +1,17 @@
 'use client'
 
 import { X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { relativeDate, type CommentThread } from '@/lib/comments'
 
 export function CommentListPanel({
   threads,
+  selectedId,
   onJumpTo,
   onClose,
 }: {
   threads: CommentThread[]
+  selectedId: string | null
   onJumpTo: (thread: CommentThread) => void
   onClose: () => void
 }) {
@@ -29,7 +32,12 @@ export function CommentListPanel({
               key={thread.root.id}
               type="button"
               onClick={() => onJumpTo(thread)}
-              className="w-full text-left p-3 rounded-lg hover:bg-muted transition-colors flex flex-col gap-1"
+              className={cn(
+                'w-full text-left p-3 rounded-lg transition-colors flex flex-col gap-1 ring-1',
+                selectedId === thread.root.id
+                  ? 'bg-primary/10 ring-primary/40'
+                  : 'ring-transparent hover:bg-muted'
+              )}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-foreground">{thread.root.authorName}</span>

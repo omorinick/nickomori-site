@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -17,27 +17,37 @@ export function NameCaptureDialog({
   onOpenChange,
   onOpenChangeComplete,
   onSubmit,
+  initialName = '',
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onOpenChangeComplete?: (open: boolean) => void
   onSubmit: (name: string) => void
+  initialName?: string
 }) {
-  const [name, setName] = useState('')
+  const [name, setName] = useState(initialName)
+  const isEditing = initialName.trim().length > 0
+
+  // Re-seed from the current identity each time the dialog opens (covers both the
+  // blank first-time prompt and the prefilled "edit name" reuse of this dialog).
+  useEffect(() => {
+    if (open) setName(initialName)
+  }, [open, initialName])
 
   const handleSubmit = () => {
     if (!name.trim()) return
     onSubmit(name.trim())
-    setName('')
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>What&apos;s your name?</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit your name' : "What's your name?"}</DialogTitle>
           <DialogDescription>
-            Shown next to any comments you leave on this page. You&apos;ll only be asked once.
+            {isEditing
+              ? 'This updates the name shown on comments you leave from now on.'
+              : "Shown next to any comments you leave on this page. You'll only be asked once."}
           </DialogDescription>
         </DialogHeader>
         <Input
@@ -52,7 +62,7 @@ export function NameCaptureDialog({
         />
         <DialogFooter>
           <Button type="button" onClick={handleSubmit} disabled={!name.trim()}>
-            Continue
+            {isEditing ? 'Save' : 'Continue'}
           </Button>
         </DialogFooter>
       </DialogContent>

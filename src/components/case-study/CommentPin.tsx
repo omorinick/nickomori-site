@@ -54,7 +54,8 @@ function CommentItem({
 
 export function CommentPin({
   thread,
-  highlighted = false,
+  open,
+  onOpenChange,
   isReplying,
   onStartReply,
   onCancelReply,
@@ -63,7 +64,8 @@ export function CommentPin({
   onReply,
 }: {
   thread: CommentThread
-  highlighted?: boolean
+  open: boolean
+  onOpenChange: (open: boolean) => void
   isReplying: boolean
   onStartReply: () => void
   onCancelReply: () => void
@@ -79,7 +81,7 @@ export function CommentPin({
       className="absolute -translate-x-1/2 -translate-y-1/2 z-30"
       style={{ left: `${root.xPct}%`, top: `${root.yPct}%` }}
     >
-      <Popover>
+      <Popover open={open} onOpenChange={onOpenChange}>
         <PopoverTrigger
           openOnHover
           delay={150}
@@ -87,7 +89,7 @@ export function CommentPin({
           render={
             <Avatar
               size="sm"
-              className={`relative cursor-pointer ring-2 ring-background shadow-sm hover:scale-110 transition-transform ${highlighted ? 'ring-4 ring-primary animate-pulse' : ''}`}
+              className="relative cursor-pointer ring-2 ring-background shadow-sm hover:scale-110 transition-transform"
             />
           }
         >
@@ -118,13 +120,9 @@ export function CommentPin({
               <CommentComposer saveLabel="Reply" onCancel={onCancelReply} onSave={onReply} />
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={onStartReply}
-              className="text-xs text-muted-foreground hover:text-foreground text-left transition-colors"
-            >
+            <Button type="button" variant="outline" size="xs" onClick={onStartReply} className="self-start">
               Reply
-            </button>
+            </Button>
           )}
         </PopoverContent>
       </Popover>

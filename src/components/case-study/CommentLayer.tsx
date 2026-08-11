@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { List, MessageCirclePlus, X } from 'lucide-react'
+import { List, MessageCirclePlus, UserPen, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCaseStudyComments } from '@/hooks/useCaseStudyComments'
 import { groupIntoThreads, type CommentThread } from '@/lib/comments'
@@ -13,8 +13,8 @@ import { CommentComposer } from './CommentComposer'
 import { CommentListPanel } from './CommentListPanel'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
-const HIGHLIGHT_DURATION_MS = 1600
 const NUDGE_DURATION_MS = 4000
+const MENU_CLOSE_DELAY_MS = 300
 
 interface Draft {
   slideId: string
@@ -31,7 +31,8 @@ export function CommentLayer({ slug }: { slug: string }) {
   const [replyingThreadId, setReplyingThreadId] = useState<string | null>(null)
   const [slideElements, setSlideElements] = useState<Record<string, HTMLElement>>({})
   const [showListPanel, setShowListPanel] = useState(false)
-  const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [openThreadId, setOpenThreadId] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [nudging, setNudging] = useState(false)
 
   const { comments, create, update, remove } = useCaseStudyComments(slug)
@@ -67,6 +68,23 @@ export function CommentLayer({ slug }: { slug: string }) {
     return () => clearTimeout(timeout)
   }, [slug])
 
+  // Hover menu: open instantly, close with a grace period so moving the mouse from
+  // the button up to the menu items doesn't require pixel-perfect precision.
+  const menuCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const openMenu = useCallback(() => {
+    if (menuCloseTimerRef.current) {
+      clearTimeout(menuCloseTimerRef.current)
+      menuCloseTimerRef.current = null
+    }
+    setMenuOpen(true)
+  }, [])
+  const scheduleCloseMenu = useCallback(() => {
+    menuCloseTimerRef.current = setTimeout(() => setMenuOpen(false), MENU_CLOSE_DELAY_MS)
+  }, [])
+  useEffect(() => () => {
+    if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current)
+  }, [])
+
   // Any action that authors a new comment (placing a pin, starting a reply) needs a
   // name first. Queue the action as data — not a closure — so it isn't stale by the
   // time the name dialog's close animation actually finishes and it's safe to run.
@@ -84,6 +102,12 @@ export function CommentLayer({ slug }: { slug: string }) {
     },
     [identity]
   )
+
+  const editName = useCallback(() => {
+    setMenuOpen(false)
+    pendingActionRef.current = null
+    setShowNameDialog(true)
+  }, [])
 
   const handleNameSubmit = useCallback((name: string) => {
     setIdentity(storeIdentity(name))
@@ -130,9 +154,7 @@ export function CommentLayer({ slug }: { slug: string }) {
   const jumpToThread = useCallback(
     (thread: CommentThread) => {
       slideElements[thread.root.slideId]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      setShowListPanel(false)
-      setHighlightedId(thread.root.id)
-      setTimeout(() => setHighlightedId(null), HIGHLIGHT_DURATION_MS)
+      setOpenThreadId(thread.root.id)
     },
     [slideElements]
   )
@@ -181,7 +203,8 @@ export function CommentLayer({ slug }: { slug: string }) {
           <CommentPin
             key={thread.root.id}
             thread={thread}
-            highlighted={highlightedId === thread.root.id}
+            open={openThreadId === thread.root.id}
+            onOpenChange={(next) => setOpenThreadId(next ? thread.root.id : null)}
             isReplying={replyingThreadId === thread.root.id}
             onStartReply={() => requireIdentity({ reply: thread.root.id })}
             onCancelReply={() => setReplyingThreadId(null)}
@@ -208,59 +231,92 @@ export function CommentLayer({ slug }: { slug: string }) {
         onOpenChange={setShowNameDialog}
         onOpenChangeComplete={handleNameDialogClosed}
         onSubmit={handleNameSubmit}
+        initialName={identity?.name ?? ''}
       />
 
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2" data-comment-toggle="true">
         {showListPanel && (
-          <CommentListPanel threads={threads} onJumpTo={jumpToThread} onClose={() => setShowListPanel(false)} />
+          <CommentListPanel
+            threads={threads}
+            selectedId={openThreadId}
+            onJumpTo={jumpToThread}
+            onClose={() => setShowListPanel(false)}
+          />
         )}
 
-        <div className="group/toggle-wrap relative flex items-center gap-2">
-          {!commentMode && !showListPanel && (
-            <button
-              type="button"
-              onClick={() => setShowListPanel(true)}
-              className="absolute bottom-full right-0 mb-2 flex items-center gap-2 rounded-full bg-card border border-border shadow-md px-4 py-2 text-sm font-medium text-foreground whitespace-nowrap opacity-0 translate-y-1 pointer-events-none group-hover/toggle-wrap:opacity-100 group-hover/toggle-wrap:translate-y-0 group-hover/toggle-wrap:pointer-events-auto transition-all duration-200"
-            >
-              <List className="size-3.5" />
-              Show all comments
-            </button>
+        {/* Normal flow (not absolutely positioned) so the menu card and button share one
+            hoverable box with no dead gap between them — the earlier absolute-positioned
+            popup sat outside this wrapper's layout box entirely. */}
+        <div
+          className="flex flex-col items-end gap-2"
+          onMouseEnter={openMenu}
+          onMouseLeave={scheduleCloseMenu}
+        >
+          {menuOpen && !commentMode && (
+            <div className="w-52 rounded-xl border border-border bg-card shadow-md overflow-hidden animate-in fade-in slide-in-from-bottom-1 duration-150 delay-150 fill-mode-both">
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false)
+                  setShowListPanel(true)
+                }}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                <List className="size-3.5 text-muted-foreground" />
+                Show all comments
+              </button>
+              <button
+                type="button"
+                onClick={editName}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors border-t border-border"
+              >
+                <UserPen className="size-3.5 text-muted-foreground" />
+                Edit name
+              </button>
+            </div>
           )}
 
-          {commentMode && (
-            <span className="text-sm font-medium text-foreground bg-card border border-border rounded-full px-4 py-2.5 shadow-md animate-in fade-in slide-in-from-right-2 duration-200">
-              Click anywhere to comment
-            </span>
-          )}
-
-          <div className="relative">
-            {!commentMode && comments.length > 0 && (
-              <span className="absolute -top-1 -right-1 z-10 min-w-[18px] h-[18px] px-1 rounded-full bg-foreground text-background text-[10px] leading-[18px] text-center font-medium ring-2 ring-background pointer-events-none">
-                {comments.length}
+          <div className="flex items-center gap-2">
+            {commentMode && (
+              <span className="text-sm font-medium text-foreground bg-card border border-border rounded-full px-4 py-2.5 shadow-md animate-in fade-in slide-in-from-right-2 duration-200">
+                Click anywhere to comment
               </span>
             )}
-            <button
-              type="button"
-              onClick={commentMode ? () => setCommentMode(false) : () => requireIdentity('enter-comment-mode')}
-              onMouseEnter={() => setNudging(false)}
-              aria-label={commentMode ? 'Cancel commenting' : 'Add a comment'}
-              className={cn(
-                'group/toggle flex items-center h-11 rounded-full shadow-md transition-[width] duration-200 overflow-hidden',
-                commentMode
-                  ? 'w-11 justify-center bg-secondary text-secondary-foreground'
-                  : 'min-w-11 bg-primary text-primary-foreground',
-                nudging && !commentMode && 'animate-bounce'
-              )}
-            >
-              {!commentMode && (
-                <span className="max-w-0 group-hover/toggle:max-w-24 group-hover/toggle:pl-4 overflow-hidden whitespace-nowrap transition-all duration-200 text-sm font-medium">
-                  Comment
+
+            <div className="relative">
+              {!commentMode && comments.length > 0 && (
+                <span className="absolute -top-1 -right-1 z-10 min-w-[18px] h-[18px] px-1 rounded-full bg-foreground text-background text-[10px] leading-[18px] text-center font-medium ring-2 ring-background pointer-events-none">
+                  {comments.length}
                 </span>
               )}
-              <span className="flex items-center justify-center size-11 shrink-0">
-                {commentMode ? <X /> : <MessageCirclePlus />}
-              </span>
-            </button>
+              <button
+                type="button"
+                onClick={commentMode ? () => setCommentMode(false) : () => requireIdentity('enter-comment-mode')}
+                onMouseEnter={() => setNudging(false)}
+                aria-label={commentMode ? 'Cancel commenting' : 'Add a comment'}
+                className={cn(
+                  'flex items-center h-11 rounded-full shadow-md transition-[width] duration-200 overflow-hidden',
+                  commentMode
+                    ? 'w-11 justify-center bg-secondary text-secondary-foreground'
+                    : 'min-w-11 bg-primary text-primary-foreground',
+                  nudging && !commentMode && 'animate-bounce'
+                )}
+              >
+                {!commentMode && (
+                  <span
+                    className={cn(
+                      'overflow-hidden whitespace-nowrap transition-all duration-200 text-sm font-medium',
+                      menuOpen ? 'max-w-24 pl-4' : 'max-w-0 pl-0'
+                    )}
+                  >
+                    Comment
+                  </span>
+                )}
+                <span className="flex items-center justify-center size-11 shrink-0">
+                  {commentMode ? <X /> : <MessageCirclePlus />}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
