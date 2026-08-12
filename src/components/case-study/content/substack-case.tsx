@@ -6,9 +6,11 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 // artifact reconstruction ledger (see project memory: pricing-reconstruction-ledger.md).
 // Substack-flavored brand (white / near-black / #FF6719 accent) — external-audience deck.
 //
-// Spatial grammar: vertical spine (S1–S12) with a HORIZONTAL deep-dive branch (B1–B8) between the
-// wedge decision and the research turn. All working-process artifacts are sanitized recreations —
-// no original board images, no absolute dates, no colleague names.
+// Spatial grammar: vertical spine (S1–S12). The pricing deep dive is an expandable full-page
+// sub-presentation ("The First Bet — Deep Dive"): a teaser section on the spine opens eight
+// full-height vertically-scrolled panels with a sticky back bar; closing returns to the spine.
+// All working-process artifacts are sanitized recreations — no original board images, no absolute
+// dates, no colleague names.
 //
 // REVIEW_TOOLS gates the reviewer-facing evidence-status layer (chips + toggle). Before Nick
 // presents this live, flip to false and deploy — toggle and chips disappear entirely.
@@ -124,12 +126,36 @@ function useInView() {
   return { ref, seen }
 }
 
-function Sticky({ children, tone = 'orange', className = '' }: { children: React.ReactNode; tone?: 'orange' | 'gray' | 'accent'; className?: string }) {
-  const bg = tone === 'accent' ? '#FFE7DA' : tone === 'gray' ? '#f1efe9' : '#FFF3E4'
+const STICKY_TONES = {
+  yellow: '#FFF3D6',
+  green: '#E7F4E4',
+  orange: '#FFE7DA',
+  purple: '#EFE9FB',
+  blue: '#E3F0FC',
+  gray: '#f1efe9',
+} as const
+
+function Sticky({
+  children,
+  tone = 'yellow',
+  tilt = -0.6,
+  highlight,
+  className = '',
+}: {
+  children: React.ReactNode
+  tone?: keyof typeof STICKY_TONES
+  tilt?: number
+  highlight?: boolean
+  className?: string
+}) {
   return (
     <div
-      className={`rounded-sm px-3 py-2.5 text-[13px] leading-snug shadow-sm ${className}`}
-      style={{ background: bg, transform: 'rotate(-0.5deg)', border: tone === 'accent' ? `1px solid ${ORANGE}` : '1px solid rgba(0,0,0,0.06)' }}
+      className={`rounded-sm px-3.5 py-3 text-[13px] leading-snug shadow-[0_2px_6px_rgba(0,0,0,0.08)] ${className}`}
+      style={{
+        background: STICKY_TONES[tone],
+        transform: `rotate(${tilt}deg)`,
+        border: highlight ? `1.5px solid ${ORANGE}` : '1px solid rgba(0,0,0,0.05)',
+      }}
     >
       {children}
     </div>
@@ -221,6 +247,14 @@ const FLOW_LAYERS = [
   { layer: 'Measurement & learning', detail: 'Savings visibility · 30/60/90-day cohorts vs holdout · learning from rejectors and saved-but-churned', reused: true },
 ]
 
+const CATEGORIES = [
+  { name: 'Desirability', color: '#E8503A', tone: 'orange' as const, ex: '“Merchants want to be recognized as valuable — not treated generically.”' },
+  { name: 'Usability', color: '#E89B3A', tone: 'yellow' as const, ex: '“Merchants won’t feel surveilled by us knowing they’re at risk.”' },
+  { name: 'Feasibility', color: '#8B5CF6', tone: 'purple' as const, ex: '“We can identify why they’re declining — pricing vs performance vs risk.”' },
+  { name: 'Viability', color: '#3B82F6', tone: 'blue' as const, ex: '“We’re not lowering pricing for people who wouldn’t have churned.”' },
+  { name: 'Legal & ethical', color: '#22A06B', tone: 'green' as const, ex: '“Personalized pricing doesn’t discriminate; urgency is truthful.”' },
+]
+
 const QUADRANT = [
   { id: 'D1', label: 'Offer lands as recognition, not insult', x: 4, y: 5, dx: -0.12, dy: 0.14 },
   { id: 'V1', label: 'Merchants can actually respond', x: 4, y: 5, dx: 0.18, dy: -0.1, hero: true },
@@ -301,6 +335,17 @@ const PRINCIPLES = [
   'In success-based business models, value realization and value perception are both product problems.',
   'Build shared intelligence and capabilities across lifecycle stages and channels.',
   'Scale the operating system, not only the winning treatment.',
+]
+
+const DIVE_STEPS = [
+  { id: 'dive-b1', short: 'Decompose' },
+  { id: 'dive-b2', short: 'Diverge' },
+  { id: 'dive-b3', short: 'Converge' },
+  { id: 'dive-b4', short: 'Design' },
+  { id: 'dive-b5', short: 'De-risk' },
+  { id: 'dive-b6', short: 'Plan' },
+  { id: 'dive-b7', short: 'Scale' },
+  { id: 'dive-b8', short: 'Results' },
 ]
 
 // ---------- interactive pieces ----------
@@ -539,372 +584,399 @@ function DeepDives() {
   )
 }
 
-// ---------- the horizontal deep-dive branch ----------
+// ---------- the deep dive (expandable full-page sub-presentation) ----------
 
-function BranchPanel({ step, title, children }: { step: string; title: string; children: React.ReactNode }) {
+function DivePanel({
+  id,
+  num,
+  step,
+  title,
+  tint,
+  children,
+}: {
+  id: string
+  num: string
+  step: string
+  title: string
+  tint?: boolean
+  children: React.ReactNode
+}) {
   return (
-    <div className="min-w-full snap-start px-6 md:px-16 py-10 flex flex-col">
-      <div className="max-w-4xl mx-auto w-full flex-1">
-        <p className="font-black text-sm mb-1" style={{ color: ORANGE }}>
-          {step}
-        </p>
-        <h3 className="font-extrabold tracking-tight text-2xl md:text-3xl mb-6">{title}</h3>
+    <section
+      id={id}
+      data-slide-id={id}
+      className="relative min-h-[85vh] flex flex-col justify-center px-6 md:px-20 py-20 scroll-mt-16"
+      style={{ background: tint ? '#f7f4ee' : 'white', color: INK }}
+    >
+      <div className="max-w-5xl mx-auto w-full">
+        <div className="flex items-baseline gap-4">
+          <span className="font-black text-6xl md:text-7xl leading-none select-none" style={{ color: '#e8e1d4' }}>
+            {num}
+          </span>
+          <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ORANGE }}>
+            {step}
+          </p>
+        </div>
+        <h3 className="font-extrabold tracking-tight text-3xl md:text-5xl mt-3 mb-12 max-w-4xl">{title}</h3>
         {children}
       </div>
-    </div>
+    </section>
   )
 }
 
-function Branch() {
-  const scroller = useRef<HTMLDivElement>(null)
-  const [idx, setIdx] = useState(0)
-  const COUNT = 8
-
-  const go = (i: number) => {
-    const el = scroller.current
-    if (!el) return
-    const target = Math.max(0, Math.min(COUNT - 1, i))
-    el.scrollTo({ left: target * el.clientWidth, behavior: 'smooth' })
-  }
-
-  const onScroll = () => {
-    const el = scroller.current
-    if (!el) return
-    setIdx(Math.round(el.scrollLeft / el.clientWidth))
-  }
-
+function DeepDive({ onBack }: { onBack: () => void }) {
   return (
-    <section data-slide-id="pricing-branch" className="relative py-16" style={{ background: '#f4f1ec', color: INK }}>
-      <div className="px-6 md:px-20 max-w-5xl mx-auto w-full">
-        <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ORANGE }}>
-          Inside the first bet · the working process
-        </p>
-        <p className="mt-2 text-sm text-neutral-500 max-w-2xl">
-          Sanitized reconstruction of the working process; selected labels and groupings simplified for
-          confidentiality and presentation clarity. Navigate left to right — this section reads sideways.
-        </p>
-      </div>
-
-      <div className="mt-8 relative">
-        <div
-          ref={scroller}
-          onScroll={onScroll}
-          className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth"
-          style={{ scrollbarWidth: 'none' }}
-        >
-          {/* B1 */}
-          <BranchPanel step="B1 · Decompose" title="From distant outcomes to metrics a team can move">
-            <div className="grid md:grid-cols-[1fr_1.4fr] gap-8">
-              <div className="space-y-2 text-sm">
-                {[
-                  ['Business outcome', 'Portfolio TPV decline — lagging, nobody’s roadmap moves it'],
-                  ['Economic attribution', 'Contraction $ by value tier × geography × reason code'],
-                  ['Problem spaces', 'Six ownable spaces + an honest “not yet attributed”'],
-                  ['Problem indicators', 'Rule-based tags — exposure flags, not diagnoses'],
-                  ['Controllable metrics', 'The funnel each team can move next sprint'],
-                  ['Guardrails', 'Margin, gaming, support noise — what must not degrade'],
-                ].map(([k, v], i) => (
-                  <div key={k} className="flex gap-3 items-baseline">
-                    <span className="font-black text-xs w-5 text-right shrink-0" style={{ color: ORANGE }}>
-                      L{i}
-                    </span>
-                    <div>
-                      <span className="font-bold">{k}.</span> <span className="text-neutral-600">{v}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="rounded-xl bg-white border border-neutral-200 p-4">
-                  <p className="font-bold text-sm mb-2">
-                    Pricing — a <span style={{ color: ORANGE }}>perception</span> funnel
-                  </p>
-                  <p className="text-xs text-neutral-600 leading-relaxed">
-                    % who understand their fees → % who’ve seen the value behind them → % of eligible shown a
-                    proactive offer → % actioned → time from decline signal to offer
-                  </p>
-                </div>
-                <div className="rounded-xl bg-white border border-neutral-200 p-4">
-                  <p className="font-bold text-sm mb-2">
-                    Risk — an <span style={{ color: ORANGE }}>operational</span> funnel
-                  </p>
-                  <p className="text-xs text-neutral-600 leading-relaxed">
-                    % of limitations surfaced in 24h → % actually seen → % acted on in 24/48/72h → % resolved before
-                    account impact → % self-serve
-                  </p>
-                </div>
-                <p className="sm:col-span-2 text-sm text-neutral-600">
-                  Same method, structurally different problems — which is how several teams attacked one economic
-                  problem in parallel without sharing a playbook.
-                </p>
-              </div>
-            </div>
-          </BranchPanel>
-
-          {/* B2 */}
-          <BranchPanel step="B2 · Diverge" title="Seven clusters, about forty candidate bets">
-            <div className="flex flex-wrap gap-2 mb-6">
-              {CLUSTERS.map((c) => (
-                <div
-                  key={c.name}
-                  className="rounded-lg border px-3 py-2 max-w-[240px]"
-                  style={c.gap ? { borderColor: ORANGE, background: '#FFF6F1' } : { borderColor: '#e5e5e5', background: 'white' }}
-                >
-                  <p className="font-bold text-xs">{c.name}</p>
-                  <p className="text-[11px] text-neutral-500 leading-snug">{c.q}</p>
-                  {c.gap && (
-                    <p className="text-[11px] font-bold mt-1" style={{ color: ORANGE }}>
-                      “Gap — no direct metric.” Remember this one.
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="rounded-xl bg-white border border-neutral-200 overflow-hidden">
-              <table className="w-full text-[13px]">
-                <thead>
-                  <tr className="text-left text-[10px] uppercase tracking-widest text-neutral-400 border-b border-neutral-200">
-                    <th className="px-4 py-2 font-semibold">Candidate bet</th>
-                    <th className="px-2 py-2 font-semibold whitespace-nowrap">Triage</th>
-                    <th className="px-2 py-2 font-semibold">Votes</th>
-                    <th className="px-4 py-2 font-semibold">Fate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {BETS.map((b) => (
-                    <tr key={b.bet} className={`border-b border-neutral-100 ${b.dead ? 'text-neutral-400' : ''}`} style={b.hot ? { background: '#FFF6F1' } : undefined}>
-                      <td className={`px-4 py-2 ${b.hot ? 'font-bold' : ''}`}>{b.bet}</td>
-                      <td className="px-2 py-2 whitespace-nowrap">{b.triage}</td>
-                      <td className="px-2 py-2 whitespace-nowrap tracking-tighter" style={{ color: ORANGE }}>
-                        {'●'.repeat(b.votes) || '—'}
-                      </td>
-                      <td className="px-4 py-2">{b.fate}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-4 text-base font-bold max-w-3xl">
-              The most-voted idea never shipped; a two-vote idea shipped first.{' '}
-              <span style={{ color: ORANGE }}>Votes located conviction — judgment did the sequencing.</span>
-            </p>
-          </BranchPanel>
-
-          {/* B3 */}
-          <BranchPanel step="B3 · Converge" title="The wedge decision — reasoning, reconstructed">
-            <div className="rounded-xl bg-white border border-neutral-200 overflow-x-auto">
-              <table className="w-full text-[13px] min-w-[560px]">
-                <thead>
-                  <tr className="text-left text-[10px] uppercase tracking-widest text-neutral-400 border-b border-neutral-200">
-                    <th className="px-4 py-2 font-semibold"></th>
-                    {MATRIX.cols.map((c, i) => (
-                      <th key={c} className={`px-3 py-2 font-semibold ${i === 0 ? '' : 'text-neutral-400'}`} style={i === 0 ? { color: ORANGE } : undefined}>
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {MATRIX.rows.map((r) => (
-                    <tr key={r.c} className="border-b border-neutral-100">
-                      <td className="px-4 py-2 font-bold whitespace-nowrap">{r.c}</td>
-                      {r.v.map((v, i) => (
-                        <td key={i} className={`px-3 py-2 ${i === 0 ? 'font-semibold' : 'text-neutral-500'}`}>
-                          {v}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-3 text-xs text-neutral-500">
-              Tech issues were the larger pool with less downside — and still weren’t first. They ran as a parallel
-              track; this table is the honest reasoning, reconstructed from the working record.
-            </p>
-            <p className="mt-5 text-lg md:text-xl font-black max-w-3xl">
-              We didn’t choose pricing because we knew price caused decline. We chose it because it was the{' '}
-              <span style={{ color: ORANGE }}>fastest reversible test</span> of whether proactive treatment could bend
-              a declining merchant’s trajectory at all.
-            </p>
-          </BranchPanel>
-
-          {/* B4 */}
-          <BranchPanel step="B4 · Design" title="The flow, in separable layers">
-            <div className="space-y-2">
-              {FLOW_LAYERS.map((l, i) => (
-                <div key={l.layer} className="rounded-lg bg-white border border-neutral-200 px-4 py-3 flex items-start gap-4">
-                  <span className="font-black text-xs mt-0.5 w-4 shrink-0" style={{ color: ORANGE }}>
-                    {i + 1}
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-bold text-sm">
-                      {l.layer}
-                      {l.reused && (
-                        <span className="ml-2 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded" style={{ background: '#FFF1EA', color: ORANGE }}>
-                          later reused
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-xs text-neutral-600 mt-0.5">{l.detail}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="mt-5 text-base font-bold max-w-3xl">
-              The model told us <em>who</em> was declining. Policy decided who could <em>safely receive</em> a rate
-              change. <span style={{ color: ORANGE }}>Separating those layers is why the system was reusable later.</span>
-            </p>
-          </BranchPanel>
-
-          {/* B5 */}
-          <BranchPanel step="B5 · De-risk" title="What had to be true — ~200 assumptions, five categories">
-            <div className="grid md:grid-cols-2 gap-8 items-start">
-              <div>
-                <div className="space-y-2">
-                  {[
-                    ['Desirability', '“Merchants want to be recognized as valuable — not treated generically.”'],
-                    ['Usability', '“Merchants won’t feel surveilled by us knowing they’re at risk.”'],
-                    ['Feasibility', '“We can identify why they’re declining — pricing vs performance vs risk.”'],
-                    ['Viability', '“We’re not lowering pricing for people who wouldn’t have churned.”'],
-                    ['Legal & ethical', '“Personalized pricing doesn’t discriminate; urgency is truthful.”'],
-                  ].map(([k, v]) => (
-                    <div key={k} className="flex gap-3 items-baseline">
-                      <span className="font-bold text-xs uppercase tracking-wide w-24 shrink-0 text-neutral-400">{k}</span>
-                      <Sticky className="flex-1">{v}</Sticky>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-neutral-500 mt-3">
-                  Mapped across the journey — reach, present, negotiate, reinforce — then ranked by importance ×
-                  uncertainty. Scores are a reconstructed prioritization of the historical map.
-                </p>
-              </div>
-              <div>
-                <Quadrant />
-                <div className="mt-3 rounded-lg border px-4 py-3 text-sm" style={{ borderColor: ORANGE, background: '#FFF6F1' }}>
-                  <strong style={{ color: ORANGE }}>V1 — the one we couldn’t test before launch:</strong> that targeted
-                  merchants could <em>actually respond</em> to better economics. So research was bolted to the pilot
-                  from day one.
-                </div>
-              </div>
-            </div>
-          </BranchPanel>
-
-          {/* B6 */}
-          <BranchPanel step="B6 · Plan the learning" title="Know before launch vs. learn only by launching">
-            <div className="grid md:grid-cols-2 gap-5">
-              <div className="rounded-xl bg-white border border-neutral-200 p-5">
-                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-3">Before launch</p>
-                <ul className="text-sm space-y-2 text-neutral-700">
-                  <li>
-                    <strong>“Just Ask”</strong> — data teams, legal, engineering, marketing, pricing, commercial.
-                    Consultation retired more risk than any spike; the formal-spike bucket sat nearly empty.
-                  </li>
-                  <li>Script + prototype comprehension testing (do the terms play back correctly?)</li>
-                  <li>Targeting backtest; ops dry run; margin caps and holdout design as the price of permission</li>
-                </ul>
-              </div>
-              <div className="rounded-xl bg-white border border-neutral-200 p-5">
-                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-3">Only by launching</p>
-                <ul className="text-sm space-y-2 text-neutral-700">
-                  <li>Whether the offer lands as recognition or desperation — reaction-coded calls</li>
-                  <li>Whether we’re subsidizing stayers — treatment vs. holdout margin</li>
-                  <li>Whether saves persist — 30/60/90-day cohorts</li>
-                </ul>
-              </div>
-            </div>
-            <div className="mt-5 flex flex-col md:flex-row gap-4 items-start">
-              <Sticky tone="accent" className="max-w-xs">
-                <strong>From the actual plan:</strong> “If pricing wasn’t actually their primary concern, we’ll figure
-                out what is.”
-              </Sticky>
-              <p className="text-sm text-neutral-600 flex-1">
-                The pivot wasn’t luck — the plan pre-registered the possibility that the mechanism was wrong. And
-                engineering deliberately <em>waited</em>: manual operations were the learning strategy, not a
-                workaround. Gates: permission → concierge results → 20K results → automation.
-              </p>
-            </div>
-          </BranchPanel>
-
-          {/* B7 */}
-          <BranchPanel step="B7 · Earn scale" title="Phone calls → product-assisted → automated">
-            <StageLadder />
-            <p className="mt-5 text-base font-bold max-w-3xl">
-              Each stage’s evidence bought the next stage’s investment.{' '}
-              <span style={{ color: ORANGE }}>Automation wasn’t delayed — it was withheld until earned.</span>
-            </p>
-          </BranchPanel>
-
-          {/* B8 */}
-          <BranchPanel step="B8 · Read the results honestly" title="What the numbers said — and didn’t">
-            <div className="grid md:grid-cols-2 gap-6 items-start">
-              <div>
-                <p className="text-base text-neutral-700">
-                  Early cohorts: roughly <strong>$100M in recovered TPV</strong>
-                  <Flag kind="assumption" note="Recollection; counterfactual method to validate" /> and{' '}
-                  <strong>~$2M net margin after discount cost</strong>
-                  <Flag kind="assumption" note="Net-of-discount per Nick; measured against declining/plateauing baseline — method to validate" />{' '}
-                  — growth from merchants who had been declining or plateauing, read against comparison groups.
-                </p>
-                <Guardrail>
-                  That opt-in alone proved behavior change, or that observed TPV was automatically incremental.
-                </Guardrail>
-              </div>
-              <div className="rounded-xl bg-white border border-neutral-200 p-5">
-                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-3">
-                  Four outcome groups kept us honest
-                </p>
-                <ul className="space-y-1.5 text-sm text-neutral-700">
-                  <li><strong>Rescued</strong> — declining before, recovered after.</li>
-                  <li><strong>Lost cause</strong> — declining before and after.</li>
-                  <li><strong>Star</strong> — growing anyway. Not our win.</li>
-                  <li><strong>Declining anyway</strong> — stable before, declined after.</li>
-                </ul>
-              </div>
-            </div>
-            <p className="mt-6 text-lg md:text-xl font-black max-w-3xl">
-              The numbers said: continue. They did not say <em>why</em> it was working —{' '}
-              <span style={{ color: ORANGE }}>and we had planned for exactly that question.</span>
-            </p>
-          </BranchPanel>
-        </div>
-
-        {/* branch nav */}
-        <div className="flex items-center justify-center gap-4 mt-6">
+    <div id="deep-dive">
+      {/* sticky orientation bar */}
+      <div className="sticky top-0 z-40 border-b border-neutral-200" style={{ background: 'rgba(244,241,236,0.97)' }}>
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-2.5 flex items-center justify-between gap-4">
           <button
             type="button"
-            onClick={() => go(idx - 1)}
-            disabled={idx === 0}
-            className="w-9 h-9 rounded-full border border-neutral-300 bg-white font-bold disabled:opacity-30"
-            aria-label="Previous panel"
+            onClick={onBack}
+            className="text-sm font-semibold px-3.5 py-1.5 rounded-full border border-neutral-300 bg-white hover:border-neutral-500 transition-colors whitespace-nowrap"
           >
-            ←
+            ← Back to the presentation
           </button>
-          <div className="flex gap-2">
-            {Array.from({ length: COUNT }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => go(i)}
-                aria-label={`Go to panel ${i + 1}`}
-                className="w-2.5 h-2.5 rounded-full transition-colors"
-                style={{ background: i === idx ? ORANGE : '#d4d4d4' }}
-              />
+          <div className="hidden md:flex items-center gap-1 text-[11px] font-semibold text-neutral-500 overflow-x-auto">
+            {DIVE_STEPS.map((s, i) => (
+              <a key={s.id} href={`#${s.id}`} className="px-2 py-1 rounded hover:text-black whitespace-nowrap">
+                <span style={{ color: ORANGE }}>{i + 1}</span> {s.short}
+              </a>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() => go(idx + 1)}
-            disabled={idx === COUNT - 1}
-            className="w-9 h-9 rounded-full border border-neutral-300 bg-white font-bold disabled:opacity-30"
-            aria-label="Next panel"
-          >
-            →
-          </button>
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 whitespace-nowrap hidden sm:block">
+            Deep dive
+          </span>
         </div>
       </div>
-    </section>
+
+      {/* dive title */}
+      <section className="px-6 md:px-20 pt-16 pb-10" style={{ background: '#f4f1ec', color: INK }}>
+        <div className="max-w-5xl mx-auto">
+          <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ORANGE }}>
+            The first bet · deep dive
+          </p>
+          <h2 className="font-black tracking-tight text-4xl md:text-6xl mt-3 max-w-4xl">
+            How the bet was chosen, de-risked, and earned its way to scale.
+          </h2>
+          <p className="mt-5 text-sm text-neutral-500 max-w-2xl">
+            Sanitized reconstruction of the working process — labels and groupings simplified for confidentiality and
+            presentation clarity. Eight steps, scroll at your pace.
+          </p>
+        </div>
+      </section>
+
+      {/* 01 — decompose */}
+      <DivePanel id="dive-b1" num="01" step="Decompose" title="From distant outcomes to metrics a team can move">
+        <div className="grid md:grid-cols-[1fr_1.2fr] gap-10 items-start">
+          <div className="space-y-3 text-[15px]">
+            {[
+              ['Business outcome', 'Portfolio TPV decline — lagging, nobody’s roadmap moves it'],
+              ['Economic attribution', 'Contraction $ by value tier × geography × reason code'],
+              ['Problem spaces', 'Six ownable spaces + an honest “not yet attributed”'],
+              ['Problem indicators', 'Rule-based tags — exposure flags, not diagnoses'],
+              ['Controllable metrics', 'The funnel each team can move next sprint'],
+              ['Guardrails', 'Margin, gaming, support noise — what must not degrade'],
+            ].map(([k, v], i) => (
+              <div key={k} className="flex gap-4 items-baseline">
+                <span className="font-black text-sm w-6 text-right shrink-0" style={{ color: ORANGE }}>
+                  L{i}
+                </span>
+                <div>
+                  <span className="font-bold">{k}.</span> <span className="text-neutral-600">{v}</span>
+                </div>
+              </div>
+            ))}
+            <p className="text-sm text-neutral-500 pt-3 pl-10">
+              The question “is pricing causing churn?” lives at L0 — no team can act on it. The work was walking it
+              down to L4.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <div className="rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm">
+              <p className="font-bold mb-2">
+                Pricing — a <span style={{ color: ORANGE }}>perception</span> funnel
+              </p>
+              <p className="text-sm text-neutral-600 leading-relaxed">
+                % who understand their fees → % who’ve seen the value behind them → % of eligible shown a proactive
+                offer → % actioned → time from decline signal to offer
+              </p>
+            </div>
+            <div className="rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm">
+              <p className="font-bold mb-2">
+                Risk — an <span style={{ color: ORANGE }}>operational</span> funnel
+              </p>
+              <p className="text-sm text-neutral-600 leading-relaxed">
+                % of limitations surfaced in 24h → % actually seen → % acted on in 24/48/72h → % resolved before
+                account impact → % self-serve
+              </p>
+            </div>
+            <p className="text-sm text-neutral-600">
+              Same method, structurally different problems — how several teams attacked one economic problem in
+              parallel without sharing a playbook.
+            </p>
+          </div>
+        </div>
+      </DivePanel>
+
+      {/* 02 — diverge */}
+      <DivePanel id="dive-b2" num="02" step="Diverge" title="Seven clusters, about forty candidate bets" tint>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          {CLUSTERS.map((c, i) => (
+            <Sticky key={c.name} tone={c.gap ? 'orange' : 'green'} tilt={[-1.2, 0.8, -0.6, 1.1, -0.9, 0.7, -1.4][i]} highlight={c.gap}>
+              <p className="font-bold text-sm mb-1">{c.name}</p>
+              <p className="text-xs text-neutral-600 leading-snug">{c.q}</p>
+              {c.gap && (
+                <p className="text-xs font-bold mt-2" style={{ color: ORANGE }}>
+                  “Gap — no direct metric.” Remember this one.
+                </p>
+              )}
+            </Sticky>
+          ))}
+        </div>
+        <div className="rounded-2xl bg-white border border-neutral-200 overflow-hidden shadow-sm">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-[10px] uppercase tracking-widest text-neutral-400 border-b border-neutral-200">
+                <th className="px-5 py-3 font-semibold">Candidate bet</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap">Triage</th>
+                <th className="px-3 py-3 font-semibold">Votes</th>
+                <th className="px-5 py-3 font-semibold">Fate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BETS.map((b) => (
+                <tr key={b.bet} className={`border-b border-neutral-100 ${b.dead ? 'text-neutral-400' : ''}`} style={b.hot ? { background: '#FFF6F1' } : undefined}>
+                  <td className={`px-5 py-3 ${b.hot ? 'font-bold' : ''}`}>{b.bet}</td>
+                  <td className="px-3 py-3 whitespace-nowrap">{b.triage}</td>
+                  <td className="px-3 py-3 whitespace-nowrap tracking-tighter" style={{ color: ORANGE }}>
+                    {'●'.repeat(b.votes) || '—'}
+                  </td>
+                  <td className="px-5 py-3">{b.fate}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
+          The most-voted idea never shipped; a two-vote idea shipped first.{' '}
+          <span style={{ color: ORANGE }}>Votes located conviction — judgment did the sequencing.</span>
+        </p>
+      </DivePanel>
+
+      {/* 03 — converge */}
+      <DivePanel id="dive-b3" num="03" step="Converge" title="The wedge decision — reasoning, reconstructed">
+        <div className="rounded-2xl bg-white border border-neutral-200 overflow-x-auto shadow-sm">
+          <table className="w-full text-sm min-w-[620px]">
+            <thead>
+              <tr className="text-left text-[10px] uppercase tracking-widest border-b border-neutral-200">
+                <th className="px-5 py-3"></th>
+                {MATRIX.cols.map((c, i) => (
+                  <th key={c} className="px-4 py-3 font-semibold" style={i === 0 ? { color: ORANGE } : { color: '#a3a3a3' }}>
+                    {c}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MATRIX.rows.map((r) => (
+                <tr key={r.c} className="border-b border-neutral-100">
+                  <td className="px-5 py-3 font-bold whitespace-nowrap">{r.c}</td>
+                  {r.v.map((v, i) => (
+                    <td key={i} className={`px-4 py-3 ${i === 0 ? 'font-semibold' : 'text-neutral-500'}`}>
+                      {v}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-4 text-sm text-neutral-500 max-w-3xl">
+          Note the matrix isn&apos;t rigged: tech issues were the larger pool with less downside — and still weren&apos;t
+          first. They ran as a parallel track. Pricing swept every learning-speed row.
+        </p>
+        <p className="mt-8 text-xl md:text-2xl font-black max-w-4xl">
+          We didn&apos;t choose pricing because we knew price caused decline. We chose it because it was the{' '}
+          <span style={{ color: ORANGE }}>fastest reversible test</span> of whether proactive treatment could bend a
+          declining merchant&apos;s trajectory at all.
+        </p>
+      </DivePanel>
+
+      {/* 04 — design */}
+      <DivePanel id="dive-b4" num="04" step="Design" title="The flow, in separable layers" tint>
+        <div className="space-y-3">
+          {FLOW_LAYERS.map((l, i) => (
+            <div key={l.layer} className="rounded-xl bg-white border border-neutral-200 px-6 py-4 flex items-start gap-5 shadow-sm">
+              <span className="font-black text-lg mt-0.5 w-5 shrink-0" style={{ color: ORANGE }}>
+                {i + 1}
+              </span>
+              <div className="flex-1">
+                <p className="font-bold">
+                  {l.layer}
+                  {l.reused && (
+                    <span className="ml-2 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded align-middle" style={{ background: '#FFF1EA', color: ORANGE }}>
+                      later reused
+                    </span>
+                  )}
+                </p>
+                <p className="text-sm text-neutral-600 mt-1">{l.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
+          The model told us <em>who</em> was declining. Policy decided who could <em>safely receive</em> a rate change.{' '}
+          <span style={{ color: ORANGE }}>Separating those layers is why the system was reusable later.</span>
+        </p>
+      </DivePanel>
+
+      {/* 05 — de-risk */}
+      <DivePanel id="dive-b5" num="05" step="De-risk" title="What had to be true — ~200 assumptions, five categories">
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
+          <div>
+            <div className="space-y-3">
+              {CATEGORIES.map((c, i) => (
+                <div key={c.name} className="flex gap-3 items-stretch">
+                  <div className="w-1.5 rounded-full shrink-0" style={{ background: c.color }} />
+                  <div className="flex-1">
+                    <p className="font-bold text-xs uppercase tracking-wide mb-1" style={{ color: c.color }}>
+                      {c.name}
+                    </p>
+                    <Sticky tone={c.tone} tilt={[-0.8, 0.6, -0.5, 0.9, -0.7][i]}>{c.ex}</Sticky>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-neutral-500 mt-4">
+              Mapped across the journey — reach, present, negotiate, reinforce — then ranked by importance ×
+              uncertainty. Scores are a reconstructed prioritization of the historical map.
+            </p>
+          </div>
+          <div>
+            <div className="rounded-2xl bg-white border border-neutral-200 p-5 shadow-sm">
+              <Quadrant />
+            </div>
+            <div className="mt-4 rounded-xl border px-5 py-4" style={{ borderColor: ORANGE, background: '#FFF6F1' }}>
+              <p className="text-sm">
+                <strong style={{ color: ORANGE }}>V1 — the one we couldn&apos;t test before launch:</strong> that
+                targeted merchants could <em>actually respond</em> to better economics. So research was bolted to the
+                pilot from day one.
+              </p>
+            </div>
+          </div>
+        </div>
+      </DivePanel>
+
+      {/* 06 — plan */}
+      <DivePanel id="dive-b6" num="06" step="Plan the learning" title="Know before launch vs. learn only by launching" tint>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="rounded-2xl border border-neutral-200 p-6" style={{ background: '#FDF8EC' }}>
+            <p className="font-black text-sm mb-4">Before launch</p>
+            <div className="space-y-3">
+              <div className="rounded-lg p-4" style={{ background: '#F3EFFB' }}>
+                <p className="font-bold text-sm">“Just Ask”</p>
+                <p className="text-xs text-neutral-600 mt-1">
+                  Data teams · legal · engineering · marketing · pricing · commercial. Consultation retired more risk
+                  than any spike — the formal-spike bucket sat nearly empty.
+                </p>
+              </div>
+              <div className="rounded-lg p-4 bg-white/70">
+                <p className="font-bold text-sm">UX testing</p>
+                <p className="text-xs text-neutral-600 mt-1">
+                  Script + prototype comprehension checks — do the terms play back correctly?
+                </p>
+              </div>
+              <div className="rounded-lg p-4 bg-white/70">
+                <p className="font-bold text-sm">Bound what can&apos;t be known</p>
+                <p className="text-xs text-neutral-600 mt-1">
+                  Targeting backtest, ops dry run, margin caps + holdout design — guardrails were the price of
+                  permission.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-neutral-200 p-6" style={{ background: '#EAF4FD' }}>
+            <p className="font-black text-sm mb-4">Only by launching</p>
+            <div className="space-y-3">
+              <div className="rounded-lg p-4 bg-white/70">
+                <p className="font-bold text-sm">Reaction-coded calls</p>
+                <p className="text-xs text-neutral-600 mt-1">Does the offer land as recognition — or desperation?</p>
+              </div>
+              <div className="rounded-lg p-4 bg-white/70">
+                <p className="font-bold text-sm">Treatment vs. holdout</p>
+                <p className="text-xs text-neutral-600 mt-1">Are we subsidizing merchants who would have stayed?</p>
+              </div>
+              <div className="rounded-lg p-4 bg-white/70">
+                <p className="font-bold text-sm">30/60/90-day cohorts</p>
+                <p className="text-xs text-neutral-600 mt-1">Do saves persist — or decay once the novelty fades?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-8 flex flex-col md:flex-row gap-6 items-start">
+          <Sticky tone="orange" highlight tilt={-1} className="max-w-xs">
+            <strong>From the actual plan:</strong> “If pricing wasn&apos;t actually their primary concern, we&apos;ll
+            figure out what is.”
+          </Sticky>
+          <p className="text-sm text-neutral-600 flex-1 max-w-xl">
+            The pivot wasn&apos;t luck — the plan pre-registered the possibility that the mechanism was wrong. And
+            engineering deliberately <em>waited</em>: manual operations were the learning strategy, not a workaround.
+            Gates: permission → concierge results → 20K results → automation.
+          </p>
+        </div>
+      </DivePanel>
+
+      {/* 07 — scale */}
+      <DivePanel id="dive-b7" num="07" step="Earn scale" title="Phone calls → product-assisted → automated">
+        <StageLadder />
+        <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
+          Each stage&apos;s evidence bought the next stage&apos;s investment.{' '}
+          <span style={{ color: ORANGE }}>Automation wasn&apos;t delayed — it was withheld until earned.</span>
+        </p>
+      </DivePanel>
+
+      {/* 08 — results */}
+      <DivePanel id="dive-b8" num="08" step="Read the results honestly" title="What the numbers said — and didn’t" tint>
+        <div className="grid md:grid-cols-2 gap-8 items-start">
+          <div>
+            <p className="text-base text-neutral-700">
+              Early cohorts: roughly <strong>$100M in recovered TPV</strong>
+              <Flag kind="assumption" note="Recollection; counterfactual method to validate" /> and{' '}
+              <strong>~$2M net margin after discount cost</strong>
+              <Flag kind="assumption" note="Net-of-discount per Nick; measured against declining/plateauing baseline — method to validate" />{' '}
+              — growth from merchants who had been declining or plateauing, read against comparison groups.
+            </p>
+            <Guardrail>
+              That opt-in alone proved behavior change, or that observed TPV was automatically incremental.
+            </Guardrail>
+          </div>
+          <div className="rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm">
+            <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-3">
+              Four outcome groups kept us honest
+            </p>
+            <ul className="space-y-2 text-sm text-neutral-700">
+              <li><strong>Rescued</strong> — declining before, recovered after.</li>
+              <li><strong>Lost cause</strong> — declining before and after.</li>
+              <li><strong>Star</strong> — growing anyway. Not our win.</li>
+              <li><strong>Declining anyway</strong> — stable before, declined after.</li>
+            </ul>
+          </div>
+        </div>
+        <p className="mt-10 text-xl md:text-2xl font-black max-w-3xl">
+          The numbers said: continue. They did not say <em>why</em> it was working —{' '}
+          <span style={{ color: ORANGE }}>and we had planned for exactly that question.</span>
+        </p>
+        <button
+          type="button"
+          onClick={onBack}
+          className="mt-10 px-6 py-3 rounded-full text-white font-bold text-sm"
+          style={{ background: INK }}
+        >
+          ← Back to the presentation — the research turn
+        </button>
+      </DivePanel>
+    </div>
   )
 }
 
@@ -912,6 +984,20 @@ function Branch() {
 
 export default function SubstackCaseContent() {
   const [review, setReview] = useState(false)
+  const [diveOpen, setDiveOpen] = useState(false)
+  const teaserRef = useRef<HTMLElement>(null)
+
+  const openDive = () => {
+    setDiveOpen(true)
+    requestAnimationFrame(() => {
+      setTimeout(() => document.getElementById('deep-dive')?.scrollIntoView({ behavior: 'smooth' }), 60)
+    })
+  }
+
+  const closeDive = () => {
+    teaserRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
+    setDiveOpen(false)
+  }
 
   return (
     <ReviewCtx.Provider value={review}>
@@ -1102,10 +1188,6 @@ export default function SubstackCaseContent() {
           <p className="mt-8 text-2xl md:text-3xl font-black max-w-3xl">
             We earned permission to scale by <span style={{ color: ORANGE }}>reducing the cost of being wrong</span>.
           </p>
-          <p className="mt-10 text-base text-neutral-500">
-            ↓ The next section reads sideways — it&apos;s the working process itself: how the bet was chosen, de-risked,
-            and earned its way to scale.
-          </p>
           <Rib branch="Conflict & alignment" title="The margin fight — and how alignment was actually earned">
             <div className="space-y-3">
               <p>
@@ -1128,8 +1210,63 @@ export default function SubstackCaseContent() {
           </Rib>
         </Spine>
 
-        {/* THE BRANCH */}
-        <Branch />
+        {/* S6b — deep dive teaser */}
+        <section
+          ref={teaserRef}
+          data-slide-id="first-bet"
+          className="relative px-6 md:px-20 py-24 scroll-mt-4"
+          style={{ background: '#f4f1ec', color: INK }}
+        >
+          <div className="max-w-5xl mx-auto w-full">
+            <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ORANGE }}>
+              The first bet · deep dive
+            </p>
+            <h2 className="font-black tracking-tight text-3xl md:text-5xl mt-4 max-w-4xl">
+              How the bet was chosen, de-risked, and earned its way to scale.
+            </h2>
+            <p className="mt-5 text-lg text-neutral-600 max-w-3xl">
+              The working process itself — decomposition, ideation, the wedge decision, assumption mapping, the
+              learning plan, and staged validation — reconstructed from the real boards.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-2">
+              {DIVE_STEPS.map((s, i) => (
+                <span key={s.id} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-neutral-200 text-neutral-600">
+                  <span className="font-black mr-1" style={{ color: ORANGE }}>
+                    {i + 1}
+                  </span>
+                  {s.short}
+                </span>
+              ))}
+            </div>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              {!diveOpen ? (
+                <button
+                  type="button"
+                  onClick={openDive}
+                  className="px-7 py-3.5 rounded-full text-white font-bold text-base shadow-sm hover:opacity-90 transition-opacity"
+                  style={{ background: ORANGE }}
+                >
+                  Explore the working process →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openDive}
+                  className="px-7 py-3.5 rounded-full font-bold text-base border bg-white hover:border-neutral-500 transition-colors"
+                  style={{ borderColor: ORANGE, color: ORANGE }}
+                >
+                  Deep dive open below ↓
+                </button>
+              )}
+              <p className="text-sm text-neutral-500 max-w-xs">
+                Eight full-page steps with their own scroll — one click back to the presentation at any time.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* THE DEEP DIVE (expanded in place) */}
+        {diveOpen && <DeepDive onBack={closeDive} />}
 
         {/* S7 — research turn */}
         <Spine id="research-pivot" kicker="The turn" dark>
@@ -1284,8 +1421,8 @@ export default function SubstackCaseContent() {
           </div>
           <p className="mt-8 text-base text-neutral-400 max-w-3xl">
             One nuance we caught: a purely monetary definition of “high potential” undervalued durable service
-            businesses that grow slower but retain better. Interesting problem — the early-warning idea had been on the
-            ideation board and was deliberately deferred until retention taught us what durable value looked like.
+            businesses that grow slower but retain better. The early-warning idea had been on the ideation board and
+            was deliberately deferred until retention taught us what durable value looked like.
           </p>
           <p className="mt-8 text-xl md:text-2xl font-bold max-w-3xl">
             Activation, retention, and win-back were different moments in{' '}
