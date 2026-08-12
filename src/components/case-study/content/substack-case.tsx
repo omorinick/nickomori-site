@@ -1109,7 +1109,7 @@ export default function SubstackCaseContent() {
       <NotesCtx.Provider value={notes}>
         <main className="font-sans" style={{ color: INK }}>
           {/* S1 — title */}
-          <Spine id="title" kicker="Nick Omori · Senior Product Manager — Technical, PayPal">
+          <Spine id="title" kicker="Nick Omori · Lead Product Manager — Merchant & Partner Lifecycle, PayPal">
             <h1 className="font-black tracking-tight leading-[0.95] text-4xl md:text-7xl max-w-4xl">
               Building PayPal&apos;s Merchant Trajectory System
             </h1>
