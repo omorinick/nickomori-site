@@ -598,6 +598,659 @@ function DeepDives() {
   )
 }
 
+// ---------- recreated artifacts (modal-viewable, sanitized, date-light) ----------
+
+function ArtifactModal({ label, title, children }: { label: string; title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mt-8 inline-flex items-center gap-3 rounded-xl border-2 border-dashed px-5 py-3.5 text-left bg-white/60 hover:bg-white transition-colors"
+        style={{ borderColor: '#a9c4e8' }}
+      >
+        <span className="text-2xl" aria-hidden>
+          🗂️
+        </span>
+        <span>
+          <span className="block text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+            Recreated artifact · click for the detailed view
+          </span>
+          <span className="font-bold text-sm" style={{ color: ACCENT }}>
+            {label}
+          </span>
+        </span>
+      </button>
+      {open && (
+        <div className="fixed inset-0 z-[80] bg-black/70 overflow-y-auto" onClick={() => setOpen(false)}>
+          <div className="min-h-full flex items-start justify-center p-4 md:p-8">
+            <div
+              className="bg-white rounded-2xl max-w-6xl w-full p-6 md:p-10 relative text-left shadow-2xl"
+              style={{ color: INK }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-6 mb-2">
+                <h4 className="font-black text-xl md:text-2xl">{title}</h4>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="shrink-0 w-9 h-9 rounded-full border border-neutral-300 font-bold hover:bg-neutral-100"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="text-[11px] text-neutral-400 mb-6 max-w-2xl">
+                Sanitized recreation of the original working artifact — labels and groupings simplified for
+                confidentiality and presentation clarity.
+              </p>
+              {children}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+const ATTR_COLS = ['HV SMB', 'EHV SMB', 'HV+EHV total', 'Annualized ×12', 'Long-tail (est.)', 'Whole portfolio (est.)']
+const ATTR_ROWS: [string, ...number[]][] = [
+  ['Bankruptcy', 2.4, 0.2, 2.6, 31.2, 4.7, 35.9],
+  ['Inactive URL', 20.2, 5.3, 25.5, 306.0, 45.7, 351.7],
+  ['Seasonality', 15.6, 24.6, 40.2, 482.4, 72.1, 554.5],
+  ['Risk', 119.1, 7.7, 126.9, 1522.8, 227.5, 1750.3],
+  ['Tech issue', 259.1, 12.8, 271.9, 3262.8, 487.6, 3750.4],
+  ['Pricing', 239.8, 22.9, 262.8, 3153.6, 471.3, 3624.9],
+  ['Not yet tagged', 188.0, 233.6, 421.6, 5059.2, 756.1, 5815.3],
+]
+
+function ArtifactAttribution() {
+  const fmt = (n: number) => (n >= 1000 ? `−$${(n / 1000).toFixed(2)}B` : `−$${n.toFixed(1)}M`)
+  return (
+    <div className="space-y-5">
+      <div className="overflow-x-auto rounded-xl border border-neutral-200">
+        <table className="w-full text-[13px] min-w-[720px]">
+          <thead>
+            <tr className="text-left text-white" style={{ background: '#12294f' }}>
+              <th className="px-4 py-2.5 font-semibold">Reason code</th>
+              {ATTR_COLS.map((c) => (
+                <th key={c} className="px-3 py-2.5 font-semibold whitespace-nowrap">
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {ATTR_ROWS.map(([name, ...vals]) => (
+              <tr key={name as string} className="border-b border-neutral-100 odd:bg-neutral-50/60">
+                <td className="px-4 py-2 font-bold whitespace-nowrap">{name}</td>
+                {(vals as number[]).map((v, i) => (
+                  <td key={i} className={`px-3 py-2 whitespace-nowrap ${i >= 3 ? 'font-semibold' : 'text-neutral-600'}`}>
+                    {fmt(v)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+            <tr className="font-black" style={{ background: TINT }}>
+              <td className="px-4 py-2.5">Grand total</td>
+              {[844.2, 307.2, 1151.3, 13815.6, 2065.0, 15880.6].map((v, i) => (
+                <td key={i} className="px-3 py-2.5 whitespace-nowrap">
+                  {fmt(v)}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="grid md:grid-cols-3 gap-4 text-sm text-neutral-700">
+        <div className="rounded-lg border border-neutral-200 p-4">
+          <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-1.5">Callout</p>
+          The alerting model was ~3 weeks old at this snapshot — the best available line of sight into controllable
+          factors, honestly labeled as young.
+        </div>
+        <div className="rounded-lg border border-neutral-200 p-4">
+          <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-1.5">Macro bracket</p>
+          Bankruptcy + inactive + seasonality ≈ 6% of monthly HV/EHV contraction — explicitly marked “not controllable
+          by PayPal.”
+        </div>
+        <div className="rounded-lg border border-neutral-200 p-4">
+          <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-1.5">Tagging rules (examples)</p>
+          Pricing = base fees ↑ ≥3bps in prior 6 months, or priced above tiered benchmark · Risk = holds/reserves &gt;$5K
+          · Tech = &gt;5% decline in conversion or auth rates.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const METRIC_BOARD: { space: string; rows: [string, string][] }[] = [
+  {
+    space: 'Pricing',
+    rows: [
+      ['% who understand their rates and fees', 'Do they know what they pay?'],
+      ['% who’ve seen/realized the value of branded checkout (with fees)', 'Do they know what the price buys?'],
+      ['% of eligible merchants shown proactive rate offers', 'Are we reaching the right people?'],
+      ['% of rate offers actioned', 'Are they taking the offer?'],
+      ['Time from churn signal → offer → merchant response', 'Are we acting fast enough?'],
+      ['% of decliners reached within 48 hours', 'Speed of response'],
+    ],
+  },
+  {
+    space: 'Risk / limitations / holds',
+    rows: [
+      ['% of limitations surfaced within 24 hours', 'Speed of visibility'],
+      ['% of limitations actually seen by the merchant', 'Did they see it?'],
+      ['% acted on within 24/48/72 hours', 'Speed of action'],
+      ['% resolved before account impact', 'Did they beat the deadline?'],
+      ['% resolved self-serve vs. support', 'Can they fix it themselves?'],
+    ],
+  },
+  {
+    space: 'Tech issues',
+    rows: [
+      ['% of tech issues detected by PayPal', 'Are we catching problems?'],
+      ['% of detected issues surfaced to the merchant', 'Are we telling them?'],
+      ['% seen within 24 hours', 'Speed of awareness'],
+      ['% resolved within 48 hours', 'Resolution speed'],
+      ['% of merchants with a healthy integration score', 'Proactive health baseline'],
+    ],
+  },
+  {
+    space: 'Ecosystem investment',
+    rows: [
+      ['% of merchants at 1 product', 'Size of the at-risk population'],
+      ['% of merchants at 2+ products', 'Portfolio strength'],
+      ['Cross-sell CTR and conversion', 'Are they interested? Completing?'],
+      ['% of new products activated within 30 days', 'Speed of adoption'],
+      ['% of cross-sell shown after a trust moment', 'Are we earning before asking?'],
+    ],
+  },
+  {
+    space: 'Platform engagement',
+    rows: [
+      ['Days since last transaction', 'Inactivity signal'],
+      ['Login frequency trend (MoM)', 'Engagement trajectory'],
+      ['% of declining merchants who received an intervention', 'Are we reaching them?'],
+      ['% of interventions that reversed the declining trend', 'Did it work?'],
+      ['Days from first decline signal to intervention', 'Speed of response'],
+    ],
+  },
+  {
+    space: 'Disputes',
+    rows: [
+      ['% of open disputes surfaced within 24 hours', 'Speed of visibility'],
+      ['% of merchants with open disputes who took action in the portal', 'Are we driving response?'],
+      ['Time from dispute opened → merchant first response', 'Does visibility accelerate action?'],
+      ['% of dispute responses completed in-place', 'The core job'],
+      ['Dispute-related support contact rate', 'Are we reducing confusion?'],
+    ],
+  },
+]
+
+function ArtifactMetricsBoard() {
+  return (
+    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {METRIC_BOARD.map((col) => (
+        <div key={col.space} className="rounded-xl border border-neutral-200 overflow-hidden">
+          <p className="px-4 py-2 font-bold text-sm text-white" style={{ background: '#12294f' }}>
+            {col.space}
+          </p>
+          <table className="w-full text-[12px]">
+            <tbody>
+              {col.rows.map(([m, q]) => (
+                <tr key={m} className="border-b border-neutral-100 last:border-0">
+                  <td className="px-4 py-2 font-semibold w-3/5">{m}</td>
+                  <td className="px-3 py-2 text-neutral-500 italic">{q}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const HMW_DETAIL = [
+  {
+    name: '1 · Value Realization',
+    q: 'Do merchants understand what they’re actually getting for what they pay?',
+    hmws: [
+      'HMW help merchants understand the ROI of branded checkout, FX, and fraud protection?',
+      'HMW visualize cost savings — “we’ve saved you $X in fraud”?',
+      'HMW create personalized ROI calculators?',
+      'HMW make the hidden value visible (fraud prevented, disputes won)?',
+    ],
+    metric: '% who’ve seen/realized value · % who understand the fees',
+  },
+  {
+    name: '2 · Competitive Clarity',
+    q: 'Do merchants know how we actually compare — and do we get a chance to compete?',
+    hmws: [
+      'HMW simplify pricing so it’s easy to compare apples-to-apples?',
+      'HMW encourage merchants to share competitor rates so we get a chance to match?',
+      'HMW help merchants feel the true switching cost — not just price?',
+    ],
+    metric: '% who’ve seen a competitive comparison · how many share competitor rates',
+  },
+  {
+    name: '3 · Right Offer, Right Time',
+    q: 'Are we reaching at-risk merchants fast enough with the right offer?',
+    hmws: [
+      'HMW increase speed from churn signal → offer surfaced → merchant response?',
+      'HMW make sure we’re reaching the right people — not wasting offers on non-churners?',
+      'HMW reach decliners within 48 hours of detection?',
+    ],
+    metric: '% of eligible shown offers · % actioned · time-to-offer',
+  },
+  {
+    name: '4 · Transparency Without Backfire',
+    q: 'How do we get honest about pricing without creating problems we didn’t have?',
+    hmws: [
+      'HMW help merchants fully grasp PayPal pricing and fee math?',
+      'HMW make pricing conversations feel like partnership, not negotiation?',
+      'HMW be honest without inviting comparison shopping?',
+    ],
+    metric: '% of pricing communications opened · % who understand the fees',
+  },
+  {
+    name: '5 · Relationship & Loyalty',
+    q: 'Do merchants feel valued, or just transactional?',
+    hmws: [
+      'HMW reward loyalty proactively — not just reactively?',
+      'HMW make merchants feel valued before they’re at risk?',
+      'HMW help merchants feel the relationship cost of leaving, not just the financial cost?',
+    ],
+    metric: 'GAP — no direct metric existed in the table',
+    gap: true,
+  },
+  {
+    name: '6 · Channel & Persona Fit',
+    q: 'Are we reaching merchants where they are, how they prefer?',
+    hmws: [
+      'HMW change how we communicate by persona (size, industry)?',
+      'HMW use each merchant’s preferred channels?',
+      'HMW coordinate with sales teams without interference?',
+    ],
+    metric: '% of communications opened · time to offer response',
+  },
+  {
+    name: '7 · System Integrity',
+    q: 'How do we prevent gaming and protect the business?',
+    hmws: [
+      'HMW offer competitive pricing to true churners without training everyone to threaten leaving?',
+      'HMW ensure we’re not lowering pricing for people who wouldn’t have churned?',
+    ],
+    metric: 'Guardrail — % of offers going to merchants who would have stayed (inverse)',
+  },
+]
+
+const IDEA_WALL = [
+  '“PayPal Wrapped” — a quarterly ROI report: the fees you paid, the value you received',
+  'Forecasting calculator — how much more you’d make with more volume, benchmarked to “merchants like you”',
+  'Bundle pricing — “you know my business from onboarding; recommend the bundle with the best pricing”',
+  'Offer value-added services instead of price discounts',
+  'Reach out to non-decliners as a control — how much “surprise churn” do we prevent?',
+  'A platform “value display” every product team feeds — put it right up front',
+  'Contextual fee transparency — “the $15 dispute fee is industry standard; you saved $15K via fraud protection”',
+  'One centralized page: your fees and your ROI, per line item',
+]
+
+function ArtifactHMWBoard() {
+  return (
+    <div className="space-y-8">
+      <div>
+        <p className="font-bold text-sm mb-3 text-neutral-500">Raw idea wall (sample — the full board held dozens)</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {IDEA_WALL.map((t, i) => (
+            <Sticky key={t} tone="blue" tilt={[-1.1, 0.9, -0.7, 1.2, -0.5, 0.8, -1.3, 0.6][i]}>
+              {t}
+            </Sticky>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="font-bold text-sm mb-3 text-neutral-500">Synthesized HMW clusters, each tied back to a metric</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          {HMW_DETAIL.map((c) => (
+            <div key={c.name} className="rounded-xl border p-5" style={c.gap ? { borderColor: FILL, background: TINT } : { borderColor: '#e5e5e5', background: '#F3FAF3' }}>
+              <p className="font-black text-sm">{c.name}</p>
+              <p className="text-sm text-neutral-600 italic mt-0.5 mb-2.5">{c.q}</p>
+              <ul className="space-y-1.5 text-[13px] text-neutral-700 list-disc pl-4">
+                {c.hmws.map((h) => (
+                  <li key={h}>{h}</li>
+                ))}
+              </ul>
+              <p className={`mt-3 text-xs font-bold ${c.gap ? '' : 'text-neutral-500'}`} style={c.gap ? { color: ACCENT } : undefined}>
+                Primary metric: {c.metric}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const BETS_FULL = [
+  ['Rate reduction for detected decliners', '“We value your business — here’s a reduced rate,” multi-channel', 'Must Have', 'Acceptance rate · 90-day retention of acceptors', 'Margin impact · non-decliner request rate (gaming)', '“We can MVP with humans” — near-term pilot target', true],
+  ['Alternative value for non-qualifiers', '“You don’t qualify for a rate reduction — here’s 3 months of Advanced Fraud Protection free”', 'Should Have', 'Alternative acceptance vs. no-offer control', 'Perception of “second tier”', 'Value instead of discount', false],
+  ['Volume-based recapture incentive', '“Hit $50K volume in the next 60 days and lock in the 2.6% rate”', 'Could Have', 'Volume recovery % · rate-lock conversion', 'Gaming via temporary volume spike', '', false],
+  ['Escalating offer ladders', 'Offer 1: 10bps → Offer 2: 20bps + fee waiver → Offer 3: rep outreach', 'Won’t Have', 'Cumulative conversion across tiers', 'Trains merchants to wait for better offers', '“Too easy to game”', false],
+  ['Tailored offers by merchant type', 'SMB: automated rate reduction · Micro: fee cap', 'Could Have', 'Segment-specific retention lift', 'Complexity · fairness perception', '', false],
+  ['Offer at point of offboarding intent', 'In-flow modal: “Before you go — would a 15% rate reduction change your mind?”', 'Should Have', 'Save rate · reactivation within 30 days', 'Flow friction · false-positive “leaving” signals', '', false],
+  ['Win-backs for churned merchants', '“Come back — submit your current processor’s rate and we’ll try to beat it”', 'Should Have', 'Return rate · post-return retention', 'Cost of matching · intel accuracy', 'Most votes in the session', false],
+  ['Rep-initiated saves during pricing complaints', 'Support rep empowered to offer a rate reduction in real time', 'Could Have', 'Retention of support-saved merchants', 'Rep discretion abuse · inconsistency', '', false],
+  ['Goodwill offers on billing issues', '“We noticed a billing issue — here’s a rate reduction while we sort it out”', 'Won’t Have', 'Issue resolution + retention', 'Abuse via manufactured issues', '', false],
+] as const
+
+const BET_AREAS = [
+  ['Save offers', '% reduction in pricing-attributed churn among offer-eligible merchants'],
+  ['Value communication', '% who can articulate PayPal’s value relative to fees (survey) + retention correlation'],
+  ['Non-decliners / loyalty', 'Churn reduction among non-flagged merchants + prevention of “surprise churn”'],
+  ['Pricing architecture & transparency', '% reduction in “pricing confusion” as churn reason + fee-related tickets'],
+  ['Self-service price management', '% of merchants who feel “in control” of their pricing'],
+  ['Pricing education', '% who report “pricing matched expectations” at the 90-day mark'],
+  ['Competitive response', 'Win rate against competitors + competitive intel gathered'],
+]
+
+function ArtifactBetsBoard() {
+  return (
+    <div className="space-y-8">
+      <div className="overflow-x-auto rounded-xl border border-neutral-200">
+        <table className="w-full text-[12.5px] min-w-[860px]">
+          <thead>
+            <tr className="text-left text-white" style={{ background: '#12294f' }}>
+              {['Candidate bet', 'What it looks like', 'MoSCoW', 'Key metrics', 'Guardrails', 'Notes'].map((h) => (
+                <th key={h} className="px-3.5 py-2.5 font-semibold whitespace-nowrap">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {BETS_FULL.map(([bet, looks, moscow, metrics, guard, notes, hot]) => (
+              <tr key={bet as string} className={`border-b border-neutral-100 align-top ${moscow === 'Won’t Have' ? 'text-neutral-400' : ''}`} style={hot ? { background: TINT } : undefined}>
+                <td className={`px-3.5 py-2.5 ${hot ? 'font-bold' : 'font-semibold'}`}>{bet}</td>
+                <td className="px-3.5 py-2.5">{looks}</td>
+                <td className="px-3.5 py-2.5 whitespace-nowrap">{moscow}</td>
+                <td className="px-3.5 py-2.5">{metrics}</td>
+                <td className="px-3.5 py-2.5">{guard}</td>
+                <td className="px-3.5 py-2.5 italic">{notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <p className="font-bold text-sm mb-3 text-neutral-500">Seven opportunity areas — each with its own key metric</p>
+          <div className="space-y-2">
+            {BET_AREAS.map(([a, m]) => (
+              <div key={a} className="rounded-lg border border-neutral-200 px-4 py-2.5 text-[13px]">
+                <span className="font-bold">{a}.</span> <span className="text-neutral-600">{m}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-xl border-2 p-5" style={{ borderColor: '#E8A33D', background: '#FFF8EC' }}>
+          <p className="font-black text-sm mb-3">Outstanding questions (from the actual board)</p>
+          <ul className="space-y-2 text-[13px] text-neutral-700 list-disc pl-4">
+            <li>Product-specific pricing — checkout vs. invoicing vs. working-capital pricing?</li>
+            <li>Segment-specific strategies — do different merchant types need different pricing rules?</li>
+            <li>Lifecycle triggers — first 90 days, anniversaries, post-support moments?</li>
+            <li>Geographic expansion — US first; compatibility with CA / DE / UK rollout?</li>
+            <li>Partner &amp; channel pricing — ISVs, platforms, referral, partner-negotiated rates?</li>
+          </ul>
+          <p className="mt-3 text-xs font-bold" style={{ color: ACCENT }}>
+            Every one of these became a later chapter: profiles, upstream, global, partners.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const SWIM_STAGES = ['Detect', 'Queue', 'Reach', 'Present', 'Engage', 'Negotiate', 'Accept', 'Fulfill & reinforce']
+const SWIMLANES: { lane: string; cells: (string | null)[] }[] = [
+  {
+    lane: 'Merchant',
+    cells: [null, null, null, null, 'Acknowledges → contemplates → enters the flow', 'Shares competitor pricing', 'Accepts', 'Sees ongoing savings'],
+  },
+  {
+    lane: 'Merchant portal',
+    cells: [null, null, null, 'Offer displayed — pop-up · banner · card', null, 'Asks for competitor rates → returns updated price', 'Confirms: new price + total savings', null],
+  },
+  {
+    lane: 'Backend systems',
+    cells: ['Detects decline or churn risk', 'Queues eligible merchants', null, null, null, 'Analyzes requested price + legitimacy', null, 'Fulfills via pricing system · verifies rate applied'],
+  },
+  {
+    lane: 'Comms channels',
+    cells: [null, null, 'Email / SMS outreach', null, null, null, null, 'Confirmation + savings visibility'],
+  },
+]
+
+function ArtifactSwimlane() {
+  return (
+    <div className="overflow-x-auto">
+      <div className="min-w-[900px]">
+        <div className="grid" style={{ gridTemplateColumns: '120px repeat(8, 1fr)' }}>
+          <div />
+          {SWIM_STAGES.map((s) => (
+            <p key={s} className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wide text-neutral-400 text-center">
+              {s}
+            </p>
+          ))}
+          {SWIMLANES.map((l) => (
+            <>
+              <p key={l.lane} className="pr-3 py-3 text-sm font-black flex items-center border-t border-neutral-200">
+                {l.lane}
+              </p>
+              {l.cells.map((c, i) => (
+                <div key={`${l.lane}-${i}`} className="border-t border-neutral-200 p-1.5 flex items-stretch">
+                  {c && (
+                    <Sticky tone={l.lane === 'Backend systems' ? 'blue' : 'yellow'} tilt={0} className="w-full !text-[11.5px] flex items-center">
+                      {c}
+                    </Sticky>
+                  )}
+                </div>
+              ))}
+            </>
+          ))}
+        </div>
+        <p className="mt-4 text-xs text-neutral-500">
+          The negotiate path — merchant submits a competitor rate, the system verifies legitimacy and counters — was
+          part of the designed flow.
+          <Flag kind="assumption" note="Designed in the artifacts; shipped scope of the counter-offer path to be validated" />
+        </p>
+      </div>
+    </div>
+  )
+}
+
+const ASSUMPTION_MAP: { cat: string; color: string; tone: keyof typeof STICKY_TONES; phases: string[][] }[] = [
+  {
+    cat: 'Desirability',
+    color: '#E8503A',
+    tone: 'orange',
+    phases: [
+      ['Merchants want PayPal to proactively help before they churn', 'Contacted through their preferred channel'],
+      ['Prefer personalized $ savings over generic percentages', 'Want the offer to feel exclusive and earned — not desperate'],
+      ['Want the ability to negotiate or provide context', 'Want human help available for questions'],
+      ['Want confirmation the discount is active', 'Want to see savings accumulate over time'],
+    ],
+  },
+  {
+    cat: 'Usability',
+    color: '#E89B3A',
+    tone: 'yellow',
+    phases: [
+      ['Will open/read messages from PayPal — not auto-ignore', 'Can identify the message as legitimate, not phishing'],
+      ['Understand what the discount applies to', 'Can calculate whether this is a good deal for them'],
+      ['Understand what we’re asking for (competitor rates)'],
+      ['Can verify their new rate is applied correctly'],
+    ],
+  },
+  {
+    cat: 'Feasibility',
+    color: '#8B5CF6',
+    tone: 'purple',
+    phases: [
+      ['We can accurately predict which merchants will churn', 'Near-real-time triggers · accurate contact data'],
+      ['Personalized savings calculated in real time', 'Offers expire automatically'],
+      ['We can verify a competitor offer', 'Route to human reps when needed'],
+      ['Track 30/60/90-day cohorts · detect re-decline after a save'],
+    ],
+  },
+  {
+    cat: 'Viability',
+    color: '#3B82F6',
+    tone: 'blue',
+    phases: [
+      ['Cost of intervention < cost of losing the merchant', 'Multi-channel reach justifies its cost'],
+      ['Discount large enough to change behavior — small enough to keep margin'],
+      ['No race to the bottom (“they tell a competitor and bring it back…”)', 'Doesn’t train merchants to always reject first'],
+      ['Saved merchants actually retain — the intervention works'],
+    ],
+  },
+  {
+    cat: 'Legal & ethical',
+    color: '#22A06B',
+    tone: 'green',
+    phases: [
+      ['Churn-prediction targeting compliant with privacy policy', 'SMS/email outreach compliant (TCPA / CAN-SPAM)'],
+      ['Urgency is truthful — countdowns reflect real deadlines', 'Personalized pricing doesn’t discriminate'],
+      ['Collecting competitor pricing is legal and ethical', 'Not penalizing merchants who negotiate'],
+      ['Follow-on upsells appropriate, not exploitative'],
+    ],
+  },
+]
+
+function ArtifactAssumptionMap() {
+  const phases = ['Reach', 'Present', 'Negotiate', 'Reinforce']
+  return (
+    <div className="overflow-x-auto">
+      <div className="min-w-[860px]">
+        <div className="grid gap-2" style={{ gridTemplateColumns: '110px repeat(4, 1fr)' }}>
+          <div />
+          {phases.map((p) => (
+            <p key={p} className="px-2 pb-1 text-xs font-black uppercase tracking-wide text-center" style={{ color: ACCENT }}>
+              {p}
+            </p>
+          ))}
+          {ASSUMPTION_MAP.map((row) => (
+            <>
+              <div key={row.cat} className="flex items-center gap-2 pr-2">
+                <div className="w-1.5 self-stretch rounded-full" style={{ background: row.color }} />
+                <p className="text-[11px] font-black uppercase tracking-wide leading-tight" style={{ color: row.color }}>
+                  {row.cat}
+                </p>
+              </div>
+              {row.phases.map((cell, i) => (
+                <div key={`${row.cat}-${i}`} className="space-y-1.5 p-1">
+                  {cell.map((a, j) => (
+                    <Sticky key={a} tone={row.tone} tilt={j % 2 ? 0.7 : -0.7} className="!text-[11.5px]">
+                      {a}
+                    </Sticky>
+                  ))}
+                </div>
+              ))}
+            </>
+          ))}
+        </div>
+        <p className="mt-4 text-xs text-neutral-500">
+          ~200 assumptions on the original map — this recreation shows a representative sample per cell.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function ArtifactLearningBoard() {
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="rounded-xl border border-neutral-200 p-5" style={{ background: '#FDFAF0' }}>
+        <p className="font-black mb-4">Prelaunch</p>
+        <div className="space-y-4">
+          <div>
+            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">UX — interviews · prototype · design gut</p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              <Sticky tone="orange" highlight tilt={-1}>
+                “If pricing wasn’t actually their primary concern, we’ll figure out what is.”
+              </Sticky>
+              <Sticky tone="yellow" tilt={0.8}>Do they want to self-serve this — or talk to a human?</Sticky>
+              <Sticky tone="yellow" tilt={-0.5}>Need time to think without losing the offer</Sticky>
+              <Sticky tone="yellow" tilt={0.6}>Once accepted, do they know it actually went through?</Sticky>
+            </div>
+          </div>
+          <div>
+            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">“Just Ask” — one column per function</p>
+            <div className="grid sm:grid-cols-2 gap-2 text-[12px]">
+              {[
+                ['Data teams', 'Can we predict churn accurately? No interference with unresolved holds?'],
+                ['Legal / compliance', 'Differential pricing legal? No discrimination against protected classes?'],
+                ['Engineering', 'Track the full decision tree and funnel? Real-time savings calc?'],
+                ['Marketing', 'Will the email channel read as legitimate? Opt-outs respected, campaigns coordinated?'],
+                ['Pricing', 'Escalation options — discount, refund, outreach? Rep capacity at volume?'],
+                ['Commercial', 'Enough decliners to justify the system? How long till churn impact shows?'],
+              ].map(([f, q]) => (
+                <div key={f} className="rounded-lg p-3" style={{ background: '#F3EFFB' }}>
+                  <p className="font-bold">{f}</p>
+                  <p className="text-neutral-600 mt-0.5">{q}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">Technical investigations</p>
+            <div className="grid sm:grid-cols-2 gap-2 items-start">
+              <Sticky tone="purple" tilt={-0.6}>Continuity between the self-service flow and a required human intervention</Sticky>
+              <p className="text-xs text-neutral-500 italic pt-2">…left nearly empty. Most feasibility questions were retired by asking, not building.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="rounded-xl border border-neutral-200 p-5" style={{ background: '#F0F6FD' }}>
+        <p className="font-black mb-4">Post-launch</p>
+        <div className="space-y-4">
+          <div>
+            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">A/B testing — content · visual · placement · timing</p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              <Sticky tone="blue" tilt={0.7}>Recognized-as-valuable framing vs. generic discount copy</Sticky>
+              <Sticky tone="blue" tilt={-0.8}>“You’d save $X” vs. percentages</Sticky>
+              <Sticky tone="blue" tilt={0.5}>When is the right moment to intervene — not too early, not too late?</Sticky>
+              <Sticky tone="blue" tilt={-0.4}>Is the offer visible without taking over the page?</Sticky>
+            </div>
+          </div>
+          <div>
+            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">Analytics — usage · guardrails · KPIs</p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              <Sticky tone="gray" tilt={0.6}>Guardrail: not cannibalizing merchants who would have stayed</Sticky>
+              <Sticky tone="gray" tilt={-0.7}>Guardrail: not training merchants to reject first</Sticky>
+              <Sticky tone="gray" tilt={0.4}>KPI: saved merchants retain at higher rates — the intervention works</Sticky>
+            </div>
+          </div>
+          <div>
+            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">Research — surveys · interviews</p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              <Sticky tone="yellow" tilt={-0.6}>Does the offer feel relevant to their situation — or surveilled?</Sticky>
+              <Sticky tone="yellow" tilt={0.8}>Are the terms clear and not deceptive?</Sticky>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ---------- the research turn (progressive reveal) ----------
 
 function ResearchTurn() {
@@ -625,23 +1278,24 @@ function ResearchTurn() {
           <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">The pricing wedge worked.</h2>
           <div className="mt-12 grid grid-cols-3 gap-6 max-w-3xl">
             {[
-              ['5% → 17%', 'acceptance, calls to automation'],
-              ['~$100M', 'recovered TPV, early cohorts'],
-              ['~$2M', 'net margin after discount cost'],
-            ].map(([v, l]) => (
-              <div key={l}>
+              ['5% → 10%', 'acceptance, concierge → product-assisted', null],
+              ['~$100M', 'recovered TPV, manual stages', 'Recollection; counterfactual method to validate'],
+              ['~$2M', 'net margin after discount cost', 'Net of discount per Nick; method to validate'],
+            ].map(([v, l, note]) => (
+              <div key={l as string}>
                 <p className="font-black text-3xl md:text-5xl" style={{ color: ACCENT_DARK }}>
                   {v}
                 </p>
                 <p className="mt-2 text-sm text-neutral-400">
                   {l}
-                  {l.startsWith('recovered') && <Flag kind="assumption" note="Recollection; counterfactual method to validate" />}
-                  {l.startsWith('net margin') && <Flag kind="assumption" note="Net of discount per Nick; method to validate" />}
+                  {note && <Flag kind="assumption" note={note as string} />}
                 </p>
               </div>
             ))}
           </div>
-          <p className="mt-12 text-lg text-neutral-300 max-w-2xl">Scale earned. Investment unlocked.</p>
+          <p className="mt-12 text-lg text-neutral-300 max-w-2xl">
+            Enough to earn the automation investment. Scale was coming.
+          </p>
           <button
             type="button"
             onClick={() => setStage(1)}
@@ -825,6 +1479,9 @@ function DeepDive({ onBack }: { onBack: () => void }) {
         <p className="mt-10 text-lg font-bold max-w-3xl">
           Same method, different problems — <span style={{ color: ACCENT }}>several teams, one economic target.</span>
         </p>
+        <ArtifactModal label="The hypothesis-metrics board — all six problem spaces" title="Problem spaces → hypothesis metrics (the working board)">
+          <ArtifactMetricsBoard />
+        </ArtifactModal>
         <Note>
           “Is pricing causing churn?” lives at L0 — no team can act on it. The whole move is walking it down to L4:
           metrics with agency. Emphasize the tags are correlational exposure flags — that honesty sets up the pivot.
@@ -874,6 +1531,9 @@ function DeepDive({ onBack }: { onBack: () => void }) {
           The most-voted idea never shipped.{' '}
           <span style={{ color: ACCENT }}>Votes located conviction — judgment did the sequencing.</span>
         </p>
+        <ArtifactModal label="The ideation board — raw idea wall + all seven HMW clusters in full" title="HMW clustering (the working board)">
+          <ArtifactHMWBoard />
+        </ArtifactModal>
       </DivePanel>
 
       {/* 03 — converge */}
@@ -909,6 +1569,9 @@ function DeepDive({ onBack }: { onBack: () => void }) {
           <span style={{ color: ACCENT }}>fastest reversible test</span> of whether proactive treatment could bend a
           trajectory at all.
         </p>
+        <ArtifactModal label="The bets board — full triage table, seven opportunity areas, outstanding questions" title="Small and large bets (the working board)">
+          <ArtifactBetsBoard />
+        </ArtifactModal>
         <Note>
           Point at the tech column first: bigger pool, zero margin risk — and still not first. It ran as a parallel
           track. Pricing swept every learning-speed row. The matrix is labeled a reconstruction; the inputs are from
@@ -942,6 +1605,9 @@ function DeepDive({ onBack }: { onBack: () => void }) {
           Signal says <em>who&apos;s declining</em>; policy says <em>who safely gets a rate change</em>.{' '}
           <span style={{ color: ACCENT }}>That separation made reuse possible.</span>
         </p>
+        <ArtifactModal label="The journey swimlane — merchant, portal, backend, comms" title="User-journey swimlane (the working board)">
+          <ArtifactSwimlane />
+        </ArtifactModal>
       </DivePanel>
 
       {/* 05 — de-risk */}
@@ -972,6 +1638,9 @@ function DeepDive({ onBack }: { onBack: () => void }) {
             </div>
           </div>
         </div>
+        <ArtifactModal label="The assumption map — five categories × four journey phases" title="Assumption map (the working board)">
+          <ArtifactAssumptionMap />
+        </ArtifactModal>
         <Note>
           Scores are a reconstructed prioritization of the historical map — the board itself carried no numbers. If
           probed on rigor: importance × uncertainty, judgment applied after, org-approval and legal rows treated as
@@ -1030,6 +1699,9 @@ function DeepDive({ onBack }: { onBack: () => void }) {
             gates were passed.
           </p>
         </div>
+        <ArtifactModal label="The learning-plan board — prelaunch vs. post-launch, in full" title="Learning plan (the working board)">
+          <ArtifactLearningBoard />
+        </ArtifactModal>
       </DivePanel>
 
       {/* 07 — scale */}
@@ -1044,12 +1716,28 @@ function DeepDive({ onBack }: { onBack: () => void }) {
       <DivePanel id="dive-b8" num="08" step="Read the results honestly" title="What the numbers said — and didn’t" tint>
         <div className="grid md:grid-cols-2 gap-8 items-start">
           <div>
-            <p className="text-base text-neutral-700">
-              ~<strong>$100M recovered TPV</strong>
-              <Flag kind="assumption" note="Recollection; counterfactual method to validate" /> · ~
-              <strong>$2M net margin after discount</strong>
-              <Flag kind="assumption" note="Net-of-discount per Nick; method to validate" /> — from merchants who had
-              been declining or plateauing, read against comparison groups.
+            <div className="rounded-2xl bg-white border border-neutral-200 overflow-hidden shadow-sm">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr className="border-b border-neutral-100">
+                    <td className="px-5 py-3 font-bold">Stages 1–2 · concierge + assisted</td>
+                    <td className="px-3 py-3 whitespace-nowrap">
+                      ~$100M TPV · ~$2M margin
+                      <Flag kind="assumption" note="Recollection; counterfactual method to validate" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-5 py-3 font-bold">Stage 3 · automated (landed after the pivot)</td>
+                    <td className="px-3 py-3 whitespace-nowrap">
+                      ~$350M TPV · ~$7M margin
+                      <Flag kind="assumption" note="Per Nick; counterfactual method to validate" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-3 text-sm text-neutral-500 max-w-md">
+              Read against comparison groups, from merchants who had been declining or plateauing.
             </p>
             <Guardrail>
               That opt-in alone proved behavior change, or that observed TPV was automatically incremental.
@@ -1264,6 +1952,9 @@ export default function SubstackCaseContent() {
               We attributed the contraction before we treated it.
             </h2>
             <MoneyMap />
+            <ArtifactModal label="The attribution table — full reason-code × tier breakdown" title="TPV contraction by reason code — single-month snapshot, annualized">
+              <ArtifactAttribution />
+            </ArtifactModal>
             <Note>
               Spoken transition: three addressable drivers, a small macro slice, and an honest untagged third. We
               needed a fast first intervention to prove decline was addressable at all — and to earn investment in a
@@ -1545,8 +2236,8 @@ export default function SubstackCaseContent() {
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl">
               {[
                 ['5% → 17%', 'acceptance, calls → automation', 'confirmed' as const],
-                ['~$2M', 'net margin, early cohorts', 'assumption' as const],
-                ['~$500M', 'TPV protected across portfolio', 'assumption' as const],
+                ['~$450M', 'TPV recovered by the pricing program', 'assumption' as const],
+                ['~$9M', 'net margin after discounts', 'assumption' as const],
                 ['10%', 'partner adoption in 3 months', 'confirmed' as const],
               ].map(([v, l, k]) => (
                 <div key={l as string}>
@@ -1591,7 +2282,7 @@ export default function SubstackCaseContent() {
                   <ul className="list-disc pl-5 space-y-1.5">
                     <li>Generic feature access felt like a catalog, not personalization.</li>
                     <li>Monetary-only “high potential” undervalued durable service businesses.</li>
-                    <li>~$100M recovered TPV in early cohorts — counterfactual method still to be validated.</li>
+                    <li>Recovery split — ~$100M/$2M from the manual stages, ~$350M/$7M from the post-pivot automated stage — counterfactual method still to be validated.</li>
                   </ul>
                 </div>
               </div>
