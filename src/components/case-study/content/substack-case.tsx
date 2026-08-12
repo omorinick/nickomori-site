@@ -1706,6 +1706,10 @@ function DeepDive({ onBack }: { onBack: () => void }) {
 
       {/* 07 — scale */}
       <DivePanel id="dive-b7" num="07" step="Earn scale" title="Phone calls → product-assisted → automated">
+        <p className="mb-8 text-base font-semibold text-neutral-600">
+          ~403K merchants scored by the model → <span style={{ color: ACCENT }}>~300K survived the eligibility policy</span>{' '}
+          → 2,000 called first.
+        </p>
         <StageLadder />
         <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
           <span style={{ color: ACCENT }}>Automation wasn&apos;t delayed — it was withheld until earned.</span>
@@ -1952,6 +1956,10 @@ export default function SubstackCaseContent() {
               We attributed the contraction before we treated it.
             </h2>
             <MoneyMap />
+            <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
+              Decline crossed a dozen teams and had no sustained investment.{' '}
+              <span style={{ color: ACCENT }}>We needed a fast, credible first win.</span>
+            </p>
             <ArtifactModal label="The attribution table — full reason-code × tier breakdown" title="TPV contraction by reason code — single-month snapshot, annualized">
               <ArtifactAttribution />
             </ArtifactModal>
@@ -2017,6 +2025,9 @@ export default function SubstackCaseContent() {
               <h2 className="font-black tracking-tight text-3xl md:text-5xl mt-4 max-w-4xl">
                 How the bet was chosen, de-risked, and earned its way to scale.
               </h2>
+              <p className="mt-5 text-lg text-neutral-600 max-w-3xl">
+                The portfolio story you&apos;ve seen so far — this is where I show you how I work.
+              </p>
               <div className="mt-8 flex flex-wrap gap-2">
                 {DIVE_STEPS.map((s, i) => (
                   <span key={s.id} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-neutral-200 text-neutral-600">
@@ -2330,8 +2341,12 @@ export default function SubstackCaseContent() {
                 ))}
               </ol>
               <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
-                Understand what makes your best customers successful — deliver it earlier, defend it when it weakens,{' '}
-                <span style={{ color: ACCENT_DARK }}>and scale the system that does both</span>.
+                Understand what makes your best customers successful — deliver it earlier, defend it when it weakens,
+                and scale the system that does both.{' '}
+                <span style={{ color: ACCENT_DARK }}>
+                  Shared primitives underneath — without forcing independent creators and big publishers into identical
+                  experiences.
+                </span>
               </p>
             </div>
             <Note>
