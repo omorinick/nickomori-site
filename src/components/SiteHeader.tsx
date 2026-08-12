@@ -39,6 +39,23 @@ export function SiteHeader() {
 
   if (pathname.startsWith('/projects/compliant-market')) return null
 
+  if (pathname.startsWith('/case-studies')) {
+    return (
+      <header className="absolute top-0 left-0 right-0 z-40 bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center">
+          <Link href="/" className="flex items-center gap-3 group">
+            <span className="font-display text-xl font-light tracking-widest select-none text-neutral-800 group-hover:text-neutral-500 transition-colors">
+              大森
+            </span>
+            <span className="font-heading text-sm font-semibold tracking-tight text-neutral-800 group-hover:text-neutral-500 transition-colors">
+              nickomori.com
+            </span>
+          </Link>
+        </div>
+      </header>
+    )
+  }
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">

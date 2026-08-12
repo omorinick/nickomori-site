@@ -17,7 +17,7 @@ export default async function CaseStudyPage({
 
   return (
     <div className="relative">
-      <form action={logout.bind(null, slug)} className="fixed top-4 left-4 z-50">
+      <form action={logout.bind(null, slug)} className="absolute top-3.5 right-4 z-50">
         <button
           type="submit"
           className="text-xs text-muted-foreground hover:text-foreground transition-colors bg-background/80 backdrop-blur px-3 py-1.5 rounded-full border border-border"

@@ -3,25 +3,33 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
 // Built from the content brief at ~/Documents/Substack_PM_Case_Study_Content_Brief.md plus the
-// artifact reconstruction ledger (see project memory: pricing-reconstruction-ledger.md).
-// Substack-flavored brand (white / near-black / #FF6719 accent) — external-audience deck.
+// artifact reconstruction ledger (project memory: pricing-reconstruction-ledger.md).
+// Brand: PayPal blues (deep #002991 accents, #0070E0 fills), matching churn-case precedent.
 //
-// Spatial grammar: vertical spine (S1–S12). The pricing deep dive is an expandable full-page
-// sub-presentation ("The First Bet — Deep Dive"): a teaser section on the spine opens eight
-// full-height vertically-scrolled panels with a sticky back bar; closing returns to the spine.
-// All working-process artifacts are sanitized recreations — no original board images, no absolute
-// dates, no colleague names.
+// Three content layers:
+//   1. Core states — one claim, one dominant visual, minimal supporting words.
+//   2. Evidence drawers (Rib) — tables, methodology, caveats, extra quotes.
+//   3. Presenter notes (Note) — spoken context; visible only via the Notes toggle, which exists
+//      only while REVIEW_TOOLS is true.
 //
-// REVIEW_TOOLS gates the reviewer-facing evidence-status layer (chips + toggle). Before Nick
-// presents this live, flip to false and deploy — toggle and chips disappear entirely.
+// The pricing deep dive is an expandable full-page sub-presentation between the wedge and the
+// research turn. The research turn itself is a three-stage progressive reveal.
+// All working-process artifacts are sanitized recreations — no original images, dates, or names.
+//
+// Before Nick presents live: flip REVIEW_TOOLS to false and deploy — review chips, guardrails,
+// and presenter notes all disappear.
 const REVIEW_TOOLS = true
 
-const ORANGE = '#FF6719'
+const ACCENT = '#002991' // PayPal deep blue — text accents on light surfaces
+const FILL = '#0070E0' // PayPal bright blue — bars, dots, buttons
+const ACCENT_DARK = '#8FBCFF' // accent on dark surfaces
+const TINT = '#EAF2FD' // light blue tint backgrounds
 const INK = '#181818'
 
-// ---------- review mode ----------
+// ---------- review mode / notes ----------
 
 const ReviewCtx = createContext(false)
+const NotesCtx = createContext(false)
 
 const FLAG_STYLES = {
   confirmed: { label: 'Confirmed', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
@@ -54,6 +62,17 @@ function Guardrail({ children }: { children: React.ReactNode }) {
   )
 }
 
+function Note({ children }: { children: React.ReactNode }) {
+  const on = useContext(NotesCtx)
+  if (!on) return null
+  return (
+    <div className="mt-10 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 px-4 py-3 text-sm text-neutral-600 max-w-3xl">
+      <span className="font-bold uppercase tracking-wide text-[10px] mr-2 text-neutral-400">Presenter note</span>
+      {children}
+    </div>
+  )
+}
+
 // ---------- layout primitives ----------
 
 function Spine({
@@ -73,11 +92,11 @@ function Spine({
       className={`relative min-h-[70vh] flex flex-col justify-center px-6 md:px-20 py-20 ${
         dark ? 'text-white' : 'bg-white'
       }`}
-      style={dark ? { background: '#141414' } : { color: INK }}
+      style={dark ? { background: '#0b0d12' } : { color: INK }}
     >
       <div className="max-w-5xl mx-auto w-full">
         {kicker && (
-          <p className="font-semibold tracking-[0.18em] uppercase text-xs mb-6" style={{ color: ORANGE }}>
+          <p className="font-semibold tracking-[0.18em] uppercase text-xs mb-6" style={{ color: dark ? ACCENT_DARK : ACCENT }}>
             {kicker}
           </p>
         )}
@@ -90,7 +109,7 @@ function Spine({
 function Rib({ branch, title, children }: { branch: string; title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="mt-10 rounded-xl border border-neutral-200 overflow-hidden" style={{ borderLeft: `4px solid ${ORANGE}` }}>
+    <div className="mt-10 rounded-xl border border-neutral-200 overflow-hidden" style={{ borderLeft: `4px solid ${FILL}` }}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -98,13 +117,13 @@ function Rib({ branch, title, children }: { branch: string; title: string; child
       >
         <span>
           <span className="block text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
-            Appendix · {branch}
+            Evidence · {branch}
           </span>
           <span className="font-bold text-base" style={{ color: INK }}>
             {title}
           </span>
         </span>
-        <span className="text-xl font-light shrink-0" style={{ color: ORANGE }}>
+        <span className="text-xl font-light shrink-0" style={{ color: FILL }}>
           {open ? '−' : '+'}
         </span>
       </button>
@@ -154,7 +173,7 @@ function Sticky({
       style={{
         background: STICKY_TONES[tone],
         transform: `rotate(${tilt}deg)`,
-        border: highlight ? `1.5px solid ${ORANGE}` : '1px solid rgba(0,0,0,0.05)',
+        border: highlight ? `1.5px solid ${FILL}` : '1px solid rgba(0,0,0,0.05)',
       }}
     >
       {children}
@@ -187,15 +206,15 @@ const TRAJECTORIES = [
 const MONEY_MAP = [
   { name: 'Technical issues', amt: 3750, kind: 'addressable' as const, note: 'Failed flows, conversion and auth degradation' },
   { name: 'Pricing', amt: 3625, kind: 'addressable' as const, note: 'Headline-rate exposure, recent fee increases' },
-  { name: 'Risk & limitations', amt: 1750, kind: 'addressable' as const, note: 'Holds, reserves, and limitations felt as punishment' },
-  { name: 'Macro — bankruptcy, inactive, seasonal', amt: 942, kind: 'macro' as const, note: '~6% of contraction — not controllable by PayPal' },
-  { name: 'Not yet attributed', amt: 5815, kind: 'untagged' as const, note: 'Shown honestly: the model was young and ~37% was still unexplained' },
+  { name: 'Risk & limitations', amt: 1750, kind: 'addressable' as const, note: 'Holds, reserves, limitations felt as punishment' },
+  { name: 'Macro — bankruptcy, inactive, seasonal', amt: 942, kind: 'macro' as const, note: '~6% — not controllable' },
+  { name: 'Not yet attributed', amt: 5815, kind: 'untagged' as const, note: 'The young model’s honest ~37%' },
 ]
 
 const STAGES = [
-  { name: 'Concierge MVP', cohort: '2,000', how: 'Phone outreach and manual offer — the pilot was also the research instrument', rate: 5 },
+  { name: 'Concierge MVP', cohort: '2,000', how: 'Phone outreach, manual offers — the pilot was also the research instrument', rate: 5 },
   { name: 'Product-assisted', cohort: '20,000', how: 'In-product experience, manually batched fulfillment', rate: 10 },
-  { name: 'Automated platform', cohort: '100,000', how: 'Automated eligibility, acceptance, and pricing fulfillment', rate: 17 },
+  { name: 'Automated platform', cohort: '100,000', how: 'Automated eligibility, acceptance, fulfillment', rate: 17 },
 ]
 
 const FINDINGS = [
@@ -206,13 +225,13 @@ const FINDINGS = [
 ]
 
 const CLUSTERS = [
-  { name: 'Value Realization', q: 'Do merchants understand what they actually get for what they pay?' },
-  { name: 'Competitive Clarity', q: 'Do merchants know how we compare — and do we get a chance to compete?' },
-  { name: 'Right Offer, Right Time', q: 'Are we reaching at-risk merchants fast enough with the right offer?' },
-  { name: 'Transparency Without Backfire', q: 'How do we get honest about pricing without creating problems we didn’t have?' },
+  { name: 'Value Realization', q: 'Do merchants understand what they get for what they pay?' },
+  { name: 'Competitive Clarity', q: 'Do we get a chance to compete?' },
+  { name: 'Right Offer, Right Time', q: 'Are we reaching at-risk merchants fast enough?' },
+  { name: 'Transparency Without Backfire', q: 'Honesty without creating new problems?' },
   { name: 'Relationship & Loyalty', q: 'Do merchants feel valued, or just transactional?', gap: true },
-  { name: 'Channel & Persona Fit', q: 'Are we reaching merchants where they are, how they prefer?' },
-  { name: 'System Integrity', q: 'How do we prevent gaming and protect the business?' },
+  { name: 'Channel & Persona Fit', q: 'Where and how do merchants want to hear from us?' },
+  { name: 'System Integrity', q: 'How do we prevent gaming?' },
 ]
 
 const BETS = [
@@ -240,11 +259,11 @@ const MATRIX = {
 
 const FLOW_LAYERS = [
   { layer: 'Predictive signal', detail: 'Decline & churn detection · reason attribution · re-decline detection after a save', reused: true },
-  { layer: 'Eligibility policy', detail: 'Value tier · supported geo/product · headline-rate status · tenure · exclusions: sales-managed contracts, unresolved holds', reused: true },
-  { layer: 'Offer decisioning', detail: 'Offer tiering by volume · personalized savings calc · expiry · competitor-rate counter path (designed) · no escalation ladders', reused: true },
-  { layer: 'Merchant experience', detail: 'Multi-channel reach → portal surfaces (pop-up, banner, card) → offer in dollars, not bps → accept / talk to a human', reused: false },
-  { layer: 'Fulfillment', detail: 'Manual queue at pilot scale → batched → automated repricing, with rate-verification QA', reused: true },
-  { layer: 'Measurement & learning', detail: 'Savings visibility · 30/60/90-day cohorts vs holdout · learning from rejectors and saved-but-churned', reused: true },
+  { layer: 'Eligibility policy', detail: 'Value tier · supported geo/product · headline-rate status · tenure · exclusions: sales-managed, unresolved holds', reused: true },
+  { layer: 'Offer decisioning', detail: 'Tiering by volume · personalized savings calc · expiry · competitor-rate counter path (designed) · no escalation ladders', reused: true },
+  { layer: 'Merchant experience', detail: 'Multi-channel reach → portal surfaces → offer in dollars, not bps → accept / talk to a human', reused: false },
+  { layer: 'Fulfillment', detail: 'Manual queue → batched → automated repricing, with rate-verification QA', reused: true },
+  { layer: 'Measurement & learning', detail: 'Savings visibility · 30/60/90-day cohorts vs holdout · learning from rejectors', reused: true },
 ]
 
 const CATEGORIES = [
@@ -266,11 +285,11 @@ const QUADRANT = [
 ]
 
 const FAMILIES = [
-  { name: 'Economic recognition', note: 'Tiers, earn-backs, milestone pricing, bundles' },
-  { name: 'Protection & trust', note: 'Covered disputes, faster risk review, fewer false-positive holds' },
-  { name: 'Operational confidence', note: 'Integration health, priority support, invoicing & reconciliation' },
-  { name: 'Growth enablement', note: 'BNPL, Working Capital, AI assistant, catalog, ads' },
-  { name: 'Recognition & progress', note: 'Standing, progress to next benefit, value framing' },
+  { name: 'Economic recognition', note: 'Tiers, earn-backs, milestones, bundles' },
+  { name: 'Protection & trust', note: 'Covered disputes, faster risk review' },
+  { name: 'Operational confidence', note: 'Integration health, support, invoicing' },
+  { name: 'Growth enablement', note: 'BNPL, capital, AI assistant, ads' },
+  { name: 'Recognition & progress', note: 'Standing, progress, value framing' },
 ]
 
 const DIVES = [
@@ -284,7 +303,7 @@ const DIVES = [
       { text: '~20% relative lift in second-product activation', kind: 'assumption' as const },
       { text: '~6–8% incremental TPV over 90 days', kind: 'assumption' as const },
     ],
-    learning: 'Incentives worked best when they unlocked a visible business outcome, not when they rewarded product count alone.',
+    learning: 'Incentives worked best when they unlocked a visible business outcome, not product count.',
   },
   {
     tab: 'Dispute protection',
@@ -297,29 +316,28 @@ const DIVES = [
       { text: '15–20% fewer eligible merchants entered extreme contraction', kind: 'assumption' as const },
       { text: '~2× contribution-margin return relative to covered losses', kind: 'assumption' as const },
     ],
-    learning: 'Loyalty benefits were most powerful when they resolved a concrete moment where a good merchant felt unfairly treated.',
+    learning: 'Loyalty benefits were most powerful resolving a moment where a good merchant felt unfairly treated.',
   },
   {
     tab: 'Value communication',
     hmw: 'How might we make PayPal’s value as legible as its fees?',
     target: 'Scope/schedule-centric, stability-minded, high-tenure merchants — fee-sensitive but with limited ability to reroute volume.',
     treatment:
-      'Instead of only “you paid $X,” show what the spend delivered: uptime, fraud prevented, disputes resolved, BNPL-associated AOV, payout performance, analytics, tax support, consumer trust.',
+      'Instead of only “you paid $X,” show what the spend delivered: uptime, fraud prevented, disputes resolved, BNPL-associated AOV, payout performance, analytics, tax support.',
     results: [
       { text: '~2× engagement with benefit-detail content', kind: 'assumption' as const },
       { text: '~10–15% lift in relevant product exploration', kind: 'assumption' as const },
       { text: 'No statistically meaningful immediate TPV movement', kind: 'assumption' as const },
     ],
-    learning: 'Relationship treatments can create value without immediate transaction movement — but they need different success metrics.',
+    learning: 'Relationship treatments can create value without immediate transaction movement — but need different success metrics.',
   },
 ]
 
 const PROFILES = [
-  { name: 'Scope-centric', pct: 34, note: 'Projects, consulting, freelance — invoices, scope, tax clarity' },
-  { name: 'Orders-centric', pct: 29, note: 'Retail and ecommerce — checkout, inventory, disputes, conversion' },
-  { name: 'Schedule-centric', pct: 16, note: 'Appointments and services — booking, cash-flow predictability' },
-  { name: 'Logistics-centric', pct: 10, note: 'Manufacturing and wholesale — reliability, reconciliation' },
-  { name: 'Mixed', pct: 11, note: 'Combinations of the above' },
+  { name: 'Scope-centric', pct: 34, note: 'Projects & consulting — invoices, scope, tax clarity' },
+  { name: 'Orders-centric', pct: 29, note: 'Retail & ecommerce — checkout, disputes, conversion' },
+  { name: 'Schedule-centric', pct: 16, note: 'Appointments & services — booking, cash-flow' },
+  { name: 'Logistics-centric', pct: 10, note: 'Manufacturing & wholesale — reliability, reconciliation' },
 ]
 
 const QUOTES = [
@@ -330,11 +348,9 @@ const QUOTES = [
 ]
 
 const PRINCIPLES = [
-  'Choose the first bet for learning-adjusted leverage — not for theoretical size.',
-  'Use quantitative evidence to locate a problem and qualitative evidence to interpret it.',
-  'In success-based business models, value realization and value perception are both product problems.',
-  'Build shared intelligence and capabilities across lifecycle stages and channels.',
-  'Scale the operating system, not only the winning treatment.',
+  'Choose the first bet for learning-adjusted leverage.',
+  'Quantitative evidence locates the problem; qualitative evidence interprets it.',
+  'Customer success is the monetization model — deliver value, and make it legible.',
 ]
 
 const DIVE_STEPS = [
@@ -359,7 +375,7 @@ function MoneyMap() {
         <div key={r.name}>
           <div className="flex justify-between items-baseline mb-1 gap-4">
             <span className={`text-sm font-bold ${r.kind === 'addressable' ? '' : 'text-neutral-500'}`}>{r.name}</span>
-            <span className="text-sm font-black whitespace-nowrap" style={{ color: r.kind === 'addressable' ? ORANGE : '#a3a3a3' }}>
+            <span className="text-sm font-black whitespace-nowrap" style={{ color: r.kind === 'addressable' ? ACCENT : '#a3a3a3' }}>
               ~${(r.amt / 1000).toFixed(1)}B
             </span>
           </div>
@@ -370,7 +386,7 @@ function MoneyMap() {
                 width: seen ? `${(r.amt / max) * 100}%` : '0%',
                 background:
                   r.kind === 'addressable'
-                    ? ORANGE
+                    ? FILL
                     : r.kind === 'macro'
                       ? '#a3a3a3'
                       : 'repeating-linear-gradient(45deg, #d4d4d4, #d4d4d4 6px, #efefef 6px, #efefef 12px)',
@@ -381,9 +397,8 @@ function MoneyMap() {
         </div>
       ))}
       <p className="text-sm text-neutral-500 pt-2">
-        Annualized run-rate from a single-month contraction snapshot — ~$15.9B across the portfolio, ~87% of it in
-        high-value and emerging-high-value merchants.
-        <Flag kind="assumption" note="Naive ×12 annualization of one month; simplified from fuller churn+decline constructs — reconciliation in appendix" />
+        ~$15.9B annualized · ~87% concentrated in high-value merchants
+        <Flag kind="assumption" note="Naive ×12 annualization of a single-month snapshot; simplified from fuller churn+decline constructs" />
       </p>
     </div>
   )
@@ -405,43 +420,42 @@ function StageLadder() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-neutral-500">accepted &amp; repriced</p>
-                <p className="font-black text-4xl" style={{ color: ORANGE }}>
+                <p className="font-black text-4xl" style={{ color: ACCENT }}>
                   {s.rate}%
                 </p>
               </div>
             </div>
             <div className="mt-3 h-2 rounded-full bg-neutral-200">
-              <div className="h-2 rounded-full" style={{ width: `${(s.rate / 20) * 100}%`, background: ORANGE }} />
+              <div className="h-2 rounded-full" style={{ width: `${(s.rate / 20) * 100}%`, background: FILL }} />
             </div>
           </div>
         ))}
       </div>
       <p className="mt-4 text-sm text-neutral-500">
-        Each arrow between stages was a gate: evidence from the smaller stage bought investment in the next.
-        “Opt-in” means accepted <em>and</em> repriced at every stage.
-        <Flag kind="assumption" note="Definition per Nick's recollection — validate acceptance vs completed-repricing split against records" />
+        Every stage gate: evidence bought the next investment.
+        <Flag kind="assumption" note="Opt-in = accepted and repriced, per Nick's recollection — validate against records" />
       </p>
     </div>
   )
 }
 
 function InterviewGrid() {
-  const [active, setActive] = useState(0)
+  const [active, setActive] = useState(3)
   const f = FINDINGS[active]
   return (
-    <div className="grid lg:grid-cols-2 gap-10 items-center mt-10">
+    <div className="grid lg:grid-cols-2 gap-10 items-center">
       <div>
         <div className="grid grid-cols-5 gap-3 max-w-xs">
           {Array.from({ length: 20 }, (_, i) => (
             <div
               key={i}
               className="aspect-square rounded-full transition-colors duration-300"
-              style={{ background: i < f.n ? ORANGE : '#e5e5e5' }}
+              style={{ background: i < f.n ? FILL : '#e5e5e5' }}
             />
           ))}
         </div>
         <p className="mt-4 text-sm text-neutral-500">
-          <strong style={{ color: INK }}>{f.n} of 20</strong> merchants interviewed — {f.label.toLowerCase()}
+          <strong style={{ color: INK }}>{f.n} of 20</strong> — {f.label.toLowerCase()}
         </p>
       </div>
       <div className="flex flex-col gap-2">
@@ -453,9 +467,9 @@ function InterviewGrid() {
             className={`text-left px-4 py-3 rounded-lg border text-sm transition-colors ${
               i === active ? 'border-transparent text-black font-semibold' : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
             }`}
-            style={i === active ? { background: '#FFF1EA', borderColor: ORANGE } : undefined}
+            style={i === active ? { background: TINT, borderColor: FILL } : undefined}
           >
-            <span className="font-bold mr-2" style={{ color: ORANGE }}>
+            <span className="font-bold mr-2" style={{ color: ACCENT }}>
               {x.n}/20
             </span>
             {x.label}
@@ -483,13 +497,13 @@ function UpstreamBars() {
           <div className="h-5 rounded bg-neutral-100">
             <div
               className="h-5 rounded transition-all duration-1000 ease-out"
-              style={{ width: seen ? `${r.pct * 3}%` : '0%', background: r.hot ? ORANGE : '#a3a3a3' }}
+              style={{ width: seen ? `${r.pct * 3}%` : '0%', background: r.hot ? FILL : '#a3a3a3' }}
             />
           </div>
         </div>
       ))}
       <p className="text-sm text-neutral-500">
-        Reached EHV/HV criteria within 180 days — roughly 1.8×.
+        Reached EHV/HV within 180 days — ~1.8×.
         <Flag kind="assumption" note="Working assumption; validate cohort window and criteria" />
       </p>
     </div>
@@ -503,7 +517,7 @@ function Quadrant() {
   const py = (y: number, dy: number) => H - 45 - ((y + dy - 1) / 4) * (H - 80)
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-lg" role="img" aria-label="Assumption priority quadrant">
-      <rect x={50 + (W - 90) / 2} y={12} width={(W - 90) / 2} height={(H - 80) / 2 + 21} fill="#FFF1EA" rx={6} />
+      <rect x={50 + (W - 90) / 2} y={12} width={(W - 90) / 2} height={(H - 80) / 2 + 21} fill={TINT} rx={6} />
       <line x1={50} y1={H - 45} x2={W - 40} y2={H - 45} stroke="#d4d4d4" strokeWidth={1.5} />
       <line x1={50} y1={H - 45} x2={50} y2={12} stroke="#d4d4d4" strokeWidth={1.5} />
       <text x={(W + 10) / 2} y={H - 16} textAnchor="middle" fontSize={11} fill="#737373">
@@ -512,7 +526,7 @@ function Quadrant() {
       <text x={16} y={H / 2} textAnchor="middle" fontSize={11} fill="#737373" transform={`rotate(-90 16 ${H / 2})`}>
         Importance → (critical)
       </text>
-      <text x={W - 46} y={26} textAnchor="end" fontSize={10} fontWeight={700} fill={ORANGE}>
+      <text x={W - 46} y={26} textAnchor="end" fontSize={10} fontWeight={700} fill={ACCENT}>
         TEST FIRST
       </text>
       {QUADRANT.map((d) => (
@@ -521,10 +535,10 @@ function Quadrant() {
             cx={px(d.x, d.dx)}
             cy={py(d.y, d.dy)}
             r={d.hero ? 9 : 6}
-            fill={d.hero ? ORANGE : '#181818'}
+            fill={d.hero ? FILL : '#181818'}
             opacity={d.hero ? 1 : 0.75}
           />
-          <text x={px(d.x, d.dx) + (d.hero ? 13 : 9)} y={py(d.y, d.dy) + 4} fontSize={10.5} fontWeight={d.hero ? 700 : 500} fill={d.hero ? ORANGE : '#404040'}>
+          <text x={px(d.x, d.dx) + (d.hero ? 13 : 9)} y={py(d.y, d.dy) + 4} fontSize={10.5} fontWeight={d.hero ? 700 : 500} fill={d.hero ? ACCENT : '#404040'}>
             {d.id}
           </text>
         </g>
@@ -554,7 +568,7 @@ function DeepDives() {
         ))}
       </div>
       <div className="mt-4 rounded-xl border border-neutral-200 p-6">
-        <p className="font-semibold leading-snug" style={{ color: ORANGE }}>
+        <p className="font-semibold leading-snug" style={{ color: ACCENT }}>
           {d.hmw}
         </p>
         <div className="grid md:grid-cols-2 gap-6 mt-4 text-sm leading-relaxed text-neutral-700">
@@ -568,7 +582,7 @@ function DeepDives() {
             <ul className="space-y-2">
               {d.results.map((r) => (
                 <li key={r.text} className="flex items-start gap-2">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ORANGE }} />
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: FILL }} />
                   <span>
                     {r.text}
                     <Flag kind={r.kind} />
@@ -580,6 +594,109 @@ function DeepDives() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ---------- the research turn (progressive reveal) ----------
+
+function ResearchTurn() {
+  const [stage, setStage] = useState(0)
+  return (
+    <div>
+      <div className="flex gap-2 mb-10">
+        {['It worked', 'The interviews', 'The insight'].map((label, i) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => setStage(i)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors ${
+              i === stage ? 'text-black' : i < stage ? 'text-neutral-300' : 'text-neutral-500'
+            }`}
+            style={i === stage ? { background: ACCENT_DARK } : { background: 'rgba(255,255,255,0.08)' }}
+          >
+            {i + 1} · {label}
+          </button>
+        ))}
+      </div>
+
+      {stage === 0 && (
+        <div>
+          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">The pricing wedge worked.</h2>
+          <div className="mt-12 grid grid-cols-3 gap-6 max-w-3xl">
+            {[
+              ['5% → 17%', 'acceptance, calls to automation'],
+              ['~$100M', 'recovered TPV, early cohorts'],
+              ['~$2M', 'net margin after discount cost'],
+            ].map(([v, l]) => (
+              <div key={l}>
+                <p className="font-black text-3xl md:text-5xl" style={{ color: ACCENT_DARK }}>
+                  {v}
+                </p>
+                <p className="mt-2 text-sm text-neutral-400">
+                  {l}
+                  {l.startsWith('recovered') && <Flag kind="assumption" note="Recollection; counterfactual method to validate" />}
+                  {l.startsWith('net margin') && <Flag kind="assumption" note="Net of discount per Nick; method to validate" />}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-12 text-lg text-neutral-300 max-w-2xl">Scale earned. Investment unlocked.</p>
+          <button
+            type="button"
+            onClick={() => setStage(1)}
+            className="mt-8 px-6 py-3 rounded-full font-bold text-sm text-black"
+            style={{ background: ACCENT_DARK }}
+          >
+            Then we talked to twenty merchants →
+          </button>
+        </div>
+      )}
+
+      {stage === 1 && (
+        <div>
+          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+            Twenty interviews broke our explanation.
+          </h2>
+          <p className="mt-4 text-neutral-400 max-w-2xl">
+            We assumed merchants were diverting volume over price. Explore what they actually said:
+          </p>
+          <div className="text-black rounded-2xl bg-white p-8 mt-8">
+            <InterviewGrid />
+          </div>
+          <button
+            type="button"
+            onClick={() => setStage(2)}
+            className="mt-8 px-6 py-3 rounded-full font-bold text-sm text-black"
+            style={{ background: ACCENT_DARK }}
+          >
+            So what was the offer actually doing? →
+          </button>
+        </div>
+      )}
+
+      {stage === 2 && (
+        <div>
+          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+            They didn&apos;t want a discount. They wanted <span style={{ color: ACCENT_DARK }}>recognition</span>.
+          </h2>
+          <blockquote
+            className="mt-10 rounded-2xl bg-white/5 border border-white/10 p-8 text-2xl md:text-3xl leading-snug font-bold text-white max-w-3xl"
+            style={{ borderLeft: `5px solid ${ACCENT_DARK}` }}
+          >
+            {QUOTES[0]}
+          </blockquote>
+          <div className="mt-10 rounded-2xl p-7 max-w-3xl" style={{ background: 'rgba(143,188,255,0.08)', border: '1px solid rgba(143,188,255,0.25)' }}>
+            <p className="font-bold uppercase tracking-wide text-[11px] mb-3" style={{ color: ACCENT_DARK }}>
+              The new product question
+            </p>
+            <p className="text-lg md:text-xl font-bold leading-snug text-white">
+              How might we help merchants understand where they stand, recognize the value they&apos;ve built, and
+              receive benefits their businesses actually need?
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -606,14 +723,14 @@ function DivePanel({
       id={id}
       data-slide-id={id}
       className="relative min-h-[85vh] flex flex-col justify-center px-6 md:px-20 py-20 scroll-mt-16"
-      style={{ background: tint ? '#f7f4ee' : 'white', color: INK }}
+      style={{ background: tint ? '#f4f7fb' : 'white', color: INK }}
     >
       <div className="max-w-5xl mx-auto w-full">
         <div className="flex items-baseline gap-4">
-          <span className="font-black text-6xl md:text-7xl leading-none select-none" style={{ color: '#e8e1d4' }}>
+          <span className="font-black text-6xl md:text-7xl leading-none select-none" style={{ color: '#dbe5f2' }}>
             {num}
           </span>
-          <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ORANGE }}>
+          <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ACCENT }}>
             {step}
           </p>
         </div>
@@ -627,8 +744,7 @@ function DivePanel({
 function DeepDive({ onBack }: { onBack: () => void }) {
   return (
     <div id="deep-dive">
-      {/* sticky orientation bar */}
-      <div className="sticky top-0 z-40 border-b border-neutral-200" style={{ background: 'rgba(244,241,236,0.97)' }}>
+      <div className="sticky top-0 z-40 border-b border-neutral-200" style={{ background: 'rgba(240,244,250,0.97)' }}>
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-2.5 flex items-center justify-between gap-4">
           <button
             type="button"
@@ -640,7 +756,7 @@ function DeepDive({ onBack }: { onBack: () => void }) {
           <div className="hidden md:flex items-center gap-1 text-[11px] font-semibold text-neutral-500 overflow-x-auto">
             {DIVE_STEPS.map((s, i) => (
               <a key={s.id} href={`#${s.id}`} className="px-2 py-1 rounded hover:text-black whitespace-nowrap">
-                <span style={{ color: ORANGE }}>{i + 1}</span> {s.short}
+                <span style={{ color: ACCENT }}>{i + 1}</span> {s.short}
               </a>
             ))}
           </div>
@@ -650,18 +766,16 @@ function DeepDive({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      {/* dive title */}
-      <section className="px-6 md:px-20 pt-16 pb-10" style={{ background: '#f4f1ec', color: INK }}>
+      <section className="px-6 md:px-20 pt-16 pb-10" style={{ background: '#f0f4fa', color: INK }}>
         <div className="max-w-5xl mx-auto">
-          <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ORANGE }}>
+          <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ACCENT }}>
             The first bet · deep dive
           </p>
           <h2 className="font-black tracking-tight text-4xl md:text-6xl mt-3 max-w-4xl">
             How the bet was chosen, de-risked, and earned its way to scale.
           </h2>
           <p className="mt-5 text-sm text-neutral-500 max-w-2xl">
-            Sanitized reconstruction of the working process — labels and groupings simplified for confidentiality and
-            presentation clarity. Eight steps, scroll at your pace.
+            Sanitized reconstruction of the working process; labels and groupings simplified for confidentiality.
           </p>
         </div>
       </section>
@@ -671,15 +785,15 @@ function DeepDive({ onBack }: { onBack: () => void }) {
         <div className="grid md:grid-cols-[1fr_1.2fr] gap-10 items-start">
           <div className="space-y-3 text-[15px]">
             {[
-              ['Business outcome', 'Portfolio TPV decline — lagging, nobody’s roadmap moves it'],
-              ['Economic attribution', 'Contraction $ by value tier × geography × reason code'],
-              ['Problem spaces', 'Six ownable spaces + an honest “not yet attributed”'],
-              ['Problem indicators', 'Rule-based tags — exposure flags, not diagnoses'],
-              ['Controllable metrics', 'The funnel each team can move next sprint'],
-              ['Guardrails', 'Margin, gaming, support noise — what must not degrade'],
+              ['Business outcome', 'Portfolio TPV decline — lagging'],
+              ['Economic attribution', 'Contraction $ by tier × geo × reason'],
+              ['Problem spaces', 'Six ownable spaces + honest untagged'],
+              ['Problem indicators', 'Exposure flags, not diagnoses'],
+              ['Controllable metrics', 'Funnels a team moves next sprint'],
+              ['Guardrails', 'Margin, gaming, support noise'],
             ].map(([k, v], i) => (
               <div key={k} className="flex gap-4 items-baseline">
-                <span className="font-black text-sm w-6 text-right shrink-0" style={{ color: ORANGE }}>
+                <span className="font-black text-sm w-6 text-right shrink-0" style={{ color: ACCENT }}>
                   L{i}
                 </span>
                 <div>
@@ -687,36 +801,34 @@ function DeepDive({ onBack }: { onBack: () => void }) {
                 </div>
               </div>
             ))}
-            <p className="text-sm text-neutral-500 pt-3 pl-10">
-              The question “is pricing causing churn?” lives at L0 — no team can act on it. The work was walking it
-              down to L4.
-            </p>
           </div>
           <div className="space-y-4">
             <div className="rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm">
               <p className="font-bold mb-2">
-                Pricing — a <span style={{ color: ORANGE }}>perception</span> funnel
+                Pricing — a <span style={{ color: ACCENT }}>perception</span> funnel
               </p>
               <p className="text-sm text-neutral-600 leading-relaxed">
-                % who understand their fees → % who’ve seen the value behind them → % of eligible shown a proactive
-                offer → % actioned → time from decline signal to offer
+                understand fees → see the value behind them → shown a proactive offer → actioned → speed from signal
+                to offer
               </p>
             </div>
             <div className="rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm">
               <p className="font-bold mb-2">
-                Risk — an <span style={{ color: ORANGE }}>operational</span> funnel
+                Risk — an <span style={{ color: ACCENT }}>operational</span> funnel
               </p>
               <p className="text-sm text-neutral-600 leading-relaxed">
-                % of limitations surfaced in 24h → % actually seen → % acted on in 24/48/72h → % resolved before
-                account impact → % self-serve
+                surfaced in 24h → actually seen → acted on in 24/48/72h → resolved before account impact → self-serve
               </p>
             </div>
-            <p className="text-sm text-neutral-600">
-              Same method, structurally different problems — how several teams attacked one economic problem in
-              parallel without sharing a playbook.
-            </p>
           </div>
         </div>
+        <p className="mt-10 text-lg font-bold max-w-3xl">
+          Same method, different problems — <span style={{ color: ACCENT }}>several teams, one economic target.</span>
+        </p>
+        <Note>
+          “Is pricing causing churn?” lives at L0 — no team can act on it. The whole move is walking it down to L4:
+          metrics with agency. Emphasize the tags are correlational exposure flags — that honesty sets up the pivot.
+        </Note>
       </DivePanel>
 
       {/* 02 — diverge */}
@@ -727,7 +839,7 @@ function DeepDive({ onBack }: { onBack: () => void }) {
               <p className="font-bold text-sm mb-1">{c.name}</p>
               <p className="text-xs text-neutral-600 leading-snug">{c.q}</p>
               {c.gap && (
-                <p className="text-xs font-bold mt-2" style={{ color: ORANGE }}>
+                <p className="text-xs font-bold mt-2" style={{ color: ACCENT }}>
                   “Gap — no direct metric.” Remember this one.
                 </p>
               )}
@@ -746,10 +858,10 @@ function DeepDive({ onBack }: { onBack: () => void }) {
             </thead>
             <tbody>
               {BETS.map((b) => (
-                <tr key={b.bet} className={`border-b border-neutral-100 ${b.dead ? 'text-neutral-400' : ''}`} style={b.hot ? { background: '#FFF6F1' } : undefined}>
+                <tr key={b.bet} className={`border-b border-neutral-100 ${b.dead ? 'text-neutral-400' : ''}`} style={b.hot ? { background: TINT } : undefined}>
                   <td className={`px-5 py-3 ${b.hot ? 'font-bold' : ''}`}>{b.bet}</td>
                   <td className="px-3 py-3 whitespace-nowrap">{b.triage}</td>
-                  <td className="px-3 py-3 whitespace-nowrap tracking-tighter" style={{ color: ORANGE }}>
+                  <td className="px-3 py-3 whitespace-nowrap tracking-tighter" style={{ color: FILL }}>
                     {'●'.repeat(b.votes) || '—'}
                   </td>
                   <td className="px-5 py-3">{b.fate}</td>
@@ -759,8 +871,8 @@ function DeepDive({ onBack }: { onBack: () => void }) {
           </table>
         </div>
         <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
-          The most-voted idea never shipped; a two-vote idea shipped first.{' '}
-          <span style={{ color: ORANGE }}>Votes located conviction — judgment did the sequencing.</span>
+          The most-voted idea never shipped.{' '}
+          <span style={{ color: ACCENT }}>Votes located conviction — judgment did the sequencing.</span>
         </p>
       </DivePanel>
 
@@ -772,7 +884,7 @@ function DeepDive({ onBack }: { onBack: () => void }) {
               <tr className="text-left text-[10px] uppercase tracking-widest border-b border-neutral-200">
                 <th className="px-5 py-3"></th>
                 {MATRIX.cols.map((c, i) => (
-                  <th key={c} className="px-4 py-3 font-semibold" style={i === 0 ? { color: ORANGE } : { color: '#a3a3a3' }}>
+                  <th key={c} className="px-4 py-3 font-semibold" style={i === 0 ? { color: ACCENT } : { color: '#a3a3a3' }}>
                     {c}
                   </th>
                 ))}
@@ -792,15 +904,16 @@ function DeepDive({ onBack }: { onBack: () => void }) {
             </tbody>
           </table>
         </div>
-        <p className="mt-4 text-sm text-neutral-500 max-w-3xl">
-          Note the matrix isn&apos;t rigged: tech issues were the larger pool with less downside — and still weren&apos;t
-          first. They ran as a parallel track. Pricing swept every learning-speed row.
-        </p>
         <p className="mt-8 text-xl md:text-2xl font-black max-w-4xl">
-          We didn&apos;t choose pricing because we knew price caused decline. We chose it because it was the{' '}
-          <span style={{ color: ORANGE }}>fastest reversible test</span> of whether proactive treatment could bend a
-          declining merchant&apos;s trajectory at all.
+          We didn&apos;t know price caused decline. We knew this was the{' '}
+          <span style={{ color: ACCENT }}>fastest reversible test</span> of whether proactive treatment could bend a
+          trajectory at all.
         </p>
+        <Note>
+          Point at the tech column first: bigger pool, zero margin risk — and still not first. It ran as a parallel
+          track. Pricing swept every learning-speed row. The matrix is labeled a reconstruction; the inputs are from
+          the real boards.
+        </Note>
       </DivePanel>
 
       {/* 04 — design */}
@@ -808,14 +921,14 @@ function DeepDive({ onBack }: { onBack: () => void }) {
         <div className="space-y-3">
           {FLOW_LAYERS.map((l, i) => (
             <div key={l.layer} className="rounded-xl bg-white border border-neutral-200 px-6 py-4 flex items-start gap-5 shadow-sm">
-              <span className="font-black text-lg mt-0.5 w-5 shrink-0" style={{ color: ORANGE }}>
+              <span className="font-black text-lg mt-0.5 w-5 shrink-0" style={{ color: ACCENT }}>
                 {i + 1}
               </span>
               <div className="flex-1">
                 <p className="font-bold">
                   {l.layer}
                   {l.reused && (
-                    <span className="ml-2 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded align-middle" style={{ background: '#FFF1EA', color: ORANGE }}>
+                    <span className="ml-2 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded align-middle" style={{ background: TINT, color: ACCENT }}>
                       later reused
                     </span>
                   )}
@@ -826,46 +939,44 @@ function DeepDive({ onBack }: { onBack: () => void }) {
           ))}
         </div>
         <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
-          The model told us <em>who</em> was declining. Policy decided who could <em>safely receive</em> a rate change.{' '}
-          <span style={{ color: ORANGE }}>Separating those layers is why the system was reusable later.</span>
+          Signal says <em>who&apos;s declining</em>; policy says <em>who safely gets a rate change</em>.{' '}
+          <span style={{ color: ACCENT }}>That separation made reuse possible.</span>
         </p>
       </DivePanel>
 
       {/* 05 — de-risk */}
       <DivePanel id="dive-b5" num="05" step="De-risk" title="What had to be true — ~200 assumptions, five categories">
         <div className="grid lg:grid-cols-2 gap-10 items-start">
-          <div>
-            <div className="space-y-3">
-              {CATEGORIES.map((c, i) => (
-                <div key={c.name} className="flex gap-3 items-stretch">
-                  <div className="w-1.5 rounded-full shrink-0" style={{ background: c.color }} />
-                  <div className="flex-1">
-                    <p className="font-bold text-xs uppercase tracking-wide mb-1" style={{ color: c.color }}>
-                      {c.name}
-                    </p>
-                    <Sticky tone={c.tone} tilt={[-0.8, 0.6, -0.5, 0.9, -0.7][i]}>{c.ex}</Sticky>
-                  </div>
+          <div className="space-y-3">
+            {CATEGORIES.map((c, i) => (
+              <div key={c.name} className="flex gap-3 items-stretch">
+                <div className="w-1.5 rounded-full shrink-0" style={{ background: c.color }} />
+                <div className="flex-1">
+                  <p className="font-bold text-xs uppercase tracking-wide mb-1" style={{ color: c.color }}>
+                    {c.name}
+                  </p>
+                  <Sticky tone={c.tone} tilt={[-0.8, 0.6, -0.5, 0.9, -0.7][i]}>{c.ex}</Sticky>
                 </div>
-              ))}
-            </div>
-            <p className="text-xs text-neutral-500 mt-4">
-              Mapped across the journey — reach, present, negotiate, reinforce — then ranked by importance ×
-              uncertainty. Scores are a reconstructed prioritization of the historical map.
-            </p>
+              </div>
+            ))}
           </div>
           <div>
             <div className="rounded-2xl bg-white border border-neutral-200 p-5 shadow-sm">
               <Quadrant />
             </div>
-            <div className="mt-4 rounded-xl border px-5 py-4" style={{ borderColor: ORANGE, background: '#FFF6F1' }}>
+            <div className="mt-4 rounded-xl border px-5 py-4" style={{ borderColor: FILL, background: TINT }}>
               <p className="text-sm">
-                <strong style={{ color: ORANGE }}>V1 — the one we couldn&apos;t test before launch:</strong> that
-                targeted merchants could <em>actually respond</em> to better economics. So research was bolted to the
-                pilot from day one.
+                <strong style={{ color: ACCENT }}>V1 — untestable before launch:</strong> could targeted merchants{' '}
+                <em>actually respond</em>? So research was bolted to the pilot from day one.
               </p>
             </div>
           </div>
         </div>
+        <Note>
+          Scores are a reconstructed prioritization of the historical map — the board itself carried no numbers. If
+          probed on rigor: importance × uncertainty, judgment applied after, org-approval and legal rows treated as
+          binary gates, not experiments.
+        </Note>
       </DivePanel>
 
       {/* 06 — plan */}
@@ -877,22 +988,17 @@ function DeepDive({ onBack }: { onBack: () => void }) {
               <div className="rounded-lg p-4" style={{ background: '#F3EFFB' }}>
                 <p className="font-bold text-sm">“Just Ask”</p>
                 <p className="text-xs text-neutral-600 mt-1">
-                  Data teams · legal · engineering · marketing · pricing · commercial. Consultation retired more risk
-                  than any spike — the formal-spike bucket sat nearly empty.
+                  Data · legal · engineering · marketing · pricing · commercial. Asking retired more risk than any
+                  spike.
                 </p>
               </div>
               <div className="rounded-lg p-4 bg-white/70">
                 <p className="font-bold text-sm">UX testing</p>
-                <p className="text-xs text-neutral-600 mt-1">
-                  Script + prototype comprehension checks — do the terms play back correctly?
-                </p>
+                <p className="text-xs text-neutral-600 mt-1">Do the terms play back correctly?</p>
               </div>
               <div className="rounded-lg p-4 bg-white/70">
-                <p className="font-bold text-sm">Bound what can&apos;t be known</p>
-                <p className="text-xs text-neutral-600 mt-1">
-                  Targeting backtest, ops dry run, margin caps + holdout design — guardrails were the price of
-                  permission.
-                </p>
+                <p className="font-bold text-sm">Bound the unknowable</p>
+                <p className="text-xs text-neutral-600 mt-1">Backtest, ops dry run, margin caps + holdouts.</p>
               </div>
             </div>
           </div>
@@ -901,15 +1007,15 @@ function DeepDive({ onBack }: { onBack: () => void }) {
             <div className="space-y-3">
               <div className="rounded-lg p-4 bg-white/70">
                 <p className="font-bold text-sm">Reaction-coded calls</p>
-                <p className="text-xs text-neutral-600 mt-1">Does the offer land as recognition — or desperation?</p>
+                <p className="text-xs text-neutral-600 mt-1">Recognition — or desperation?</p>
               </div>
               <div className="rounded-lg p-4 bg-white/70">
                 <p className="font-bold text-sm">Treatment vs. holdout</p>
-                <p className="text-xs text-neutral-600 mt-1">Are we subsidizing merchants who would have stayed?</p>
+                <p className="text-xs text-neutral-600 mt-1">Are we subsidizing stayers?</p>
               </div>
               <div className="rounded-lg p-4 bg-white/70">
                 <p className="font-bold text-sm">30/60/90-day cohorts</p>
-                <p className="text-xs text-neutral-600 mt-1">Do saves persist — or decay once the novelty fades?</p>
+                <p className="text-xs text-neutral-600 mt-1">Do saves persist?</p>
               </div>
             </div>
           </div>
@@ -920,9 +1026,8 @@ function DeepDive({ onBack }: { onBack: () => void }) {
             figure out what is.”
           </Sticky>
           <p className="text-sm text-neutral-600 flex-1 max-w-xl">
-            The pivot wasn&apos;t luck — the plan pre-registered the possibility that the mechanism was wrong. And
-            engineering deliberately <em>waited</em>: manual operations were the learning strategy, not a workaround.
-            Gates: permission → concierge results → 20K results → automation.
+            The pivot was pre-registered. Manual operations were the learning strategy — engineering waited until the
+            gates were passed.
           </p>
         </div>
       </DivePanel>
@@ -931,8 +1036,7 @@ function DeepDive({ onBack }: { onBack: () => void }) {
       <DivePanel id="dive-b7" num="07" step="Earn scale" title="Phone calls → product-assisted → automated">
         <StageLadder />
         <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
-          Each stage&apos;s evidence bought the next stage&apos;s investment.{' '}
-          <span style={{ color: ORANGE }}>Automation wasn&apos;t delayed — it was withheld until earned.</span>
+          <span style={{ color: ACCENT }}>Automation wasn&apos;t delayed — it was withheld until earned.</span>
         </p>
       </DivePanel>
 
@@ -941,11 +1045,11 @@ function DeepDive({ onBack }: { onBack: () => void }) {
         <div className="grid md:grid-cols-2 gap-8 items-start">
           <div>
             <p className="text-base text-neutral-700">
-              Early cohorts: roughly <strong>$100M in recovered TPV</strong>
-              <Flag kind="assumption" note="Recollection; counterfactual method to validate" /> and{' '}
-              <strong>~$2M net margin after discount cost</strong>
-              <Flag kind="assumption" note="Net-of-discount per Nick; measured against declining/plateauing baseline — method to validate" />{' '}
-              — growth from merchants who had been declining or plateauing, read against comparison groups.
+              ~<strong>$100M recovered TPV</strong>
+              <Flag kind="assumption" note="Recollection; counterfactual method to validate" /> · ~
+              <strong>$2M net margin after discount</strong>
+              <Flag kind="assumption" note="Net-of-discount per Nick; method to validate" /> — from merchants who had
+              been declining or plateauing, read against comparison groups.
             </p>
             <Guardrail>
               That opt-in alone proved behavior change, or that observed TPV was automatically incremental.
@@ -964,14 +1068,14 @@ function DeepDive({ onBack }: { onBack: () => void }) {
           </div>
         </div>
         <p className="mt-10 text-xl md:text-2xl font-black max-w-3xl">
-          The numbers said: continue. They did not say <em>why</em> it was working —{' '}
-          <span style={{ color: ORANGE }}>and we had planned for exactly that question.</span>
+          The numbers said: continue. They did not say <em>why</em> —{' '}
+          <span style={{ color: ACCENT }}>and we had planned for exactly that question.</span>
         </p>
         <button
           type="button"
           onClick={onBack}
           className="mt-10 px-6 py-3 rounded-full text-white font-bold text-sm"
-          style={{ background: INK }}
+          style={{ background: ACCENT }}
         >
           ← Back to the presentation — the research turn
         </button>
@@ -984,6 +1088,7 @@ function DeepDive({ onBack }: { onBack: () => void }) {
 
 export default function SubstackCaseContent() {
   const [review, setReview] = useState(false)
+  const [notes, setNotes] = useState(false)
   const [diveOpen, setDiveOpen] = useState(false)
   const teaserRef = useRef<HTMLElement>(null)
 
@@ -1001,653 +1106,596 @@ export default function SubstackCaseContent() {
 
   return (
     <ReviewCtx.Provider value={review}>
-      <main className="font-sans" style={{ color: INK }}>
-        {/* S1 — title */}
-        <Spine id="title" kicker="Nick Omori · Senior Product Manager — Technical, PayPal">
-          <h1 className="font-black tracking-tight leading-[0.95] text-4xl md:text-7xl max-w-4xl">
-            Building PayPal&apos;s Merchant Trajectory System
-          </h1>
-          <p className="mt-8 text-xl md:text-2xl max-w-3xl text-neutral-600">
-            How we turned reactive churn prevention into a segmented merchant-success platform.
-          </p>
-          <div className="mt-12 flex flex-wrap items-center gap-3 text-sm font-semibold">
-            <span className="px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-600">Pricing was the wedge</span>
-            <span style={{ color: ORANGE }}>→</span>
-            <span className="px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-600">Recognition was the insight</span>
-            <span style={{ color: ORANGE }}>→</span>
-            <span className="px-3 py-1.5 rounded-full text-white" style={{ background: INK }}>
-              A reusable merchant-success system was the outcome
-            </span>
-          </div>
-          <p className="mt-10 text-base text-neutral-500 max-w-2xl">
-            The most important part of this story: our first experiment worked — but not for the reason we expected.
-            That changed the strategy.
-          </p>
-        </Spine>
-
-        {/* S2 — mandate */}
-        <Spine id="mandate" kicker="Context & mandate">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
-            My mandate covered the merchant lifecycle across direct and partner experiences.
-          </h2>
-          <ul className="mt-8 space-y-4 text-lg text-neutral-700 max-w-3xl">
-            <li className="flex gap-3">
-              <span className="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ORANGE }} />
-              Product and portfolio lead for merchant lifecycle: activation, growth, retention, and win-back.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ORANGE }} />
-              Owned homepage, notifications, lifecycle surfaces, navigation and IA, and the Partner Portal experience.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ORANGE }} />
-              Led the cross-functional decline program — Data Science and platform teams owned their specialized systems.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ORANGE }} />
-              Secured sponsorship from a director and a commercial VP to align dependencies.
-            </li>
-          </ul>
-          <div className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-neutral-500">
-            {['M0 · diagnosis', 'M2 · concierge pilot', 'M4 · product-assisted', 'M5 · research pivot', 'M8 · automated scale', 'M10+ · upstream & partners'].map((m) => (
-              <span key={m} className="px-2.5 py-1 rounded-full bg-neutral-100">
-                {m}
+      <NotesCtx.Provider value={notes}>
+        <main className="font-sans" style={{ color: INK }}>
+          {/* S1 — title */}
+          <Spine id="title" kicker="Nick Omori · Senior Product Manager — Technical, PayPal">
+            <h1 className="font-black tracking-tight leading-[0.95] text-4xl md:text-7xl max-w-4xl">
+              Building PayPal&apos;s Merchant Trajectory System
+            </h1>
+            <p className="mt-8 text-xl md:text-2xl max-w-3xl text-neutral-600">
+              Reactive churn prevention, rebuilt as a merchant-success platform.
+            </p>
+            <div className="mt-12 flex flex-wrap items-center gap-3 text-sm font-semibold">
+              <span className="px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-600">Pricing was the wedge</span>
+              <span style={{ color: FILL }}>→</span>
+              <span className="px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-600">Recognition was the insight</span>
+              <span style={{ color: FILL }}>→</span>
+              <span className="px-3 py-1.5 rounded-full text-white" style={{ background: ACCENT }}>
+                A reusable system was the outcome
               </span>
-            ))}
-          </div>
-        </Spine>
-
-        {/* S3 — reframing */}
-        <Spine id="reframing" kicker="Problem reframing" dark>
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
-            By the time a merchant churned, most of the damage had already happened.
-          </h2>
-          <div className="mt-10 flex items-end gap-4">
-            <p className="font-black text-6xl md:text-8xl">
-              ~$16<span style={{ color: ORANGE }}>B</span>
-            </p>
-            <p className="text-neutral-400 mb-3 max-w-sm text-sm">
-              annualized TPV contraction run-rate across the portfolio
-              <Flag kind="assumption" note="~$15.9B — annualized ×12 from a single-month snapshot; simplified construct, reconciliation in appendix" />
-            </p>
-          </div>
-          <p className="mt-8 text-lg md:text-xl max-w-3xl text-neutral-300">
-            Traditional churn — twelve months at zero volume — was the small slice. The bulk was gradual contraction
-            by merchants who were <strong className="text-white">still transacting, still reachable, still recoverable</strong>.
-          </p>
-          <p className="mt-8 text-lg md:text-xl max-w-3xl text-neutral-300">
-            We shifted the operating question from{' '}
-            <em className="text-neutral-500 not-italic line-through">“Why did this merchant leave?”</em> to{' '}
-            <strong className="text-white">
-              “Which merchants are entering a preventable negative trajectory — and what can we do while they are still
-              active?”
-            </strong>
-          </p>
-          <Guardrail>That the full pool was recoverable. It sizes the problem, not the addressable opportunity.</Guardrail>
-        </Spine>
-
-        {/* S4 — segmentation */}
-        <Spine id="segmentation" kicker="Portfolio diagnosis">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
-            The same outcome hid several different customer problems.
-          </h2>
-          <p className="mt-6 text-lg text-neutral-600 max-w-3xl">
-            Six questions turned one undifferentiated pool into a decision system:
-          </p>
-          <div className="mt-8 overflow-x-auto">
-            <table className="w-full text-sm border-collapse min-w-[560px]">
-              <thead>
-                <tr className="text-left text-[11px] uppercase tracking-widest text-neutral-400 border-b border-neutral-200">
-                  <th className="py-3 pr-4 font-semibold">Question</th>
-                  <th className="py-3 pr-4 font-semibold">Signal</th>
-                  <th className="py-3 font-semibold">Decision enabled</th>
-                </tr>
-              </thead>
-              <tbody>
-                {SIX_QUESTIONS.map((r) => (
-                  <tr key={r.q} className="border-b border-neutral-100">
-                    <td className="py-3 pr-4 font-bold whitespace-nowrap">{r.q}</td>
-                    <td className="py-3 pr-4 text-neutral-600">{r.signal}</td>
-                    <td className="py-3 text-neutral-600">{r.decision}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-8 flex flex-wrap gap-2">
-            {TRAJECTORIES.map((t, i) => (
-              <span
-                key={t}
-                className="px-3 py-1 rounded-full text-xs font-semibold border"
-                style={
-                  i < 4
-                    ? { borderColor: ORANGE, color: ORANGE, background: '#FFF6F1' }
-                    : { borderColor: '#d4d4d4', color: '#737373' }
-                }
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-          <p className="mt-8 text-xl font-bold max-w-3xl">
-            Value told us <span style={{ color: ORANGE }}>who</span>. Trajectory told us{' '}
-            <span style={{ color: ORANGE }}>when</span>. Cause told us <span style={{ color: ORANGE }}>why</span>.
-            Research eventually told us <span style={{ color: ORANGE }}>how</span>.
-          </p>
-          <Rib branch="Branch B" title="Churn-model mechanics — how detection actually worked">
-            <div className="space-y-4">
-              <p>
-                Tree-based classifier over an initial population of ~403,000 merchants, consolidating five previously
-                fragmented models into one, feeding lifecycle and in-product surfaces. Performance:{' '}
-                <strong>~89% recall, ~62% precision</strong>.
-              </p>
-              <p>
-                <strong>The product judgment:</strong> high recall was useful for detection but 62% precision was not
-                good enough for expensive treatment. So treatment decisioning was layered over model output:
-              </p>
-              <ul className="list-disc pl-5 space-y-1.5">
-                <li>Lower-confidence risk → low-cost education, value communication, or a research invitation.</li>
-                <li>Moderate-confidence, addressable risk → feature guidance or product-specific treatment.</li>
-                <li>High-confidence, high-value, addressable risk → pricing, protection, or higher-touch support.</li>
-                <li>Non-addressable decline → suppress expensive treatment; collect learning where useful.</li>
-              </ul>
-              <p className="text-neutral-500">
-                Data Science owned model development and modification; the program shaped what the model needed to
-                answer and how its output was allowed to trigger spend.
-              </p>
             </div>
-          </Rib>
-        </Spine>
+            <Note>
+              Open with: “The most important part of this story — our first experiment worked, but not for the reason
+              we expected. That changed the strategy.” Then: “To see why we started, look at what PayPal was measuring
+              — and what that missed.”
+            </Note>
+          </Spine>
 
-        {/* S5 — money map */}
-        <Spine id="money-map" kicker="Where the money was going">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
-            We attributed the contraction before we treated it.
-          </h2>
-          <p className="mt-6 text-lg text-neutral-600 max-w-3xl">
-            Rule-based reason codes located the loss — honestly, including the third we couldn&apos;t yet explain.
-          </p>
-          <MoneyMap />
-          <p className="mt-8 text-lg md:text-xl max-w-3xl text-neutral-700">
-            We needed a fast first intervention to prove decline was <strong>addressable at all</strong> — and to earn
-            investment in a cross-functional portfolio.
-          </p>
-        </Spine>
-
-        {/* S6 — wedge */}
-        <Spine id="wedge" kicker="The first bet">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-            Pricing wasn&apos;t the biggest opportunity. It had the highest{' '}
-            <span style={{ color: ORANGE }}>learning-adjusted leverage</span>.
-          </h2>
-          <p className="mt-6 text-lg md:text-xl text-neutral-700 max-w-3xl">
-            Fast to validate manually. Reversible and cappable. Cleanly measurable against holdouts. Backed by existing
-            pricing operations and willing allies in Pricing. We were not betting that price caused decline — we were
-            buying, at the lowest available cost, an answer to the question underneath the whole portfolio.
-          </p>
-          <p className="mt-8 text-2xl md:text-3xl font-black max-w-3xl">
-            We earned permission to scale by <span style={{ color: ORANGE }}>reducing the cost of being wrong</span>.
-          </p>
-          <Rib branch="Conflict & alignment" title="The margin fight — and how alignment was actually earned">
-            <div className="space-y-3">
-              <p>
-                Pricing Strategy and business GMs pushed back hard: margin was the most important business metric, a
-                discount might subsidize merchants who would stay anyway, and product-led pricing risked inconsistency
-                with negotiated enterprise contracts.
-              </p>
-              <ul className="list-disc pl-5 space-y-1.5">
-                <li>Narrow eligibility via merchant scoring; sales-managed contracts carved out entirely.</li>
-                <li>A reversible 2,000-merchant calling experiment before any product build.</li>
-                <li>Control and comparison populations preserved at every stage.</li>
-                <li>Adoption and trajectory evidence required before automation investment.</li>
-                <li>Director + commercial VP sponsorship to align dependencies.</li>
-              </ul>
-              <p className="text-neutral-500">
-                The finance conversation in one line: the subsidy risk couldn&apos;t be known pre-launch, but it could
-                be <em>bounded</em> pre-launch — guardrails were the price of permission.
-              </p>
-            </div>
-          </Rib>
-        </Spine>
-
-        {/* S6b — deep dive teaser */}
-        <section
-          ref={teaserRef}
-          data-slide-id="first-bet"
-          className="relative px-6 md:px-20 py-24 scroll-mt-4"
-          style={{ background: '#f4f1ec', color: INK }}
-        >
-          <div className="max-w-5xl mx-auto w-full">
-            <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ORANGE }}>
-              The first bet · deep dive
-            </p>
-            <h2 className="font-black tracking-tight text-3xl md:text-5xl mt-4 max-w-4xl">
-              How the bet was chosen, de-risked, and earned its way to scale.
+          {/* S2 — mandate */}
+          <Spine id="mandate" kicker="Context & mandate">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
+              I owned the merchant lifecycle — across direct and partner surfaces.
             </h2>
-            <p className="mt-5 text-lg text-neutral-600 max-w-3xl">
-              The working process itself — decomposition, ideation, the wedge decision, assumption mapping, the
-              learning plan, and staged validation — reconstructed from the real boards.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {DIVE_STEPS.map((s, i) => (
-                <span key={s.id} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-neutral-200 text-neutral-600">
-                  <span className="font-black mr-1" style={{ color: ORANGE }}>
-                    {i + 1}
-                  </span>
-                  {s.short}
+            <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-4xl">
+              <div className="rounded-2xl border border-neutral-200 p-6">
+                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">Lifecycle</p>
+                <p className="font-semibold text-sm">Activation → growth → retention → win-back</p>
+              </div>
+              <div className="rounded-2xl border border-neutral-200 p-6">
+                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">Surfaces</p>
+                <p className="font-semibold text-sm">Homepage · notifications · lifecycle · Partner Portal</p>
+              </div>
+              <div className="rounded-2xl border border-neutral-200 p-6">
+                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">Role</p>
+                <p className="font-semibold text-sm">Portfolio lead — specialist teams owned their systems</p>
+              </div>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-neutral-500">
+              {['M0 · diagnosis', 'M2 · concierge pilot', 'M4 · product-assisted', 'M5 · research pivot', 'M8 · automated scale', 'M10+ · upstream & partners'].map((m) => (
+                <span key={m} className="px-2.5 py-1 rounded-full bg-neutral-100">
+                  {m}
                 </span>
               ))}
             </div>
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              {!diveOpen ? (
-                <button
-                  type="button"
-                  onClick={openDive}
-                  className="px-7 py-3.5 rounded-full text-white font-bold text-base shadow-sm hover:opacity-90 transition-opacity"
-                  style={{ background: ORANGE }}
-                >
-                  Explore the working process →
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={openDive}
-                  className="px-7 py-3.5 rounded-full font-bold text-base border bg-white hover:border-neutral-500 transition-colors"
-                  style={{ borderColor: ORANGE, color: ORANGE }}
-                >
-                  Deep dive open below ↓
-                </button>
-              )}
-              <p className="text-sm text-neutral-500 max-w-xs">
-                Eight full-page steps with their own scroll — one click back to the presentation at any time.
+            <Note>
+              Spoken: broad directive — improve activation, growth, retention. I chose retention first: mature and
+              declining merchants held the richest evidence of durable value. Sponsorship: a director + a commercial
+              VP. Boundaries: Data Science owned models, Pricing owned margin, Ops fulfilled — I owned how it came
+              together into strategy, experience, and portfolio.
+            </Note>
+          </Spine>
+
+          {/* S3 — reframing */}
+          <Spine id="reframing" kicker="Problem reframing" dark>
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
+              By the time a merchant churned, the damage was already done.
+            </h2>
+            <div className="mt-12 flex items-end gap-4">
+              <p className="font-black text-6xl md:text-8xl">
+                ~$16<span style={{ color: ACCENT_DARK }}>B</span>
+              </p>
+              <p className="text-neutral-400 mb-3 max-w-sm text-sm">
+                annualized contraction — mostly merchants still transacting, still recoverable
+                <Flag kind="assumption" note="~$15.9B — annualized ×12 from a single-month snapshot; simplified construct" />
               </p>
             </div>
-          </div>
-        </section>
+            <p className="mt-10 text-xl md:text-2xl max-w-3xl font-bold">
+              New question: <span style={{ color: ACCENT_DARK }}>who&apos;s entering a preventable trajectory</span> —
+              not “why did they leave?”
+            </p>
+            <Guardrail>That the full pool was recoverable. It sizes the problem, not the addressable opportunity.</Guardrail>
+            <Note>
+              Spoken: churn was defined as 12 months at zero volume — by then nothing product could do would matter.
+              Decline is a trajectory: minor contraction → contraction → extreme → gone. Intervene while the
+              relationship is alive.
+            </Note>
+          </Spine>
 
-        {/* THE DEEP DIVE (expanded in place) */}
-        {diveOpen && <DeepDive onBack={closeDive} />}
-
-        {/* S7 — research turn */}
-        <Spine id="research-pivot" kicker="The turn" dark>
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-            The offer landed well — but not because most merchants were actively leaving.
-          </h2>
-          <p className="mt-6 text-lg text-neutral-400 max-w-3xl">
-            Twenty moderated interviews, positioned broadly as a UX and offer review so we wouldn&apos;t prime the
-            retention story we expected to hear.
-          </p>
-          <div className="text-black rounded-2xl bg-white p-8 mt-10">
-            <InterviewGrid />
-          </div>
-          <div className="mt-10 grid md:grid-cols-2 gap-5">
-            {QUOTES.slice(0, 2).map((q) => (
-              <blockquote
-                key={q}
-                className="rounded-2xl bg-white/5 border border-white/10 p-6 text-lg leading-snug font-medium text-neutral-200"
-                style={{ borderLeft: `4px solid ${ORANGE}` }}
-              >
-                {q}
-              </blockquote>
-            ))}
-          </div>
-          <p className="mt-10 text-xl md:text-2xl max-w-3xl font-bold">
-            The offer worked more clearly as a <span style={{ color: ORANGE }}>relationship builder</span> than as a
-            countermeasure to diverted payments.
-          </p>
-          <div className="mt-8 rounded-xl border border-white/15 bg-white/5 p-6 max-w-3xl">
-            <p className="font-bold uppercase tracking-wide text-[11px] mb-3" style={{ color: ORANGE }}>
-              We had left ourselves the clues
-            </p>
-            <ul className="space-y-2 text-sm text-neutral-300">
-              <li>
-                The original problem-space map had <strong className="text-white">no recognition space at all</strong> —
-                the need research surfaced wasn&apos;t on our radar as a measurable problem.
-              </li>
-              <li>
-                One ideation cluster — Relationship &amp; Loyalty — carried the note{' '}
-                <strong className="text-white">“Gap: no direct metric.”</strong> We sensed it and couldn&apos;t measure
-                it.
-              </li>
-              <li>
-                And the learning plan had pre-registered the escape hatch:{' '}
-                <strong className="text-white">
-                  “If pricing wasn&apos;t actually their primary concern, we&apos;ll figure out what is.”
-                </strong>
-              </li>
-            </ul>
-          </div>
-          <div className="mt-8 rounded-2xl p-7 text-white max-w-3xl" style={{ background: '#1f1f1f', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <p className="font-bold uppercase tracking-wide text-[11px] mb-3" style={{ color: ORANGE }}>
-              The new product question
-            </p>
-            <p className="text-lg md:text-xl font-bold leading-snug">
-              How might we help merchants understand where they stand with PayPal, recognize the value they&apos;ve
-              built, and receive benefits that reflect what their businesses actually need?
-            </p>
-          </div>
-          <Rib branch="Branch D" title="Research methodology — and the full merchant voice">
-            <div className="space-y-4 text-neutral-700">
-              <ul className="list-disc pl-5 space-y-1.5">
-                <li>Twenty 1:1 moderated interviews; deliberate mix of scope-, schedule-, logistics-, and order-centric businesses.</li>
-                <li>
-                  Limitations owned openly: n=20 is a mechanism-finding sample, not an effect-size estimate; recruiting
-                  from offer recipients skews toward engaged merchants.
-                </li>
-              </ul>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {QUOTES.map((q) => (
-                  <blockquote key={q} className="rounded-lg bg-neutral-50 border border-neutral-200 p-4 text-sm" style={{ borderLeft: `3px solid ${ORANGE}` }}>
-                    {q}
-                  </blockquote>
-                ))}
-              </div>
-              <p>
-                <strong>“Why not stop the program once the mechanism was challenged?”</strong> Because the interviews
-                didn&apos;t invalidate the business result — they changed our interpretation and improved our
-                targeting. The right response was to triangulate, not to let twenty interviews overrule a controlled
-                result, or the result silence the interviews.
-              </p>
-            </div>
-          </Rib>
-        </Spine>
-
-        {/* S8 — portfolio expansion */}
-        <Spine id="expansion" kicker="Zoom back out · the portfolio">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-            The insight expanded into a portfolio of differentiated value.
-          </h2>
-          <p className="mt-6 text-lg text-neutral-600 max-w-3xl">
-            Equal TPV did not mean equal needs. The program grew from one save offer into five treatment families —
-            most reusing capabilities PayPal already had, orchestrated by the same intelligence layer.
-          </p>
-          <div className="mt-8 grid sm:grid-cols-2 md:grid-cols-5 gap-3">
-            {FAMILIES.map((f, i) => (
-              <div key={f.name} className="rounded-xl border border-neutral-200 p-4">
-                <p className="font-black text-xl mb-1" style={{ color: ORANGE }}>
-                  {i + 1}
-                </p>
-                <p className="font-bold text-sm leading-tight">{f.name}</p>
-                <p className="text-xs text-neutral-500 mt-1.5">{f.note}</p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-8 text-lg text-neutral-700 max-w-3xl">
-            Multiple PMs eventually led individual tracks. My role shifted toward{' '}
-            <strong>portfolio direction, common segmentation, shared decisioning, and cross-team learning</strong> —
-            Data Science owned the models, Pricing owned margin policy, feature teams owned their capabilities.
-          </p>
-          <Rib branch="Branches E–F" title="Segmentation detail and three treatment deep dives">
-            <p className="mb-4">
-              Research-derived operating profiles (with growth vs. stability mindsets layered on top):
-            </p>
-            <div className="space-y-3 max-w-2xl mb-6">
-              {PROFILES.map((p) => (
-                <div key={p.name}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <span className="font-bold text-sm">{p.name}</span>
-                    <span className="text-sm font-black" style={{ color: ORANGE }}>
-                      {p.pct}%
-                    </span>
-                  </div>
-                  <div className="h-2.5 rounded bg-neutral-100">
-                    <div className="h-2.5 rounded" style={{ width: `${p.pct * 2.5}%`, background: ORANGE, opacity: 0.85 }} />
-                  </div>
-                  <p className="text-xs text-neutral-500 mt-0.5">{p.note}</p>
+          {/* S4 — segmentation */}
+          <Spine id="segmentation" kicker="Portfolio diagnosis">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
+              Six questions turned one pool into a decision system.
+            </h2>
+            <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl">
+              {SIX_QUESTIONS.map((r, i) => (
+                <div key={r.q} className="rounded-xl border border-neutral-200 p-5">
+                  <p className="font-black text-lg mb-1" style={{ color: ACCENT }}>
+                    {i + 1}
+                  </p>
+                  <p className="font-bold text-sm leading-snug">{r.q}</p>
                 </div>
               ))}
             </div>
-            <DeepDives />
-          </Rib>
-        </Spine>
-
-        {/* S9 — upstream */}
-        <Spine id="upstream" kicker="Reuse №1 · move upstream" dark>
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-            Retention became a value-discovery engine for the first 90 days.
-          </h2>
-          <p className="mt-6 text-lg text-neutral-400 max-w-3xl">
-            Why wait for durable-value signals to weaken before acting on them? We inverted the decline model into a{' '}
-            <strong className="text-white">High-Potential Merchant Score</strong>
-            <Flag kind="assumption" note="~600K newly active merchants scored annually; treatment from days 14–30 — working assumptions" />{' '}
-            and moved the treatments we trusted into the first 90 days: relevant milestones, profile-based bundles,
-            integration-health monitoring, Working Capital qualification, progress and standing communication.
-          </p>
-          <div className="rounded-2xl bg-white text-black p-8 mt-10">
-            <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">
-              Reached EHV/HV within 180 days
+            <p className="mt-10 text-xl md:text-2xl font-bold max-w-3xl">
+              Value told us <span style={{ color: ACCENT }}>who</span>. Trajectory told us{' '}
+              <span style={{ color: ACCENT }}>when</span>. Cause told us <span style={{ color: ACCENT }}>why</span>.
+              Research eventually told us <span style={{ color: ACCENT }}>how</span>.
             </p>
-            <UpstreamBars />
-          </div>
-          <p className="mt-8 text-base text-neutral-400 max-w-3xl">
-            One nuance we caught: a purely monetary definition of “high potential” undervalued durable service
-            businesses that grow slower but retain better. The early-warning idea had been on the ideation board and
-            was deliberately deferred until retention taught us what durable value looked like.
-          </p>
-          <p className="mt-8 text-xl md:text-2xl font-bold max-w-3xl">
-            Activation, retention, and win-back were different moments in{' '}
-            <span style={{ color: ORANGE }}>the same value system</span>.
-          </p>
-        </Spine>
+            <Rib branch="Diagnosis" title="The full diagnostic grid, trajectory taxonomy, and model mechanics">
+              <div className="space-y-6">
+                <table className="w-full text-sm border-collapse min-w-[520px]">
+                  <thead>
+                    <tr className="text-left text-[11px] uppercase tracking-widest text-neutral-400 border-b border-neutral-200">
+                      <th className="py-2 pr-4 font-semibold">Question</th>
+                      <th className="py-2 pr-4 font-semibold">Signal</th>
+                      <th className="py-2 font-semibold">Decision enabled</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SIX_QUESTIONS.map((r) => (
+                      <tr key={r.q} className="border-b border-neutral-100">
+                        <td className="py-2 pr-4 font-bold whitespace-nowrap">{r.q}</td>
+                        <td className="py-2 pr-4 text-neutral-600">{r.signal}</td>
+                        <td className="py-2 text-neutral-600">{r.decision}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex flex-wrap gap-2">
+                  {TRAJECTORIES.map((t, i) => (
+                    <span
+                      key={t}
+                      className="px-3 py-1 rounded-full text-xs font-semibold border"
+                      style={i < 4 ? { borderColor: FILL, color: ACCENT, background: TINT } : { borderColor: '#d4d4d4', color: '#737373' }}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+                <div>
+                  <p className="font-bold mb-2">Model mechanics</p>
+                  <p>
+                    Tree-based classifier, ~403K merchants, consolidating five fragmented models. <strong>~89% recall,
+                    ~62% precision</strong> — good enough to detect, not to spend on. So treatment decisioning layered
+                    over model output: low confidence → cheap education; moderate + addressable → product-specific
+                    guidance; high confidence + high value + addressable → pricing, protection, or high touch;
+                    non-addressable → suppress spend, collect learning. Data Science owned the model; the program owned
+                    what its output was allowed to trigger.
+                  </p>
+                </div>
+              </div>
+            </Rib>
+          </Spine>
 
-        {/* S10 — partner */}
-        <Spine id="partner" kicker="Reuse №2 · across channels">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-            We separated reusable merchant intelligence from channel-specific delivery.
-          </h2>
-          <div className="mt-10 grid md:grid-cols-2 gap-6">
-            <div className="rounded-2xl p-7 text-white" style={{ background: '#141414' }}>
-              <p className="font-bold uppercase tracking-wide text-[11px] mb-4" style={{ color: ORANGE }}>
-                Shared platform — reused as-is
-              </p>
-              <ul className="space-y-1.5 text-sm text-neutral-300 list-disc pl-5">
-                <li>Model service and merchant scoring</li>
-                <li>Segment assignment and eligibility rules</li>
-                <li>Offer configuration and pricing fulfillment</li>
-                <li>Measurement</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-neutral-200 p-7">
-              <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-4">
-                Channel-specific — rebuilt per partner
-              </p>
-              <ul className="space-y-1.5 text-sm text-neutral-700 list-disc pl-5">
-                <li>Merchant identity mapping, consent, data availability</li>
-                <li>Branding and language</li>
-                <li>Partner economics and delivery channel</li>
-                <li>Support and sales escalation</li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-10 flex items-end gap-4">
-            <p className="font-black text-6xl md:text-7xl">
-              10<span style={{ color: ORANGE }}>%</span>
-            </p>
-            <p className="text-neutral-500 mb-2 max-w-sm text-sm">
-              of partners adopted within three months
-              <Flag kind="confirmed" note="Denominator and definition of adoption still to be confirmed" />
-              — and many used our intelligence while designing their own interventions.
-            </p>
-          </div>
-          <p className="mt-8 text-lg md:text-xl max-w-3xl text-neutral-700">
-            The intelligence layer was more broadly reusable than the pricing treatment. That validated the decision to{' '}
-            <strong>separate detection from delivery</strong>.
-          </p>
-          <Rib branch="Branch H" title="Partner architecture — what flowed where, and what adoption looked like">
-            <div className="space-y-4">
-              <p>
-                Partners received: risk/potential band, leading reason codes, eligibility decision, recommended next
-                action, merchant lists via dashboard/export, campaign configuration with their own branding and CTA,
-                and outcome reporting.
-              </p>
-              <ul className="list-disc pl-5 space-y-1.5">
-                <li>
-                  Participating partners reached ~2× more at-risk merchants than through prior manual identification.
-                  <Flag kind="assumption" />
-                </li>
-                <li>
-                  Partner pricing campaigns achieved low-double-digit merchant acceptance.
-                  <Flag kind="assumption" />
-                </li>
-                <li>
-                  Intelligence-only adoption exceeded full-campaign adoption — many partners hesitated on proactive
-                  pricing but exported the signals into their own interventions.
-                  <Flag kind="assumption" note="Consistent with supplied behavior" />
-                </li>
-              </ul>
-              <p className="text-neutral-500">
-                Honest open questions: entity-grain mapping across partner accounts, model confidence on sparser
-                partner data, and whether exported intelligence is a platform win or a loss of product control.
-              </p>
-            </div>
-          </Rib>
-        </Spine>
+          {/* S5 — money map */}
+          <Spine id="money-map" kicker="Where the money was going">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
+              We attributed the contraction before we treated it.
+            </h2>
+            <MoneyMap />
+            <Note>
+              Spoken transition: three addressable drivers, a small macro slice, and an honest untagged third. We
+              needed a fast first intervention to prove decline was addressable at all — and to earn investment in a
+              cross-functional portfolio.
+            </Note>
+          </Spine>
 
-        {/* S11 — impact + misses */}
-        <Spine id="impact" kicker="Impact & honest misses">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-            Three levels of value — and five things that didn&apos;t work.
-          </h2>
-          <div className="mt-10 grid md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-neutral-200 p-6">
-              <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-4">Outcomes</p>
-              <ul className="space-y-3 text-sm text-neutral-700">
-                <li>
-                  Acceptance <strong>5% → 17%</strong> from calls to automation
-                  <Flag kind="confirmed" />
-                </li>
-                <li>
-                  ~$100M recovered TPV, ~$2M net margin in early cohorts
-                  <Flag kind="assumption" note="Net of discount per Nick; counterfactual method to validate" />
-                </li>
-                <li>
-                  ~$500M protected/recovered TPV, ~$10–12M margin across the portfolio
-                  <Flag kind="assumption" />
-                </li>
-                <li>
-                  ~10% partner adoption in three months
-                  <Flag kind="confirmed" />
-                </li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-neutral-200 p-6">
-              <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-4">Strategic learning</p>
-              <ul className="space-y-3 text-sm text-neutral-700">
-                <li>Decline is a trajectory, not a binary event.</li>
-                <li>Pricing is an economic lever <em>and</em> a relationship signal.</li>
-                <li>Standing, trust, and recognition are product surface area.</li>
-                <li>Segment by need, trajectory, and ability to act — not only size.</li>
-                <li>Retention reveals durable value worth moving upstream.</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl p-6 text-white" style={{ background: '#141414' }}>
-              <p className="font-bold uppercase tracking-wide text-[11px] mb-4" style={{ color: ORANGE }}>
-                What didn&apos;t work
-              </p>
-              <ul className="space-y-2.5 text-sm text-neutral-300">
-                <li>The model confused contraction with active switching.</li>
-                <li>Pricing produced emotion without universal behavior change.</li>
-                <li>Basis-point communication was genuinely hard to understand.</li>
-                <li>Generic feature access felt like a catalog, not personalization.</li>
-                <li>Monetary-only “high potential” undervalued service businesses.</li>
-              </ul>
-            </div>
-          </div>
-          <p className="mt-10 text-2xl md:text-3xl font-black max-w-4xl">
-            The final product was not a discount. It was a system connecting{' '}
-            <span style={{ color: ORANGE }}>
-              intelligence, segmentation, eligibility, treatment, delivery, and measurement
-            </span>
-            .
-          </p>
-        </Spine>
-
-        {/* S12 — Substack close */}
-        <Spine id="close" kicker="What this means for Substack">
-          <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-            When the platform wins only if the customer wins, customer success{' '}
-            <em style={{ color: ORANGE }}>is</em> the monetization model.
-          </h2>
-          <p className="mt-8 text-lg md:text-xl text-neutral-700 max-w-3xl">
-            Across PayPal — and every platform business I&apos;ve worked on or studied, Substack included — the
-            customer isn&apos;t primarily buying software access. The platform makes more money when the customer
-            becomes more successful. That creates two linked product responsibilities:
-          </p>
-          <div className="mt-8 grid md:grid-cols-2 gap-5 max-w-3xl">
-            <div className="rounded-2xl border border-neutral-200 p-6">
-              <p className="font-black text-2xl mb-2" style={{ color: ORANGE }}>
-                1
-              </p>
-              <p className="font-bold">Deliver real customer value.</p>
-              <p className="text-sm text-neutral-600 mt-2">
-                For merchants: uptime, fraud prevention, consumer trust, BNPL lift, funding. For creators: discovery,
-                reader conversion, audience relationships, monetization infrastructure, less operating complexity.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-neutral-200 p-6">
-              <p className="font-black text-2xl mb-2" style={{ color: ORANGE }}>
-                2
-              </p>
-              <p className="font-bold">Help customers correctly perceive and attribute that value.</p>
-              <p className="text-sm text-neutral-600 mt-2">
-                The research made this unavoidable: fees were legible, value wasn&apos;t. Value-attribution reporting is
-                the work-in-progress successor to this insight —{' '}
-                <span className="font-semibold" style={{ color: ORANGE }}>
-                  a capability in development, not a shipped launch
+          {/* S6 — wedge */}
+          <Spine id="wedge" kicker="The first bet">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              Pricing had the highest <span style={{ color: ACCENT }}>learning-adjusted leverage</span> — not the
+              biggest pool.
+            </h2>
+            <div className="mt-10 flex flex-wrap gap-2.5">
+              {['Fast to test manually', 'Reversible & capped', 'Cleanly measurable', 'Operationally ready', 'Earns broader investment'].map((p) => (
+                <span key={p} className="px-4 py-2 rounded-full text-sm font-bold border" style={{ borderColor: FILL, color: ACCENT, background: TINT }}>
+                  {p}
                 </span>
-                .
-              </p>
-            </div>
-          </div>
-          <div className="mt-12 rounded-2xl p-8 md:p-10 text-white" style={{ background: '#141414' }}>
-            <p className="font-bold uppercase tracking-wide text-[11px] mb-5" style={{ color: ORANGE }}>
-              Five principles I&apos;d bring
-            </p>
-            <ol className="space-y-3 text-base text-neutral-200 list-decimal pl-5 max-w-3xl">
-              {PRINCIPLES.map((p) => (
-                <li key={p}>{p}</li>
               ))}
-            </ol>
-            <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
-              If you understand what makes your best customers successful, you can deliver that value earlier, intervene
-              when it weakens, and scale the underlying capabilities across segments and channels{' '}
-              <span style={{ color: ORANGE }}>without forcing everyone into identical experiences</span>.
+            </div>
+            <p className="mt-8 text-lg text-neutral-600 max-w-3xl">
+              The bet wasn&apos;t that price caused decline — it was that proactive treatment could work at all.
             </p>
-          </div>
-        </Spine>
-
-        {REVIEW_TOOLS && (
-          <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
-            {review && (
-              <div className="rounded-lg bg-white border border-neutral-200 shadow-lg px-3 py-2 text-[11px] text-neutral-600 space-y-1">
-                <p className="font-semibold text-neutral-800">Evidence status — pin comments on anything flagged</p>
+            <p className="mt-6 text-2xl md:text-3xl font-black max-w-3xl">
+              We earned permission to scale by <span style={{ color: ACCENT }}>reducing the cost of being wrong</span>.
+            </p>
+            <Rib branch="Conflict & alignment" title="The margin fight — and how alignment was actually earned">
+              <div className="space-y-3">
                 <p>
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5" />
-                  Confirmed from source material
+                  Pricing Strategy and business GMs pushed back hard: margin was the most important business metric, a
+                  discount might subsidize merchants who would stay anyway, and product-led pricing risked
+                  inconsistency with negotiated enterprise contracts.
                 </p>
-                <p>
-                  <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5" />
-                  Working assumption — validate before presenting
-                </p>
-                <p>
-                  <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-1.5" />
-                  Unresolved — could change the claim
+                <ul className="list-disc pl-5 space-y-1.5">
+                  <li>Narrow eligibility via merchant scoring; sales-managed contracts carved out entirely.</li>
+                  <li>A reversible 2,000-merchant calling experiment before any product build.</li>
+                  <li>Control and comparison populations preserved at every stage.</li>
+                  <li>Adoption and trajectory evidence required before automation investment.</li>
+                  <li>Director + commercial VP sponsorship to align dependencies.</li>
+                </ul>
+                <p className="text-neutral-500">
+                  The finance conversation in one line: the subsidy risk couldn&apos;t be known pre-launch, but it
+                  could be <em>bounded</em> pre-launch — guardrails were the price of permission.
                 </p>
               </div>
-            )}
-            <button
-              type="button"
-              onClick={() => setReview(!review)}
-              className={`rounded-full px-4 py-2 text-xs font-semibold border shadow-sm transition-colors ${
-                review ? 'text-white border-transparent' : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-500'
-              }`}
-              style={review ? { background: ORANGE } : undefined}
-            >
-              {review ? 'Review mode on' : 'Review mode'}
-            </button>
-          </div>
-        )}
-      </main>
+            </Rib>
+          </Spine>
+
+          {/* S6b — deep dive teaser */}
+          <section
+            ref={teaserRef}
+            data-slide-id="first-bet"
+            className="relative px-6 md:px-20 py-24 scroll-mt-4"
+            style={{ background: '#f0f4fa', color: INK }}
+          >
+            <div className="max-w-5xl mx-auto w-full">
+              <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ACCENT }}>
+                The first bet · deep dive
+              </p>
+              <h2 className="font-black tracking-tight text-3xl md:text-5xl mt-4 max-w-4xl">
+                How the bet was chosen, de-risked, and earned its way to scale.
+              </h2>
+              <div className="mt-8 flex flex-wrap gap-2">
+                {DIVE_STEPS.map((s, i) => (
+                  <span key={s.id} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-neutral-200 text-neutral-600">
+                    <span className="font-black mr-1" style={{ color: ACCENT }}>
+                      {i + 1}
+                    </span>
+                    {s.short}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                {!diveOpen ? (
+                  <button
+                    type="button"
+                    onClick={openDive}
+                    className="px-7 py-3.5 rounded-full text-white font-bold text-base shadow-sm hover:opacity-90 transition-opacity"
+                    style={{ background: FILL }}
+                  >
+                    Explore the working process →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openDive}
+                    className="px-7 py-3.5 rounded-full font-bold text-base border bg-white hover:border-neutral-500 transition-colors"
+                    style={{ borderColor: FILL, color: ACCENT }}
+                  >
+                    Deep dive open below ↓
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* THE DEEP DIVE (expanded in place) */}
+          {diveOpen && <DeepDive onBack={closeDive} />}
+
+          {/* S7 — research turn, progressive */}
+          <Spine id="research-pivot" kicker="The turn" dark>
+            <ResearchTurn />
+            <Rib branch="Research" title="Methodology, all four quotes, and the clues we’d left ourselves">
+              <div className="space-y-5 text-neutral-700">
+                <div>
+                  <p className="font-bold mb-1.5">The clues were already in our artifacts</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>The original problem-space map had no recognition space at all.</li>
+                    <li>The Relationship &amp; Loyalty cluster carried “Gap — no direct metric.”</li>
+                    <li>The learning plan pre-registered: “If pricing wasn’t their primary concern, we’ll figure out what is.”</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-bold mb-1.5">Method</p>
+                  <p>
+                    Twenty 1:1 moderated interviews, positioned broadly as a UX/offer review to avoid priming; mixed
+                    scope-, schedule-, logistics-, and order-centric businesses. Limitations owned: n=20 finds
+                    mechanisms, not effect sizes; recruiting from recipients skews engaged.
+                  </p>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {QUOTES.map((q) => (
+                    <blockquote key={q} className="rounded-lg bg-neutral-50 border border-neutral-200 p-4 text-sm" style={{ borderLeft: `3px solid ${FILL}` }}>
+                      {q}
+                    </blockquote>
+                  ))}
+                </div>
+                <p>
+                  <strong>“Why not stop the program?”</strong> The interviews didn&apos;t invalidate the result — they
+                  changed the interpretation and the targeting. Triangulate; don&apos;t let either evidence type
+                  overrule the other.
+                </p>
+              </div>
+            </Rib>
+          </Spine>
+
+          {/* S8 — portfolio expansion */}
+          <Spine id="expansion" kicker="Zoom back out">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              One insight became five families of differentiated value.
+            </h2>
+            <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-5 gap-3">
+              {FAMILIES.map((f, i) => (
+                <div key={f.name} className="rounded-xl border border-neutral-200 p-4">
+                  <p className="font-black text-xl mb-1" style={{ color: ACCENT }}>
+                    {i + 1}
+                  </p>
+                  <p className="font-bold text-sm leading-tight">{f.name}</p>
+                  <p className="text-xs text-neutral-500 mt-1.5">{f.note}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-8 text-lg text-neutral-700 max-w-3xl">
+              Multiple PMs took tracks; my role moved to <strong>portfolio direction and shared decisioning</strong>.
+            </p>
+            <Rib branch="Segmentation" title="Four operating profiles and three treatment deep dives">
+              <p className="mb-4">Research-derived operating profiles (growth vs. stability mindsets layered on top; ~11% mixed):</p>
+              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                {PROFILES.map((p) => (
+                  <div key={p.name} className="rounded-xl border border-neutral-200 p-4">
+                    <p className="font-black text-2xl" style={{ color: ACCENT }}>
+                      {p.pct}%
+                    </p>
+                    <p className="font-bold text-sm mt-1">{p.name}</p>
+                    <p className="text-xs text-neutral-500 mt-1">{p.note}</p>
+                  </div>
+                ))}
+              </div>
+              <DeepDives />
+            </Rib>
+            <Note>
+              Ownership language, spoken: “I initiated the investigation, set the strategy, prioritized the portfolio,
+              led lifecycle delivery, and aligned the functional owners. Data Science owned models; Pricing Strategy
+              owned margin; Pricing Ops executed; feature teams owned their capabilities. Equal TPV never meant equal
+              needs — that&apos;s why families, not one save offer.”
+            </Note>
+          </Spine>
+
+          {/* S9 — upstream */}
+          <Spine id="upstream" kicker="Reuse №1 · move upstream" dark>
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              Why wait for value signals to weaken before acting?
+            </h2>
+            <p className="mt-6 text-lg text-neutral-400 max-w-3xl">
+              The decline model, inverted: score <strong className="text-white">high potential</strong> at day 14 —
+              deliver proven value in the first 90 days.
+              <Flag kind="assumption" note="~600K newly active merchants scored annually — working assumption" />
+            </p>
+            <div className="rounded-2xl bg-white text-black p-8 mt-10">
+              <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">
+                Reached EHV/HV within 180 days
+              </p>
+              <UpstreamBars />
+            </div>
+            <p className="mt-8 text-xl md:text-2xl font-bold max-w-3xl">
+              Activation, retention, win-back — <span style={{ color: ACCENT_DARK }}>one value system</span>.
+            </p>
+            <Note>
+              First-90-day treatments: relevant milestones, profile-based bundles, integration health, Working Capital
+              qualification, standing communication. Nuance to volunteer if probed: monetary-only “high potential”
+              undervalued durable service businesses; and this idea sat on the ideation board as “measuring
+              pre-decliners — deferred” until retention taught us what durable value was.
+            </Note>
+          </Spine>
+
+          {/* S10 — partner */}
+          <Spine id="partner" kicker="Reuse №2 · across channels">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              Shared intelligence. Channel-specific delivery.
+            </h2>
+            <div className="mt-10 grid md:grid-cols-[1.1fr_auto_1fr] gap-6 items-center max-w-4xl">
+              <div className="rounded-2xl p-7 text-white" style={{ background: '#0b0d12' }}>
+                <p className="font-bold uppercase tracking-wide text-[11px] mb-3" style={{ color: ACCENT_DARK }}>
+                  Shared platform
+                </p>
+                <p className="text-sm text-neutral-300">
+                  Scoring · segments &amp; eligibility · offer configuration · fulfillment · measurement
+                </p>
+              </div>
+              <div className="hidden md:flex flex-col gap-6 text-2xl font-black" style={{ color: FILL }}>
+                <span>→</span>
+                <span>→</span>
+              </div>
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-neutral-200 p-5">
+                  <p className="font-bold text-sm">Direct delivery</p>
+                  <p className="text-xs text-neutral-500 mt-1">PayPal surfaces, PayPal brand, PLG + AE-assisted</p>
+                </div>
+                <div className="rounded-2xl border border-neutral-200 p-5">
+                  <p className="font-bold text-sm">Partner-branded delivery</p>
+                  <p className="text-xs text-neutral-500 mt-1">Partner identity, consent, economics, and CTA</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-10 flex items-end gap-4">
+              <p className="font-black text-6xl md:text-7xl">
+                10<span style={{ color: ACCENT }}>%</span>
+              </p>
+              <p className="text-neutral-500 mb-2 max-w-sm text-sm">
+                of partners adopted in three months — many took the intelligence and ran their own interventions
+                <Flag kind="confirmed" note="Denominator and definition of adoption still to be confirmed" />
+              </p>
+            </div>
+            <Rib branch="Partner architecture" title="What flowed where, and what adoption looked like">
+              <div className="space-y-4">
+                <p>
+                  Partners received: risk/potential band, leading reason codes, eligibility decision, recommended next
+                  action, merchant lists via dashboard/export, campaign configuration with their own branding and CTA,
+                  and outcome reporting.
+                </p>
+                <ul className="list-disc pl-5 space-y-1.5">
+                  <li>
+                    ~2× more at-risk merchants reached than prior manual identification.
+                    <Flag kind="assumption" />
+                  </li>
+                  <li>
+                    Partner pricing campaigns: low-double-digit acceptance.
+                    <Flag kind="assumption" />
+                  </li>
+                  <li>
+                    Intelligence-only adoption exceeded full-campaign adoption — validating detection separated from
+                    delivery.
+                    <Flag kind="assumption" note="Consistent with supplied behavior" />
+                  </li>
+                </ul>
+                <p className="text-neutral-500">
+                  Open questions owned honestly: entity-grain mapping, model confidence on sparser partner data,
+                  exported intelligence as platform win vs. loss of control.
+                </p>
+              </div>
+            </Rib>
+          </Spine>
+
+          {/* S11 — impact + misses */}
+          <Spine id="impact" kicker="Impact & honest misses">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              Three levels of value — and what didn&apos;t work.
+            </h2>
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl">
+              {[
+                ['5% → 17%', 'acceptance, calls → automation', 'confirmed' as const],
+                ['~$2M', 'net margin, early cohorts', 'assumption' as const],
+                ['~$500M', 'TPV protected across portfolio', 'assumption' as const],
+                ['10%', 'partner adoption in 3 months', 'confirmed' as const],
+              ].map(([v, l, k]) => (
+                <div key={l as string}>
+                  <p className="font-black text-3xl md:text-4xl" style={{ color: ACCENT }}>
+                    {v}
+                  </p>
+                  <p className="mt-1.5 text-xs text-neutral-500">
+                    {l}
+                    <Flag kind={k as 'confirmed' | 'assumption'} />
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 rounded-2xl p-6 text-white max-w-3xl" style={{ background: '#0b0d12' }}>
+              <p className="font-bold uppercase tracking-wide text-[11px] mb-3" style={{ color: ACCENT_DARK }}>
+                What didn&apos;t work
+              </p>
+              <ul className="space-y-2 text-sm text-neutral-300">
+                <li>The model confused contraction with active switching.</li>
+                <li>Pricing moved emotion — not always behavior.</li>
+                <li>Basis-point communication genuinely confused merchants.</li>
+              </ul>
+            </div>
+            <p className="mt-10 text-2xl md:text-3xl font-black max-w-4xl">
+              The product wasn&apos;t a discount. It was the{' '}
+              <span style={{ color: ACCENT }}>system</span> — intelligence to measurement.
+            </p>
+            <Rib branch="Impact detail" title="Strategic learning and the full miss list">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <p className="font-bold mb-2">Strategic learning</p>
+                  <ul className="list-disc pl-5 space-y-1.5">
+                    <li>Decline is a trajectory, not a binary event.</li>
+                    <li>Pricing is an economic lever <em>and</em> a relationship signal.</li>
+                    <li>Standing, trust, and recognition are product surface area.</li>
+                    <li>Segment by need, trajectory, and ability to act — not only size.</li>
+                    <li>Retention reveals durable value worth moving upstream.</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-bold mb-2">Additional misses</p>
+                  <ul className="list-disc pl-5 space-y-1.5">
+                    <li>Generic feature access felt like a catalog, not personalization.</li>
+                    <li>Monetary-only “high potential” undervalued durable service businesses.</li>
+                    <li>~$100M recovered TPV in early cohorts — counterfactual method still to be validated.</li>
+                  </ul>
+                </div>
+              </div>
+            </Rib>
+          </Spine>
+
+          {/* S12 — Substack close */}
+          <Spine id="close" kicker="What this means for Substack">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              When the platform wins only if the customer wins, customer success{' '}
+              <em style={{ color: ACCENT }}>is</em> the monetization model.
+            </h2>
+            <div className="mt-10 grid md:grid-cols-2 gap-5 max-w-3xl">
+              <div className="rounded-2xl border border-neutral-200 p-6">
+                <p className="font-black text-2xl mb-2" style={{ color: ACCENT }}>
+                  1
+                </p>
+                <p className="font-bold">Deliver real customer value.</p>
+                <p className="text-sm text-neutral-600 mt-2">
+                  Merchants: fraud prevented, trust, funding. Creators: discovery, reader conversion, monetization
+                  infrastructure.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-neutral-200 p-6">
+                <p className="font-black text-2xl mb-2" style={{ color: ACCENT }}>
+                  2
+                </p>
+                <p className="font-bold">Make that value legible.</p>
+                <p className="text-sm text-neutral-600 mt-2">
+                  Fees were legible; value wasn&apos;t. Value-attribution reporting —{' '}
+                  <span className="font-semibold" style={{ color: ACCENT }}>
+                    in development, not shipped
+                  </span>
+                  .
+                </p>
+              </div>
+            </div>
+            <div className="mt-12 rounded-2xl p-8 md:p-10 text-white" style={{ background: '#0b0d12' }}>
+              <p className="font-bold uppercase tracking-wide text-[11px] mb-5" style={{ color: ACCENT_DARK }}>
+                Three principles I&apos;d bring
+              </p>
+              <ol className="space-y-3 text-lg text-neutral-200 list-decimal pl-5 max-w-3xl font-semibold">
+                {PRINCIPLES.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ol>
+              <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
+                Understand what makes your best customers successful — deliver it earlier, defend it when it weakens,{' '}
+                <span style={{ color: ACCENT_DARK }}>and scale the system that does both</span>.
+              </p>
+            </div>
+            <Note>
+              If asked about other platforms: same pattern held at every success-based business I&apos;ve touched —
+              the customer isn&apos;t buying software access; the platform earns when they do. Close: “That&apos;s the
+              operating model I&apos;d bring to creators — without forcing independents and big publishers into
+              identical experiences.”
+            </Note>
+          </Spine>
+
+          {REVIEW_TOOLS && (
+            <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
+              {review && (
+                <div className="rounded-lg bg-white border border-neutral-200 shadow-lg px-3 py-2 text-[11px] text-neutral-600 space-y-1">
+                  <p className="font-semibold text-neutral-800">Evidence status — pin comments on anything flagged</p>
+                  <p>
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5" />
+                    Confirmed from source material
+                  </p>
+                  <p>
+                    <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5" />
+                    Working assumption — validate before presenting
+                  </p>
+                  <p>
+                    <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-1.5" />
+                    Unresolved — could change the claim
+                  </p>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setReview(!review)}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold border shadow-sm transition-colors ${
+                    review ? 'text-white border-transparent' : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-500'
+                  }`}
+                  style={review ? { background: FILL } : undefined}
+                >
+                  {review ? 'Review mode on' : 'Review mode'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNotes(!notes)}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold border shadow-sm transition-colors ${
+                    notes ? 'text-white border-transparent' : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-500'
+                  }`}
+                  style={notes ? { background: ACCENT } : undefined}
+                >
+                  {notes ? 'Notes on' : 'Notes'}
+                </button>
+              </div>
+            </div>
+          )}
+        </main>
+      </NotesCtx.Provider>
     </ReviewCtx.Provider>
   )
 }
