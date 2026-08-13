@@ -27,6 +27,7 @@ Satirical project: a StockX replica for drugs. The joke is that it looks indisti
 ### Header (`DrugXHeader.tsx`)
 - Sticky full-width header styled like StockX
 - Logo: "Drug" white + "X" green (#00bb29)
+- Circled question-mark next to the logo with an "About" tooltip. Opens a polished pitch modal that explains the fictional marketplace thesis across leftover inventory, verification, unusual provenance, and neighbor-priced medicine; ends with a Mystery Box postscript and an explicit satire/safety disclosure.
 - Wide search bar: "Search for substance, brand, etc." (non-functional, visual only)
 - Right nav: Help · Sell · Affiliate · Login · Sign Up
 - Sub-nav with active underline: **Pills** | Injections | Powders | Collectibles | Mystery Box
