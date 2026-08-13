@@ -163,6 +163,33 @@
   --info-subtle: oklch(0.22 0.04 240);
 }
 
+/* DrugX deliberately uses a cooler, market-terminal palette than the site's
+   warm editorial theme. Scope it to the project so the rest of the site keeps
+   its existing visual system. */
+.drugx-theme {
+  color-scheme: dark;
+  --background: #0d0f0f;
+  --foreground: #f4f6f5;
+  --card: #151817;
+  --card-foreground: #f4f6f5;
+  --popover: #191c1b;
+  --popover-foreground: #f4f6f5;
+  --primary: #00bb29;
+  --primary-foreground: #061008;
+  --secondary: #1d211f;
+  --secondary-foreground: #f4f6f5;
+  --muted: #202422;
+  --muted-foreground: #9aa29e;
+  --accent: #12371d;
+  --accent-foreground: #dfffe6;
+  --border: #2b302d;
+  --input: #202422;
+  --ring: #00bb29;
+  --surface-overlay: #1b1f1d;
+  --foreground-subtle: #68706c;
+  --border-hover: #4a524e;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

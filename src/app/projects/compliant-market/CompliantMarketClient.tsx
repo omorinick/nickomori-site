@@ -1,609 +1,582 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid,
-} from 'recharts'
-import {
-  ChevronDown, ChevronLeft, ChevronRight,
-  Zap, Shield, Settings2, TrendingUp, Heart, Share2,
+  BadgeDollarSign,
+  Beaker,
+  Check,
+  ChevronDown,
+  Heart,
+  PackageCheck,
+  Share2,
+  TrendingUp,
+  Zap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  PRODUCT, RELATED_LISTINGS, MODALS, HISTORICAL_STATS, INFO_CARDS,
-  type Dosage, type Timeframe, type RelatedListing,
+  HISTORICAL_STATS,
+  MODALS,
+  PRODUCT,
+  RECENT_SALES,
+  RELATED_LISTINGS,
+  type Dosage,
+  type RelatedListing,
+  type Timeframe,
 } from '@/data/projects/compliant-market'
-
-const PillScene = dynamic(() => import('./PillScene'), { ssr: false })
+import {
+  DrugXInfoDialog,
+  DrugXLabsDialog,
+  DrugXTradeDialog,
+  type TradeAction,
+} from './DrugXDialogs'
 
 const GREEN = '#00bb29'
-const RED   = '#ef4444'
+const RED = '#ef5b5b'
 
-// Two-tone colors for each related product
+const PillScene = dynamic(() => import('./PillScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center" aria-label="Loading product image">
+      <div className="h-20 w-52 rotate-[-8deg] rounded-full bg-gradient-to-r from-[#e46c2f] from-50% to-[#f4b078] shadow-[0_24px_50px_rgba(0,0,0,0.18)]" />
+    </div>
+  ),
+})
+
+const MarketChart = dynamic(() => import('./DrugXMarketChart'), {
+  ssr: false,
+  loading: () => <div className="h-[260px] animate-pulse rounded-lg bg-muted/40" />,
+})
+
 const RELATED_PILL_COLORS: Record<string, [string, string]> = {
-  'xanax-2mg':        ['#6b7280', '#9ca3af'],
-  'oxycodone-10mg':   ['#8b5cf6', '#a78bfa'],
-  'ambien-10mg':      ['#ec4899', '#f472b6'],
-  'claritin-10mg':    ['#eab308', '#fbbf24'],
-  'adderall-xr-10mg': ['#0d9488', '#2dd4bf'],
+  'xanax-2mg': ['#80858c', '#d8dadd'],
+  'oxycodone-10mg': ['#8359bf', '#b796e4'],
+  'ambien-10mg': ['#d84e8c', '#f18ab5'],
+  'claritin-10mg': ['#d2a10d', '#f1d064'],
+  'adderall-xr-10mg': ['#3574c8', '#83afe8'],
 }
 
-// ─── DrugX Labs interstitial modal ───────────────────────────────────────────
+const HOW_IT_WORKS = [
+  {
+    icon: BadgeDollarSign,
+    number: '01',
+    title: 'List what is left',
+    body: 'Choose the dosage, estimate the quantity, and provide the most plausible version of how it entered your possession.',
+  },
+  {
+    icon: Beaker,
+    number: '02',
+    title: 'We allegedly verify it',
+    body: 'DrugX Labs™ checks identity, purity, potency, and whether the label looks convincing from a responsible distance.',
+  },
+  {
+    icon: PackageCheck,
+    number: '03',
+    title: 'The market decides',
+    body: 'The highest Offer meets the lowest Ask. Somewhere, a medicine cabinet achieves price discovery.',
+  },
+] as const
 
-function LabsModal({ onClose, onUpload }: { onClose: () => void; onUpload: () => void }) {
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', fn)
-    return () => window.removeEventListener('keydown', fn)
-  }, [onClose])
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-surface-overlay border border-border rounded-2xl p-8 max-w-md w-full shadow-2xl shadow-black/60"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <span
-            className="text-xs font-bold px-2 py-0.5 rounded tracking-wide"
-            style={{ background: GREEN, color: '#000' }}
-          >
-            ✦ JUST RELEASED
-          </span>
-          <span className="text-xs text-muted-foreground">DrugX Labs™</span>
-        </div>
-        <h2 className="text-xl font-bold leading-snug">
-          Found a pill you can&apos;t identify?
-        </h2>
-        <p className="text-sm text-foreground mt-3 leading-relaxed">
-          Upload it and we&apos;ll tell you exactly what it&apos;s worth on today&apos;s markets.
-          Powered by our proprietary compound recognition engine. Results in seconds.
-        </p>
-        <p className="text-sm text-foreground mt-1">No questions asked.</p>
-
-        {/* Fake upload area */}
-        <button
-          onClick={onUpload}
-          className="mt-6 w-full bg-card border-2 border-dashed border-border hover:border-border-hover rounded-xl py-6 flex flex-col items-center gap-2 transition-colors group"
-        >
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
-            style={{ background: GREEN + '22' }}
-          >
-            💊
-          </div>
-          <span className="text-sm font-semibold group-hover:text-foreground text-muted-foreground transition-colors">
-            Upload a Pill →
-          </span>
-          <span className="text-xs text-foreground-subtle">PNG, JPG, HEIC up to 10MB</span>
-        </button>
-
-        <button
-          onClick={onClose}
-          className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          No thanks, I know what this is
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ─── Toast ────────────────────────────────────────────────────────────────────
-
-function Toast({ visible }: { visible: boolean }) {
-  return (
-    <div
-      className={cn(
-        'fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full bg-surface-overlay border border-border text-sm font-medium z-50 transition-all duration-300 whitespace-nowrap',
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none',
-      )}
-    >
-      Just kidding 💊
-    </div>
-  )
-}
-
-// ─── Related card ─────────────────────────────────────────────────────────────
-
-function RelatedCard({ listing }: { listing: RelatedListing }) {
-  const isUp   = listing.trending === 'up'
+function RelatedCard({ listing, onSelect }: { listing: RelatedListing; onSelect: () => void }) {
+  const isUp = listing.trending === 'up'
   const isDown = listing.trending === 'down'
-  const [c1, c2] = RELATED_PILL_COLORS[listing.id] ?? ['#888', '#aaa']
+  const [color1, color2] = RELATED_PILL_COLORS[listing.id] ?? ['#888', '#aaa']
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden cursor-pointer hover:border-border-hover transition-colors">
-      <div className="relative h-32" style={{ background: '#f0f0f0' }}>
-        <PillScene color1={c1} color2={c2} />
+    <button
+      type="button"
+      onClick={onSelect}
+      className="group h-full w-full snap-start overflow-hidden rounded-lg border border-border bg-card text-left transition-all hover:-translate-y-0.5 hover:border-border-hover hover:shadow-xl focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-[#f1f2ef]">
+        <div
+          className="h-9 w-28 rotate-[-10deg] rounded-full shadow-[0_14px_28px_rgba(0,0,0,0.16)] transition-transform duration-300 group-hover:rotate-[-4deg] group-hover:scale-105"
+          style={{ background: `linear-gradient(90deg, ${color1} 0 50%, ${color2} 50% 100%)` }}
+        />
+        <span className="absolute bottom-2 right-2 rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+          Verified
+        </span>
       </div>
-      <div className="p-3">
-        <p className="text-xs text-muted-foreground truncate">{listing.variant}</p>
-        <p className="text-sm font-semibold mt-0.5 truncate">{listing.name}</p>
-        <p className="text-sm font-bold mt-1">${listing.price}</p>
-        <p
-          className="text-xs mt-0.5"
-          style={{ color: isUp ? GREEN : isDown ? RED : 'var(--muted-foreground)' }}
-        >
-          {listing.change !== 0
-            ? `${isUp ? '+' : ''}$${Math.abs(listing.change)} (${Math.abs(listing.changePercent)}%)`
-            : '—'}
-        </p>
-      </div>
-    </div>
-  )
-}
-
-// ─── Chart tooltip ────────────────────────────────────────────────────────────
-
-function ChartTooltip({ active, payload, label }: {
-  active?: boolean; payload?: { value: number }[]; label?: string
-}) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-surface-overlay border border-border rounded-lg px-3 py-2 text-sm shadow-lg">
-      <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="font-semibold">${payload[0].value}</p>
-    </div>
-  )
-}
-
-// ─── Modal ────────────────────────────────────────────────────────────────────
-
-function Modal({ title, body, onClose }: { title: string; body: string[]; onClose: () => void }) {
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', fn)
-    return () => window.removeEventListener('keydown', fn)
-  }, [onClose])
-
-  return (
-    <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4" onClick={onClose}>
-      <div className="bg-surface-overlay border border-border rounded-2xl p-8 max-w-md w-full shadow-2xl shadow-black/60" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-2 mb-5">
-          <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: GREEN, color: '#000' }}>
-            ✓ VERIFIED
-          </span>
-          <h2 className="text-base font-semibold">{title}</h2>
+      <div className="p-4">
+        <p className="truncate text-xs text-muted-foreground">{listing.variant}</p>
+        <p className="mt-0.5 truncate text-sm font-semibold">{listing.name}</p>
+        <div className="mt-3 flex items-end justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Lowest Ask</p>
+            <p className="text-base font-bold">${listing.price}</p>
+          </div>
+          <p className="text-xs" style={{ color: isUp ? GREEN : isDown ? RED : 'var(--muted-foreground)' }}>
+            {listing.change !== 0
+              ? `${isUp ? '+' : '-'}$${Math.abs(listing.change)} (${Math.abs(listing.changePercent)}%)`
+              : 'Market stable'}
+          </p>
         </div>
-        <div className="space-y-3">
-          {body.map((p, i) => (
-            <p key={i} className="text-sm text-foreground leading-relaxed">{p}</p>
-          ))}
-        </div>
-        <button onClick={onClose} className="mt-7 text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2">
-          Close
-        </button>
       </div>
-    </div>
+    </button>
   )
 }
-
-// ─── Accordion row ────────────────────────────────────────────────────────────
 
 function AccordionRow({
-  label, right, children, open, onToggle,
+  id,
+  label,
+  right,
+  children,
+  open,
+  onToggle,
 }: {
-  label: string; right?: React.ReactNode; children?: React.ReactNode
-  open: boolean; onToggle: () => void
+  id: string
+  label: string
+  right?: React.ReactNode
+  children: React.ReactNode
+  open: boolean
+  onToggle: () => void
 }) {
   return (
     <div className="border-t border-border">
       <button
-        className="w-full flex items-center justify-between py-4 text-sm hover:text-foreground transition-colors"
+        type="button"
+        aria-expanded={open}
+        aria-controls={`${id}-content`}
+        className="flex w-full items-center justify-between py-4 text-sm transition-colors hover:text-foreground"
         onClick={onToggle}
       >
         <span className="font-medium">{label}</span>
-        <div className="flex items-center gap-2 text-muted-foreground text-xs">
+        <span className="flex items-center gap-2 text-xs text-muted-foreground">
           {right}
           <ChevronDown size={14} className={cn('transition-transform', open && 'rotate-180')} />
-        </div>
+        </span>
       </button>
-      {open && children && (
-        <div className="pb-4 text-sm text-muted-foreground leading-relaxed">{children}</div>
+      {open && (
+        <div id={`${id}-content`} className="pb-4 text-sm leading-relaxed text-muted-foreground">
+          {children}
+        </div>
       )}
     </div>
   )
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
-
 export default function DrugXProductPage() {
-  const [activeDosage, setActiveDosage]       = useState<Dosage>('30mg')
-  const [dosageOpen, setDosageOpen]           = useState(false)
+  const [activeDosage, setActiveDosage] = useState<Dosage>('30mg')
+  const [dosageOpen, setDosageOpen] = useState(false)
   const [activeTimeframe, setActiveTimeframe] = useState<Timeframe>('1M')
-  const [activeModal, setActiveModal]         = useState<'verification' | 'buyerProtection' | null>(null)
-  const [openAccordion, setOpenAccordion]     = useState<string | null>(null)
-  const [mounted, setMounted]                 = useState(false)
-  const [carouselIdx, setCarouselIdx]         = useState(0)
-  const [showLabsModal, setShowLabsModal]     = useState(false)
-  const [showToast, setShowToast]             = useState(false)
+  const [infoModal, setInfoModal] = useState<'verification' | 'buyerProtection' | null>(null)
+  const [tradeAction, setTradeAction] = useState<TradeAction>(null)
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null)
+  const [showLabsModal, setShowLabsModal] = useState(false)
+  const [favorite, setFavorite] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
   const dosageRef = useRef<HTMLDivElement>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => setMounted(true), [])
-
-  // Labs modal: opened via the ID button in the header
   useEffect(() => {
-    const fn = () => setShowLabsModal(true)
-    document.addEventListener('drugx:open-labs-modal', fn)
-    return () => document.removeEventListener('drugx:open-labs-modal', fn)
+    const openLabs = () => setShowLabsModal(true)
+    document.addEventListener('drugx:open-labs-modal', openLabs)
+    return () => document.removeEventListener('drugx:open-labs-modal', openLabs)
   }, [])
 
-  // Close dosage dropdown on outside click
   useEffect(() => {
-    const fn = (e: MouseEvent) => {
-      if (dosageRef.current && !dosageRef.current.contains(e.target as Node)) {
+    const closeDosage = (event: MouseEvent) => {
+      if (dosageRef.current && !dosageRef.current.contains(event.target as Node)) {
         setDosageOpen(false)
       }
     }
-    document.addEventListener('mousedown', fn)
-    return () => document.removeEventListener('mousedown', fn)
+    document.addEventListener('mousedown', closeDosage)
+    return () => document.removeEventListener('mousedown', closeDosage)
   }, [])
 
-  const handleUpload = () => {
-    setShowLabsModal(false)
-    setShowToast(true)
-    setTimeout(() => setShowToast(false), 3000)
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+  }, [])
+
+  const showMessage = (message: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setToast(message)
+    toastTimerRef.current = setTimeout(() => setToast(null), 2800)
   }
 
-  const ask       = PRODUCT.dosageAsk[activeDosage]
-  const bid       = PRODUCT.dosageBid[activeDosage]
-  const lastSale  = PRODUCT.dosageLastSale[activeDosage]
-  const change    = PRODUCT.dosageLastSaleChange[activeDosage]
+  const handleShare = async () => {
+    const shareData = {
+      title: `DrugX — ${PRODUCT.name} ${activeDosage}`,
+      text: 'A verified secondary market for pharmaceutical assets. Obviously satire.',
+      url: window.location.href,
+    }
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+        return
+      }
+      await navigator.clipboard.writeText(shareData.url)
+      showMessage('Product link copied')
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return
+      showMessage('Sharing desk is temporarily unavailable')
+    }
+  }
+
+  const ask = PRODUCT.dosageAsk[activeDosage]
+  const offer = PRODUCT.dosageBid[activeDosage]
+  const lastSale = PRODUCT.dosageLastSale[activeDosage]
+  const change = PRODUCT.dosageLastSaleChange[activeDosage]
   const changePct = PRODUCT.dosageLastSaleChangePct[activeDosage]
-
+  const detail = PRODUCT.dosageDetails[activeDosage]
   const chartData = PRODUCT.priceHistory[activeTimeframe]
-  const chartMin  = Math.min(...chartData.map(d => d.price)) - 5
-  const chartMax  = Math.max(...chartData.map(d => d.price)) + 5
+  const chartMin = Math.min(...chartData.map((point) => point.price)) - 5
+  const chartMax = Math.max(...chartData.map((point) => point.price)) + 5
   const timeframes: Timeframe[] = ['1W', '1M', '3M', '1Y']
-
-  const toggleAccordion = (s: string) => setOpenAccordion(p => p === s ? null : s)
-
-  const VISIBLE_CARDS = 3
-  const maxCarouselIdx = RELATED_LISTINGS.length - VISIBLE_CARDS
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-6 pb-24">
-
-        {/* ── Breadcrumb ── */}
-        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground py-5">
-          <span className="hover:text-foreground cursor-pointer transition-colors">Home</span>
-          <span>/</span>
-          <span className="hover:text-foreground cursor-pointer transition-colors">Pills</span>
-          <span>/</span>
-          <span className="hover:text-foreground cursor-pointer transition-colors">Stimulants</span>
-          <span>/</span>
-          <span className="text-foreground">Adderall XR {activeDosage}</span>
+      <div className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 overflow-x-auto py-5 text-xs text-muted-foreground">
+          <span>Home</span><span aria-hidden>/</span>
+          <span>Pills</span><span aria-hidden>/</span>
+          <span>Stimulants</span><span aria-hidden>/</span>
+          <span className="whitespace-nowrap text-foreground">{PRODUCT.name} {activeDosage}</span>
         </nav>
 
-        {/* ── Product area ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-
-          {/* Left: 3D pill image */}
-          <div>
-            <div className="rounded-2xl overflow-hidden bg-white relative h-[480px]">
-              <div className="absolute inset-0">
-                <PillScene color1="#3b6fd4" color2="#6b9fe8" />
-              </div>
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
-                  <Heart size={16} className="text-muted-foreground" />
-                </button>
-                <button className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
-                  <Share2 size={16} className="text-muted-foreground" />
-                </button>
-              </div>
+        <section className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-12">
+          <div className="relative h-[400px] overflow-hidden rounded-xl bg-[#f1f2ef] sm:h-[520px]">
+            <div className="absolute inset-0">
+              <PillScene color1={detail.color1} color2={detail.color2} />
+            </div>
+            <div className="absolute right-4 top-4 flex gap-2">
               <button
-                onClick={() => setActiveModal('verification')}
-                className="absolute bottom-4 left-4 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity"
-                style={{ background: GREEN, color: '#000' }}
+                type="button"
+                aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
+                aria-pressed={favorite}
+                onClick={() => {
+                  setFavorite((current) => !current)
+                  showMessage(favorite ? 'Removed from your cabinet' : 'Saved to your cabinet')
+                }}
+                className="flex size-10 items-center justify-center rounded-full border border-black/10 bg-white/85 text-neutral-700 backdrop-blur transition-colors hover:bg-white focus-visible:ring-2 focus-visible:ring-black"
               >
-                <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M1.5 5L3.5 7.5L8.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Verified Authentic · What&apos;s this?
+                <Heart size={17} className={favorite ? 'fill-current text-[#00a824]' : ''} />
               </button>
+              <button
+                type="button"
+                aria-label="Share product"
+                onClick={() => void handleShare()}
+                className="flex size-10 items-center justify-center rounded-full border border-black/10 bg-white/85 text-neutral-700 backdrop-blur transition-colors hover:bg-white focus-visible:ring-2 focus-visible:ring-black"
+              >
+                <Share2 size={17} />
+              </button>
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setInfoModal('verification')}
+                className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold text-black transition-transform hover:scale-[1.02]"
+                style={{ background: GREEN }}
+              >
+                <Check size={12} strokeWidth={3} />
+                Verified by DrugX
+              </button>
+              <span className="rounded bg-black/65 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur">
+                Spin for a second opinion
+              </span>
             </div>
           </div>
 
-          {/* Right: purchase details */}
           <div className="pt-1">
-            <h1 className="text-[28px] font-bold leading-tight">Adderall XR</h1>
-            <p className="text-muted-foreground mt-0.5">{activeDosage} · {PRODUCT.variant}</p>
-
-            <div className="flex items-center gap-2 mt-4 text-sm">
-              <div className="w-4 h-4 rounded border border-border flex items-center justify-center">
-                <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                  <path d="M1 3.5L3.2 6L8 1" stroke={GREEN} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: GREEN }}>
+                  Verified Marketplace
+                </p>
+                <h1 className="text-3xl font-black leading-none tracking-tight sm:text-4xl">{PRODUCT.name}</h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {activeDosage} · Extended Release · {detail.variant}
+                </p>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-foreground-subtle">SKU {detail.sku}</p>
               </div>
-              <span>
-                <span className="font-semibold">QuickPack available.</span>
-                <span className="text-muted-foreground"> Get it by Jun 10</span>
+              <span className="rounded-md border border-border bg-card px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Open box
               </span>
-              <Zap size={13} style={{ color: GREEN }} className="flex-shrink-0" />
             </div>
 
-            {/* Dosage dropdown */}
-            <div className="mt-5 relative" ref={dosageRef}>
+            <div className="mt-5 flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-sm">
+              <Zap size={14} style={{ color: GREEN }} />
+              <span className="font-semibold">Xpress Dose available.</span>
+              <span className="text-muted-foreground">Ships in 1–2 suspiciously fast days.</span>
+            </div>
+
+            <div ref={dosageRef} className="relative mt-4">
               <button
-                className="w-full flex items-center justify-between bg-card border border-border rounded-xl px-4 py-3.5 text-sm hover:border-border-hover transition-colors"
-                onClick={() => setDosageOpen(o => !o)}
+                type="button"
+                aria-expanded={dosageOpen}
+                aria-controls="dosage-options"
+                className="flex w-full items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 text-sm transition-colors hover:border-border-hover"
+                onClick={() => setDosageOpen((open) => !open)}
               >
-                <span className="text-muted-foreground">Dosage:</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-semibold">{activeDosage}</span>
+                <span className="text-muted-foreground">Select dosage</span>
+                <span className="flex items-center gap-1.5 font-semibold">
+                  {activeDosage}
                   <ChevronDown size={14} className={cn('text-muted-foreground transition-transform', dosageOpen && 'rotate-180')} />
-                </div>
+                </span>
               </button>
               {dosageOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-surface-overlay border border-border rounded-xl overflow-hidden z-10 shadow-xl">
-                  {PRODUCT.dosageOptions.map(d => (
+                <div id="dosage-options" className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-border bg-surface-overlay shadow-xl">
+                  {PRODUCT.dosageOptions.map((dosage) => (
                     <button
-                      key={d}
+                      key={dosage}
+                      type="button"
                       className={cn(
-                        'w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-muted/50 transition-colors',
-                        d === activeDosage && 'bg-muted/30',
+                        'flex w-full items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-muted/50',
+                        dosage === activeDosage && 'bg-muted/30',
                       )}
-                      onClick={() => { setActiveDosage(d); setDosageOpen(false) }}
+                      onClick={() => {
+                        setActiveDosage(dosage)
+                        setDosageOpen(false)
+                      }}
                     >
-                      <span>{d}</span>
-                      <span className="font-semibold">${PRODUCT.dosagePrices[d]}</span>
+                      <span className="flex items-center gap-3">
+                        <span
+                          className="size-3 rounded-full"
+                          style={{ background: `linear-gradient(90deg, ${PRODUCT.dosageDetails[dosage].color1} 50%, ${PRODUCT.dosageDetails[dosage].color2} 50%)` }}
+                        />
+                        {dosage}
+                      </span>
+                      <span className="font-semibold">${PRODUCT.dosagePrices[dosage]}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Buy box */}
-            <div className="mt-4 bg-card border border-border rounded-xl p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Buy Now for</p>
-                  <p className="text-3xl font-extrabold mt-0.5">${ask}</p>
+            <div className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border">
+              {[
+                { label: 'Lowest Ask', value: `$${ask}` },
+                { label: 'Highest Offer', value: `$${offer}` },
+                { label: 'Last Sale', value: `$${lastSale}`, sub: `+$${change} (${changePct}%)` },
+              ].map((metric) => (
+                <div key={metric.label} className="bg-card px-3 py-4 sm:px-4">
+                  <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground sm:text-[10px]">{metric.label}</p>
+                  <p className="mt-1 text-xl font-black sm:text-2xl">{metric.value}</p>
+                  {metric.sub && <p className="mt-0.5 text-[10px]" style={{ color: GREEN }}>{metric.sub}</p>}
                 </div>
-                <div className="flex items-center gap-1.5 text-sm">
-                  <Zap size={14} style={{ color: GREEN }} className="flex-shrink-0" />
-                  <span className="font-semibold" style={{ color: GREEN }}>
-                    {PRODUCT.soldLast30Days.toLocaleString()} Sold in Last 30 Days!
-                  </span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                <Shield size={11} className="inline mr-1 mb-0.5" />
-                ${ask} Includes DrugX Service Fee{' '}
-                <button
-                  className="underline underline-offset-2 hover:text-foreground transition-colors"
-                  onClick={() => setActiveModal('buyerProtection')}
-                >?</button>
-              </p>
+              ))}
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-3">
-              <button className="py-4 rounded-xl text-sm font-bold border border-border bg-card hover:border-border-hover transition-colors">
+              <button
+                type="button"
+                onClick={() => setTradeAction('offer')}
+                className="rounded-lg border border-border bg-card py-3.5 text-sm font-bold transition-colors hover:border-border-hover hover:bg-muted/40"
+              >
                 Make Offer
               </button>
               <button
-                className="py-4 rounded-xl text-sm font-bold transition-opacity hover:opacity-90"
-                style={{ background: GREEN, color: '#000' }}
+                type="button"
+                onClick={() => setTradeAction('buy')}
+                className="rounded-lg py-3.5 text-sm font-black text-black transition-transform hover:scale-[1.01]"
+                style={{ background: GREEN }}
               >
-                Buy Now
+                Buy Now · ${ask}
               </button>
             </div>
 
-            <p className="mt-3 text-xs text-muted-foreground text-center">
-              Pay over time with{' '}
-              <span className="text-foreground font-medium">Venmo</span>
-              {' '}or{' '}
-              <span className="text-foreground font-medium">Cash App</span>
-              {' '}or{' '}
-              <span className="text-foreground font-medium">Crypto</span>
-              {' '}
-              <button className="underline underline-offset-1 hover:text-foreground transition-colors">Learn More</button>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Pay over time with Venmo, Cash App, Crypto, or an envelope marked “cash.”
             </p>
 
-            <div className="mt-4 flex items-center justify-between text-sm border-t border-border pt-4">
+            <div className="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Last Sale </span>
-                <span className="font-semibold">${lastSale}</span>
-                <span className="text-xs ml-1.5" style={{ color: GREEN }}>
-                  +${change} (+{changePct}%)
-                </span>
+                <span className="text-muted-foreground">30-day volume </span>
+                <span className="font-semibold">{PRODUCT.soldLast30Days.toLocaleString()} units</span>
               </div>
-              <a href="#price-chart" className="text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground transition-colors">
-                View Market Data →
+              <a href="#price-history" className="text-xs text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground">
+                View market data
               </a>
             </div>
 
-            <button className="mt-3 w-full text-center text-sm font-semibold py-3 rounded-xl bg-card border border-border hover:border-border-hover transition-colors">
-              Sell Now for ${bid} or Ask for More →
+            <button
+              type="button"
+              onClick={() => setTradeAction('sell')}
+              className="mt-3 w-full rounded-lg border border-border bg-card py-3 text-center text-sm font-semibold transition-colors hover:border-border-hover hover:bg-muted/40"
+            >
+              Sell Now for ${offer} or Set an Ask
             </button>
 
-            <div className="mt-2">
-              <AccordionRow
-                label="Return Policy"
-                right={<span>Select a dosage</span>}
-                open={openAccordion === 'return'}
-                onToggle={() => toggleAccordion('return')}
-              >
-                <p className="px-1 pb-1">All sales are final once a dosage has been selected and the order is confirmed. We are unable to process returns for reasons related to personal preference, unexpected efficacy, or change of mind.</p>
+            <div className="mt-3">
+              <AccordionRow id="return" label="Return Policy" right={<span>Final-ish sale</span>} open={openAccordion === 'return'} onToggle={() => setOpenAccordion(openAccordion === 'return' ? null : 'return')}>
+                <p>Returns are accepted within 14 days if the item is materially different, unexpectedly effective, or still attached to the original prescription holder.</p>
               </AccordionRow>
-              <AccordionRow
-                label="Buyer Promise"
-                open={openAccordion === 'buyer'}
-                onToggle={() => toggleAccordion('buyer')}
-              >
-                <p className="px-1 pb-1">We stand behind every product sold on DrugX. If a mistake is made, we'll make it right. Full refund or replacement, your choice. Terms apply. Not valid in states with recreational laws. Or the other states. Actually, none of the states. But we're working on it.</p>
+              <AccordionRow id="promise" label="Buyer Promise" open={openAccordion === 'promise'} onToggle={() => setOpenAccordion(openAccordion === 'promise' ? null : 'promise')}>
+                <p>Wrong pill, wrong color, wrong vibe—we will make it right. Terms apply. Coverage is not currently valid in any state, territory, or legally recognized body of water.</p>
               </AccordionRow>
-              <AccordionRow
-                label="Our Process"
-                right={<span>Condition: Lab Verified</span>}
-                open={openAccordion === 'process'}
-                onToggle={() => toggleAccordion('process')}
-              >
-                <p className="px-1 pb-1">Every item sold on DrugX is verified by our team of certified independent analysts. We test for purity, potency, and authenticity before each order ships. Your safety is our priority, which is why we don't ask about its origin.</p>
+              <AccordionRow id="process" label="Our Process" right={<span>Lab Verified</span>} open={openAccordion === 'process'} onToggle={() => setOpenAccordion(openAccordion === 'process' ? null : 'process')}>
+                <p>Every item is routed through a proprietary multi-step verification process. We test identity, purity, potency, and whether the seller became visibly nervous during onboarding.</p>
               </AccordionRow>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* ── Price chart ── */}
-        <div id="price-chart" className="mt-16">
-          <div className="flex items-center justify-between mb-4">
+        <section id="price-history" className="mt-20 scroll-mt-32">
+          <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <h2 className="text-lg font-semibold">Price History</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Adderall XR {activeDosage} · Verified sales only</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: GREEN }}>Market intelligence</p>
+              <h2 className="mt-1 text-xl font-bold">Price History</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{PRODUCT.name} {activeDosage} · verified sales only</p>
             </div>
-            <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
-              {timeframes.map(tf => (
+            <div className="flex w-fit gap-1 rounded-lg border border-border bg-card p-1">
+              {timeframes.map((timeframe) => (
                 <button
-                  key={tf}
-                  onClick={() => setActiveTimeframe(tf)}
+                  key={timeframe}
+                  type="button"
+                  aria-pressed={activeTimeframe === timeframe}
+                  onClick={() => setActiveTimeframe(timeframe)}
                   className={cn(
-                    'px-3 py-1.5 text-xs font-semibold rounded-md transition-all',
-                    activeTimeframe === tf ? 'text-black' : 'text-muted-foreground hover:text-foreground',
+                    'rounded-md px-3 py-1.5 text-xs font-semibold transition-all',
+                    activeTimeframe === timeframe ? 'text-black' : 'text-muted-foreground hover:text-foreground',
                   )}
-                  style={activeTimeframe === tf ? { background: GREEN } : {}}
+                  style={activeTimeframe === timeframe ? { background: GREEN } : {}}
                 >
-                  {tf}
+                  {timeframe}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-6">
-            {mounted ? (
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="date" tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                  <YAxis domain={[chartMin, chartMax]} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}`} width={40} />
-                  <Tooltip content={<ChartTooltip />} />
-                  <Line
-                    type="linear"
-                    dataKey="price"
-                    stroke={GREEN}
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 4, fill: GREEN, stroke: 'var(--card)', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[260px] flex items-center justify-center">
-                <span className="text-xs text-muted-foreground">Loading chart…</span>
-              </div>
-            )}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+            <MarketChart data={chartData} min={chartMin} max={chartMax} />
             {activeTimeframe === '1Y' && (
-              <p className="text-xs text-muted-foreground mt-3 text-center">
-                ↑ September spike attributed to back-to-school demand. Market self-corrected by November.
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                September spike attributed to back-to-school demand. Market self-corrected by November.
               </p>
             )}
           </div>
-        </div>
+        </section>
 
-        {/* ── Historical data ── */}
-        <div className="mt-12">
-          <h2 className="text-lg font-semibold mb-4">Historical Data</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {HISTORICAL_STATS.map((stat, i) => (
-              <div key={i} className="bg-card border border-border rounded-xl px-4 py-3.5">
+        <section className="mt-12 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <div>
+                <h2 className="text-base font-bold">Recent Sales</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">A transparent market has very little to hide.</p>
+              </div>
+              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider" style={{ color: GREEN }}>
+                <span className="size-1.5 animate-pulse rounded-full" style={{ background: GREEN }} /> Live
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left text-sm">
+                <thead className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-border">
+                    <th className="px-5 py-3 font-medium">Sale price</th>
+                    <th className="px-3 py-3 font-medium">Dosage</th>
+                    <th className="px-3 py-3 font-medium">Provenance</th>
+                    <th className="px-3 py-3 font-medium">Condition</th>
+                    <th className="px-5 py-3 text-right font-medium">When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {RECENT_SALES.map((sale) => (
+                    <tr key={`${sale.price}-${sale.when}`} className="border-b border-border last:border-0">
+                      <td className="px-5 py-3.5 font-bold">${sale.price}</td>
+                      <td className="px-3 py-3.5">{sale.dosage}</td>
+                      <td className="px-3 py-3.5 text-muted-foreground">{sale.source}</td>
+                      <td className="px-3 py-3.5 text-muted-foreground">{sale.condition}</td>
+                      <td className="px-5 py-3.5 text-right text-xs text-muted-foreground">{sale.when}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2">
+            {HISTORICAL_STATS.map((stat) => (
+              <div key={`${stat.label}-${stat.sub}`} className="rounded-lg border border-border bg-card px-4 py-3.5">
                 <p className="text-xl font-bold">{stat.value}</p>
-                <p className="text-sm font-medium mt-0.5">{stat.label}</p>
+                <p className="mt-0.5 text-sm font-medium">{stat.label}</p>
                 {stat.sub && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {stat.sub === 'vs. Pharmacy MSRP' ? (
-                      <span className="flex items-center gap-1">
-                        <TrendingUp size={10} style={{ color: GREEN }} />
-                        {stat.sub}
-                      </span>
-                    ) : `| ${stat.sub}`}
+                      <span className="flex items-center gap-1"><TrendingUp size={10} style={{ color: GREEN }} />{stat.sub}</span>
+                    ) : stat.sub}
                   </p>
                 )}
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* ── Info cards ── */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {INFO_CARDS.map(card => (
-            <div key={card.title} className="bg-surface-overlay border border-border rounded-xl p-5">
-              <div className="flex items-center gap-2.5 mb-3">
-                {card.icon === 'process' && <Settings2 size={17} className="text-muted-foreground flex-shrink-0" />}
-                {card.icon === 'shield'  && <Shield    size={17} className="text-muted-foreground flex-shrink-0" />}
-                {card.icon === 'sell'    && <TrendingUp size={17} className="text-muted-foreground flex-shrink-0" />}
-                <p className="font-semibold text-sm">{card.title}</p>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{card.body}</p>
-              <button className="mt-3 text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground transition-colors">
-                Learn More
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Related products carousel ── */}
-        <div className="mt-14">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Related Products</h2>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-muted-foreground mr-2">Curated by DrugX algorithm</p>
-              <button
-                onClick={() => setCarouselIdx(i => Math.max(0, i - 1))}
-                disabled={carouselIdx === 0}
-                className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:border-border-hover transition-colors disabled:opacity-30"
-              >
-                <ChevronLeft size={14} />
-              </button>
-              <button
-                onClick={() => setCarouselIdx(i => Math.min(maxCarouselIdx, i + 1))}
-                disabled={carouselIdx >= maxCarouselIdx}
-                className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:border-border-hover transition-colors disabled:opacity-30"
-              >
-                <ChevronRight size={14} />
-              </button>
-            </div>
+        <section className="mt-20">
+          <div className="mb-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: GREEN }}>Our process</p>
+            <h2 className="mt-1 text-xl font-bold">From cabinet to market in three steps</h2>
           </div>
-          {/* -mx-2 cancels the outer px-2 so cards align flush with page content */}
-          <div className="overflow-hidden -mx-2">
-            <div
-              className="flex transition-transform duration-300 ease-in-out"
-              style={{
-                width: `${(RELATED_LISTINGS.length / VISIBLE_CARDS) * 100}%`,
-                transform: `translateX(-${carouselIdx * (100 / RELATED_LISTINGS.length)}%)`,
-              }}
-            >
-              {RELATED_LISTINGS.map(l => (
-                <div key={l.id} className="px-2" style={{ width: `${100 / RELATED_LISTINGS.length}%` }}>
-                  <RelatedCard listing={l} />
-                </div>
-              ))}
-            </div>
+          <div className="grid overflow-hidden rounded-xl border border-border bg-border md:grid-cols-3 md:gap-px">
+            {HOW_IT_WORKS.map((step) => {
+              const Icon = step.icon
+              return (
+                <article key={step.number} className="border-b border-border bg-card p-6 last:border-0 md:border-b-0">
+                  <div className="flex items-center justify-between">
+                    <span className="flex size-9 items-center justify-center rounded-full bg-primary/10"><Icon size={17} style={{ color: GREEN }} /></span>
+                    <span className="font-mono text-xs text-foreground-subtle">{step.number}</span>
+                  </div>
+                  <h3 className="mt-5 text-base font-bold">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                </article>
+              )
+            })}
           </div>
-        </div>
+        </section>
 
-        {/* ── Fine print ── */}
-        <div className="mt-16 text-center">
-          <p className="text-xs leading-relaxed text-foreground-subtle">
-            DrugX is a satirical project. All prices are fictional. No actual transactions occur.
-            <br />
-            Always verify what you&apos;re putting in your body. Or don&apos;t — we&apos;re a marketplace, not a doctor.
+        <section className="mt-20">
+          <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+            <div>
+              <h2 className="text-xl font-bold">Related Products</h2>
+              <p className="mt-1 text-xs text-muted-foreground">Curated by our proprietary contraindication engine.</p>
+            </div>
+            <p className="text-xs text-foreground-subtle">Swipe to explore on mobile</p>
+          </div>
+          <div className="grid auto-cols-[78%] grid-flow-col gap-3 overflow-x-auto pb-4 snap-x snap-mandatory sm:auto-cols-[42%] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-5 lg:overflow-visible">
+            {RELATED_LISTINGS.map((listing) => (
+              <RelatedCard
+                key={listing.id}
+                listing={listing}
+                onSelect={() => showMessage(`${listing.name} trading opens pending regulatory review`)}
+              />
+            ))}
+          </div>
+        </section>
+
+        <footer className="mt-20 border-t border-border pt-6 text-center">
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            <span className="font-bold text-foreground">Obviously satire.</span> DrugX is fictional. All products, prices, verification claims, and transactions are fabricated.
+            <br />Do not buy, sell, share, or take unidentified medication. Consult a licensed medical professional.
           </p>
-        </div>
-
+        </footer>
       </div>
 
-      {/* ── Modals ── */}
-      {activeModal === 'verification'    && <Modal title={MODALS.verification.title}    body={MODALS.verification.body}    onClose={() => setActiveModal(null)} />}
-      {activeModal === 'buyerProtection' && <Modal title={MODALS.buyerProtection.title} body={MODALS.buyerProtection.body} onClose={() => setActiveModal(null)} />}
-      {showLabsModal && <LabsModal onClose={() => setShowLabsModal(false)} onUpload={handleUpload} />}
-      <Toast visible={showToast} />
+      <DrugXTradeDialog action={tradeAction} onOpenChange={(open) => !open && setTradeAction(null)} dosage={activeDosage} ask={ask} offer={offer} />
+      <DrugXInfoDialog
+        open={Boolean(infoModal)}
+        onOpenChange={(open) => !open && setInfoModal(null)}
+        title={infoModal ? MODALS[infoModal].title : ''}
+        body={infoModal ? MODALS[infoModal].body : []}
+      />
+      <DrugXLabsDialog
+        open={showLabsModal}
+        onOpenChange={setShowLabsModal}
+        onScan={() => {
+          setShowLabsModal(false)
+          showMessage('Analysis complete: probably a pill')
+        }}
+      />
+
+      <div
+        role="status"
+        aria-live="polite"
+        className={cn(
+          'fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 whitespace-nowrap rounded-full border border-border bg-surface-overlay px-5 py-3 text-sm font-medium shadow-xl transition-all duration-300',
+          toast ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0',
+        )}
+      >
+        {toast}
+      </div>
     </>
   )
 }

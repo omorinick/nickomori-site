@@ -56,7 +56,10 @@ function AboutDrugX() {
         </span>
       </div>
 
-      <DialogContent className="dark max-h-[calc(100vh-2rem)] overflow-y-auto border-[#30343a] bg-[#111418] p-0 text-[#f4f5f6] ring-white/10 sm:max-w-2xl">
+      <DialogContent
+        className="drugx-theme dark max-h-[calc(100vh-2rem)] overflow-y-auto border-border bg-background p-0 text-foreground ring-white/10 sm:max-w-2xl"
+        overlayClassName="bg-black/75 backdrop-blur-sm"
+      >
         <div className="border-b border-[#30343a] px-6 py-6 sm:px-8 sm:py-8">
           <div className="mb-5 flex items-center gap-2">
             <span
@@ -119,7 +122,7 @@ export default function DrugXHeader() {
   return (
     <header className="sticky top-0 z-40 bg-card border-b border-border">
       {/* ── Main nav ── */}
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3 sm:gap-4">
 
         {/* Logo + about */}
         <div className="flex items-center gap-2 mr-1">
@@ -133,7 +136,7 @@ export default function DrugXHeader() {
         </div>
 
         {/* Search */}
-        <div className="flex-1 min-w-0">
+        <div className="hidden md:block flex-1 min-w-0">
           <div className="relative max-w-2xl">
             <svg
               className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
@@ -167,7 +170,7 @@ export default function DrugXHeader() {
             }}
           />
           <Search size={13} strokeWidth={2.5} />
-          <span>ID</span>
+          <span className="hidden sm:inline">ID</span>
         </button>
 
         {/* Nav links */}
@@ -183,7 +186,7 @@ export default function DrugXHeader() {
             Login
           </button>
           <button
-            className="px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-opacity hover:opacity-90"
+            className="hidden sm:block px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-opacity hover:opacity-90"
             style={{ background: GREEN, color: '#000' }}
           >
             Sign Up
@@ -193,7 +196,7 @@ export default function DrugXHeader() {
 
       {/* ── Sub-nav ── */}
       <div className="border-t border-border bg-card">
-        <div className="max-w-7xl mx-auto px-6 h-11 flex items-center gap-8 overflow-x-auto scrollbar-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-11 flex items-center gap-7 sm:gap-8 overflow-x-auto scrollbar-none">
           {CATEGORIES.map((cat, i) => (
             <span
               key={cat}

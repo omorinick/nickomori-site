@@ -8,6 +8,17 @@ import * as THREE from 'three'
 function PillMesh({ color1, color2 }: { color1: string; color2: string }) {
   const groupRef = useRef<THREE.Group>(null)
   const meshRef  = useRef<THREE.Mesh>(null)
+  const reducedMotionRef = useRef(false)
+
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const syncPreference = () => {
+      reducedMotionRef.current = query.matches
+    }
+    syncPreference()
+    query.addEventListener('change', syncPreference)
+    return () => query.removeEventListener('change', syncPreference)
+  }, [])
 
   // Bake two-tone vertex colors into the geometry.
   // CapsuleGeometry is Y-aligned; y≥0 → color2 (right after 90° rotation), y<0 → color1 (left).
@@ -29,6 +40,11 @@ function PillMesh({ color1, color2 }: { color1: string; color2: string }) {
 
   useFrame((state: RootState, delta: number) => {
     if (!groupRef.current) return
+    if (reducedMotionRef.current) {
+      groupRef.current.rotation.y = -0.35
+      groupRef.current.position.y = 0
+      return
+    }
     // Clamp delta so a long tab-inactive period doesn't cause a huge rotation jump
     // that can stall the loop on the next frame.
     const d = Math.min(delta, 0.05)
@@ -61,6 +77,7 @@ export default function PillScene({
 }) {
   return (
     <Canvas
+      aria-label="Rotating two-tone capsule product rendering"
       frameloop="always"
       camera={{ position: [0, 0, 5], fov: 35 }}
       gl={{ antialias: true, alpha: true }}

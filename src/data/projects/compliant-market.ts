@@ -16,6 +16,13 @@ export interface RelatedListing {
 export type Timeframe = '1W' | '1M' | '3M' | '1Y'
 export type Dosage = '10mg' | '20mg' | '30mg'
 
+export interface DosageDetail {
+  variant: string
+  sku: string
+  color1: string
+  color2: string
+}
+
 const DOSAGE_PRICES: Record<Dosage, number> = { '10mg': 45, '20mg': 67, '30mg': 89 }
 const DOSAGE_BID: Record<Dosage, number> = { '10mg': 42, '20mg': 63, '30mg': 85 }
 const DOSAGE_ASK: Record<Dosage, number> = { '10mg': 47, '20mg': 70, '30mg': 92 }
@@ -62,9 +69,12 @@ const PRICE_HISTORY: Record<Timeframe, PricePoint[]> = {
 
 export const PRODUCT = {
   name: 'Adderall XR',
-  variant: 'Orange Capsule',
-  sku: 'ADD-XR-30',
   dosageOptions: ['10mg', '20mg', '30mg'] as Dosage[],
+  dosageDetails: {
+    '10mg': { variant: 'Blue Capsule', sku: 'ADD-XR-10-BLU', color1: '#3574c8', color2: '#83afe8' },
+    '20mg': { variant: 'Amber Capsule', sku: 'ADD-XR-20-AMB', color1: '#c85d24', color2: '#f1a263' },
+    '30mg': { variant: 'Orange Capsule', sku: 'ADD-XR-30-ORG', color1: '#e46c2f', color2: '#f4b078' },
+  } satisfies Record<Dosage, DosageDetail>,
   dosagePrices: DOSAGE_PRICES,
   dosageBid: DOSAGE_BID,
   dosageAsk: DOSAGE_ASK,
@@ -74,6 +84,13 @@ export const PRODUCT = {
   priceHistory: PRICE_HISTORY,
   soldLast30Days: 1247,
 }
+
+export const RECENT_SALES = [
+  { price: 87, dosage: '30mg', source: 'Estate cleanout', condition: 'Unopened-ish', when: '12 min ago' },
+  { price: 84, dosage: '30mg', source: 'Coat pocket', condition: 'Very good', when: '48 min ago' },
+  { price: 69, dosage: '20mg', source: 'Friend of a friend', condition: 'Verified', when: '3 hr ago' },
+  { price: 91, dosage: '30mg', source: 'Medicine cabinet', condition: 'One owner', when: 'Yesterday' },
+] as const
 
 export const RELATED_LISTINGS: RelatedListing[] = [
   { id: 'xanax-2mg',        name: 'Xanax',       variant: '2mg · White Bar',     price: 124, change: -3, changePercent: -2.4, trending: 'down' },
@@ -90,24 +107,6 @@ export const HISTORICAL_STATS = [
   { value: '3,847',      label: 'Number of Sales',   sub: 'Last 3 Months'   },
   { value: '189%',       label: 'Price Premium',     sub: 'vs. Pharmacy MSRP' },
   { value: '$78',        label: 'Avg Sale Price',    sub: 'Last 3 Months'   },
-]
-
-export const INFO_CARDS = [
-  {
-    icon: 'process' as const,
-    title: 'Our Process',
-    body: 'This item is verified by DrugX or ships directly from a DrugX Certified Analyst. We cannot provide further details at this time.',
-  },
-  {
-    icon: 'shield' as const,
-    title: 'Buyer Promise',
-    body: "We stand behind every product sold on DrugX. If a mistake is made, we'll make it right. Terms apply. Most states excluded.",
-  },
-  {
-    icon: 'sell' as const,
-    title: 'Start Selling ASAP',
-    body: 'You can start selling on DrugX in just a few clicks, no application process necessary. No background check required.',
-  },
 ]
 
 export const MODALS = {

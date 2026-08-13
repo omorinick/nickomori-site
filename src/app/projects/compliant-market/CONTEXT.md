@@ -22,13 +22,14 @@ Satirical project: a StockX replica for drugs. The joke is that it looks indisti
 
 ---
 
-## What's built (v1)
+## What's built (v2)
 
 ### Header (`DrugXHeader.tsx`)
 - Sticky full-width header styled like StockX
 - Logo: "Drug" white + "X" green (#00bb29)
 - Circled question-mark next to the logo with an "About" tooltip. Opens a polished pitch modal that explains the fictional marketplace thesis across leftover inventory, verification, unusual provenance, and neighbor-priced medicine; ends with a Mystery Box postscript and an explicit satire/safety disclosure.
 - Wide search bar: "Search for substance, brand, etc." (non-functional, visual only)
+- Search and account actions collapse on small screens so the logo, About control, and pill-ID action remain usable.
 - Right nav: Help · Sell · Affiliate · Login · Sign Up
 - Sub-nav with active underline: **Pills** | Injections | Powders | Collectibles | Mystery Box
 - All nav items are non-functional (visual only)
@@ -43,26 +44,23 @@ Satirical project: a StockX replica for drugs. The joke is that it looks indisti
 Hero drug: **Adderall XR 30mg**
 
 **Left column (image):**
-- White rounded container, h-[480px]
-- 3D rotating pill (see PillScene below)
-- Heart + share icon overlay buttons (visual only)
-- "✓ Verified Authentic · What's this?" badge — opens verification modal
-- Carousel dots (visual only, 3 dots)
+- Light product-photo container with the 3D rotating pill (see PillScene below)
+- Pill color changes with the selected dosage; variant name and SKU update with it
+- Functional favorite toggle and native share / copy-link action
+- "Verified by DrugX" badge opens the verification dialog
+- CSS capsule fallback displays while WebGL loads
 
 **Right column (purchase details):**
-- Product name, variant, SKU
-- QuickPack available badge with lightning bolt (visual only)
-- Dosage dropdown (10mg / 20mg / 30mg) — functional, updates price/bid/ask/last sale
-- Buy box: "Buy Now for $[ask]" + "⚡ 1,247 Sold in Last 30 Days!"
-- "$[ask] Includes DrugX Service Fee ?" — ? opens buyer protection modal
-- Make Offer + Buy Now buttons (visual only)
-- "Pay over time with Venmo or Cash App or Crypto"
-- Last Sale price + "View Market Data →" (anchor link to chart)
-- "Sell Now for $[bid] or Ask for More →"
+- Product name, dosage, release type, color, per-dosage SKU, and "Open box" condition
+- "Xpress Dose" fulfillment treatment with no stale calendar date
+- Dosage dropdown (10mg / 20mg / 30mg) updates pill color, variant, SKU, ask, offer, and last sale
+- Three-cell market summary: Lowest Ask, Highest Offer, and Last Sale
+- Make Offer, Buy Now, and Sell Now open accessible satirical transaction dialogs rather than acting as dead controls
+- 30-day volume and price-history anchor
 - Three accordion sections:
-  - Return Policy (easter egg: deadpan return policy copy)
-  - Buyer Promise (easter egg: "Not valid in states with recreational laws. Or the other states.")
-  - Our Process — shows "Condition: Lab Verified" (easter egg: "We cannot provide further details at this time.")
+  - Return Policy
+  - Buyer Promise
+  - Our Process / Lab Verified
 
 **Price history chart:**
 - Recharts LineChart, green line, dark card container
@@ -75,24 +73,26 @@ Hero drug: **Adderall XR 30mg**
 - Stats: Price Range 12M, Price Range 3M, Volatility (24%), Number of Sales (3,847), Price Premium (189% vs. Pharmacy MSRP), Avg Sale Price 3M
 - "vs. Pharmacy MSRP" label on Price Premium is an easter egg
 
-**Info cards:**
-- Our Process: "We cannot provide further details at this time."
-- Buyer Promise: "Terms apply. Most states excluded."
-- Start Selling ASAP: "No background check required."
+**Recent Sales:**
+- Responsive sales ledger showing fictional price, dosage, provenance, condition, and recency
+- Includes deadpan source labels such as "Estate cleanout," "Coat pocket," and "Medicine cabinet"
+
+**How DrugX works:**
+- Three-step marketplace explanation: list what is left, alleged lab verification, and market price discovery
+- Replaces the old generic information cards and non-functional Learn More links
 
 **Related Products:**
 - 5 cards: Xanax 2mg, Oxycodone 10mg, Ambien 10mg, Claritin 10mg (the OTC inclusion is intentional joke), Adderall XR 10mg
-- Cards use CSS 2D capsule placeholders (not 3D — appropriate for thumbnail size)
-- Non-functional (no detail pages yet)
+- Cards use CSS 2D capsules, avoiding five unnecessary WebGL canvases
+- Responsive scroll-snap rail on mobile and five-column grid on desktop
+- Selecting a product gives fictional regulatory-review feedback; no additional product routes exist
 
-**Pill ID CTA banner:**
-- "Found a pill you can't identify? Upload it. We'll tell you what it's worth."
-- Button is disabled with "Coming Soon · DrugX Labs™" label
-- Placeholder for a future feature (v2)
+**DrugX Labs:**
+- Header ID action opens an accessible shadcn dialog with a fictional pill-upload surface
+- Explicitly states that no analysis occurs and DrugX is not an identification service
 
 **Fine print:**
-- "DrugX is a satirical project. All prices are fictional. No actual transactions occur."
-- Intentionally faded (20% opacity)
+- Clear satire and safety disclosure: all products, prices, verification claims, and transactions are fictional; do not buy, sell, share, or take unidentified medication
 
 ### 3D pill (`PillScene.tsx`)
 - React Three Fiber + Three.js `CapsuleGeometry`
@@ -100,16 +100,21 @@ Hero drug: **Adderall XR 30mg**
 - Current color: blue (#3b6fd4 / #6b9fe8)
 - `MeshPhysicalMaterial` with clearcoat=1 for pharmaceutical gloss
 - Auto-rotates on Y axis at 0.65 rad/sec, subtle Y-axis float
+- Honors `prefers-reduced-motion` by holding the pill in a static product pose
 - Loaded via `dynamic(() => import('./PillScene'), { ssr: false })` — Three.js is client-only
 - White container background makes it look like a product photo
 
 ### Data (`src/data/projects/compliant-market.ts`)
 All data is hardcoded. Types exported:
-- `PRODUCT` — dosage options, prices/bid/ask/lastSale per dosage, price history per timeframe
+- `PRODUCT` — dosage options, visual details, SKUs, prices/bid/ask/lastSale per dosage, price history per timeframe
 - `RELATED_LISTINGS` — 5 related drugs
 - `HISTORICAL_STATS` — 6 stat cards
-- `INFO_CARDS` — 3 bottom cards
+- `RECENT_SALES` — fictional market activity ledger
 - `MODALS` — verification + buyerProtection modal copy
+
+### Scoped visual system (`globals.css`)
+- `.drugx-theme` provides cooler black/graphite surfaces, neutral borders, and DrugX green without changing the warm editorial tokens used by the rest of nickomori.com
+- DrugX dialogs carry the scoped theme through their portals
 
 ---
 
@@ -121,7 +126,7 @@ All data is hardcoded. Types exported:
 | Satire style | Deadpan, easter eggs in content | "Looks real" is the primary effect; jokes reward exploration |
 | Drug names | Real names (Adderall, Xanax, etc.) | Recognition is the joke |
 | 3D pill | React Three Fiber + CapsuleGeometry | Proper WebGL quality without needing a model file |
-| Pill color | Blue (#3b6fd4 / #6b9fe8) | Changed from orange; can be swapped easily |
+| Pill color | Dosage-specific two-tone palette | Makes the dosage control visible in the product image and keeps variant copy consistent |
 | Chart library | Recharts | Real interactivity, looks authentic |
 | Images | 3D pill for hero; CSS capsules for thumbnails | 3D adds wow factor; thumbnails don't need it |
 | Back navigation | Overscroll reveal above sticky header | Clever UX, doesn't break the StockX immersion |
@@ -131,10 +136,9 @@ All data is hardcoded. Types exported:
 
 ## Known issues / gotchas
 
-- **Related product cards are not clickable.** They render but link nowhere. If you add individual product pages later, you'll need to add routes and wire up `href` on the cards.
-- **The 3D pill has no fallback** if WebGL is unavailable. The container shows white until the canvas loads, then the pill appears. Acceptable for a portfolio project.
+- **Related products have no detail routes.** Selection currently provides an in-world status message. If individual product pages are added later, wire the cards to those routes.
+- **The 3D pill fallback covers loading, not a hard WebGL failure.** A true runtime failure boundary would still be needed for browsers that cannot initialize WebGL.
 - **The scroll-reveal back bar** is less obvious on desktop (you have to scroll to the very top). On iOS it feels natural via elastic bounce. Could add a subtle visual hint if this becomes confusing.
-- **Pill color is hardcoded** as blue in the `PillScene` call site. The `PillScene` component accepts `color1`/`color2` props so it's easy to change per product.
 - **`CapsuleGeometry`** is Y-axis aligned by default. The mesh is rotated `[0, 0, Math.PI/2]` to lay horizontal. The vertex color split is at y=0 in geometry space, which becomes the center of the horizontal pill. This is intentional.
 
 ---
