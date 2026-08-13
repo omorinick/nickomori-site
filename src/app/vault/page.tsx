@@ -4,8 +4,22 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PageBreadcrumb } from '@/components/PageBreadcrumb'
+import { CASE_STUDY_REGISTRY } from '@/data/case-studies/registry'
+
+const CASE_STUDY_META: Record<string, { description: string; tags: string[] }> = {
+  'churn-case': {
+    description: 'Retention lever deck · PayPal blue · comment layer',
+    tags: ['Leadership case', 'Interactive'],
+  },
+  'substack-case': {
+    description: 'Full interview case · deep-dive branch · recreated artifacts',
+    tags: ['Interview case', 'Deep dive', 'Comment layer'],
+  },
+}
 
 export default function VaultPage() {
+  const caseStudies = Object.entries(CASE_STUDY_REGISTRY).filter(([slug]) => slug !== 'demo')
+
   return (
     <main className="min-h-screen bg-background px-4 sm:px-6 py-10">
       <div className="max-w-4xl mx-auto">
@@ -13,7 +27,7 @@ export default function VaultPage() {
         <div className="flex items-start justify-between mb-10">
           <div>
             <h1 className="text-4xl font-bold text-foreground tracking-tight font-heading">Vault</h1>
-            <p className="text-sm text-muted-foreground mt-2">Personal artifacts & tools</p>
+            <p className="text-sm text-muted-foreground mt-2">Personal artifacts & shareable case studies</p>
           </div>
           <form action={logout}>
             <Button type="submit" variant="ghost" size="sm" className="text-muted-foreground">
@@ -22,49 +36,92 @@ export default function VaultPage() {
           </form>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Link href="/vault/churn-case" className="group block">
-            <Card className="transition-shadow hover:shadow-sm hover:ring-foreground/20 cursor-pointer">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle>Churn & Decline Case</CardTitle>
-                    <CardDescription className="mt-0.5">Living prototype · SCQA · spine-and-ribs</CardDescription>
+        <section className="mb-12">
+          <div className="mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Personal</h2>
+            <p className="text-sm text-muted-foreground mt-1">Covered by the Vault passphrase you just used.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Link href="/vault/japan" className="group block">
+              <Card className="transition-shadow hover:shadow-sm hover:ring-foreground/20 cursor-pointer">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle>Japan 2026</CardTitle>
+                      <CardDescription className="mt-0.5">Living trip itinerary · Apr 19–30</CardDescription>
+                    </div>
+                    <span className="text-muted-foreground group-hover:text-foreground transition-colors text-base leading-none mt-0.5">→</span>
                   </div>
-                  <span className="text-muted-foreground group-hover:text-foreground transition-colors text-base leading-none mt-0.5">→</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-1.5 flex-wrap">
-                  {['Leadership case', 'Interactive', '6 patterns'].map(tag => (
-                    <Badge key={tag} variant="secondary">{tag}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {['Tokyo', 'Hakone', 'Kyoto', 'Hiroshima'].map(city => (
+                      <Badge key={city} variant="secondary">{city}</Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/vault/japan" className="group block">
-            <Card className="transition-shadow hover:shadow-sm hover:ring-foreground/20 cursor-pointer">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle>Japan 2026</CardTitle>
-                    <CardDescription className="mt-0.5">Living trip itinerary · Apr 19–30</CardDescription>
+            <Link href="/vault/churn-case" className="group block">
+              <Card className="transition-shadow hover:shadow-sm hover:ring-foreground/20 cursor-pointer">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle>Churn & Decline Case (original)</CardTitle>
+                      <CardDescription className="mt-0.5">Living prototype · SCQA · spine-and-ribs</CardDescription>
+                    </div>
+                    <span className="text-muted-foreground group-hover:text-foreground transition-colors text-base leading-none mt-0.5">→</span>
                   </div>
-                  <span className="text-muted-foreground group-hover:text-foreground transition-colors text-base leading-none mt-0.5">→</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-1.5 flex-wrap">
-                  {['Tokyo', 'Hakone', 'Kyoto', 'Hiroshima'].map(city => (
-                    <Badge key={city} variant="secondary">{city}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {['Leadership case', 'Interactive', '6 patterns'].map(tag => (
+                      <Badge key={tag} variant="secondary">{tag}</Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Case studies</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Shareable review builds — each has its own passphrase, so a link never exposes the rest of the Vault.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {caseStudies.map(([slug, meta]) => {
+              const extra = CASE_STUDY_META[slug]
+              return (
+                <Link key={slug} href={`/case-studies/${slug}`} className="group block">
+                  <Card className="transition-shadow hover:shadow-sm hover:ring-foreground/20 cursor-pointer">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle>{meta.title}</CardTitle>
+                          {extra && <CardDescription className="mt-0.5">{extra.description}</CardDescription>}
+                        </div>
+                        <span className="text-muted-foreground group-hover:text-foreground transition-colors text-base leading-none mt-0.5">→</span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <Badge variant="outline">Own passphrase</Badge>
+                        {extra?.tags.map(tag => (
+                          <Badge key={tag} variant="secondary">{tag}</Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
       </div>
     </main>
   )
