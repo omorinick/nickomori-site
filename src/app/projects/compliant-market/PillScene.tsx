@@ -79,6 +79,7 @@ export default function PillScene({
     <Canvas
       aria-label="Rotating two-tone capsule product rendering"
       frameloop="always"
+      dpr={[1, 1.5]}
       camera={{ position: [0, 0, 5], fov: 35 }}
       gl={{ antialias: true, alpha: true }}
       onCreated={({ gl }) => {

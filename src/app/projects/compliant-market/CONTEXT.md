@@ -78,12 +78,14 @@ Hero drug: **Adderall XR 30mg**
 - Includes deadpan source labels such as "Estate cleanout," "Coat pocket," and "Medicine cabinet"
 
 **How DrugX works:**
-- Three-step marketplace explanation: list what is left, alleged lab verification, and market price discovery
+- Three-step marketplace explanation: list unused supply, independent third-party verification, and transparent fair-market access
+- This section carries the concept's serious product pitch; satire is deliberately restrained so the underlying problems and value proposition feel credible
 - Replaces the old generic information cards and non-functional Learn More links
 
 **Related Products:**
-- 5 cards: Xanax 2mg, Oxycodone 10mg, Ambien 10mg, Claritin 10mg (the OTC inclusion is intentional joke), Adderall XR 10mg
-- Cards use CSS 2D capsules, avoiding five unnecessary WebGL canvases
+- 5 cards: Xanax 2mg, Oxycodone 10mg, Ambien 10mg, Claritin 10mg (the OTC inclusion is an intentional joke), and Semaglutide 1mg
+- Capsule listings use the original rotating Three.js pill treatment
+- Semaglutide uses a dedicated procedural Three.js prefilled injection pen with a pearl barrel, branded cap, dose dial/window, transparent cartridge collar, and manufactured metal details
 - Responsive scroll-snap rail on mobile and five-column grid on desktop
 - Selecting a product gives fictional regulatory-review feedback; no additional product routes exist
 
@@ -128,7 +130,7 @@ All data is hardcoded. Types exported:
 | 3D pill | React Three Fiber + CapsuleGeometry | Proper WebGL quality without needing a model file |
 | Pill color | Dosage-specific two-tone palette | Makes the dosage control visible in the product image and keeps variant copy consistent |
 | Chart library | Recharts | Real interactivity, looks authentic |
-| Images | 3D pill for hero; CSS capsules for thumbnails | 3D adds wow factor; thumbnails don't need it |
+| Images | 3D pill for hero and related capsules; custom 3D injection pen for Semaglutide | Motion and product detail are part of the project's premium marketplace illusion |
 | Back navigation | Overscroll reveal above sticky header | Clever UX, doesn't break the StockX immersion |
 | All data | Hardcoded | No backend warranted for a satirical POC |
 

@@ -43,6 +43,15 @@ const PillScene = dynamic(() => import('./PillScene'), {
   ),
 })
 
+const InjectorScene = dynamic(() => import('./InjectorScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center" aria-label="Loading injection pen image">
+      <div className="h-7 w-32 rotate-[-8deg] rounded-full bg-gradient-to-r from-[#f4f5f2] from-70% to-[#0c9f52] shadow-[0_14px_28px_rgba(0,0,0,0.16)]" />
+    </div>
+  ),
+})
+
 const MarketChart = dynamic(() => import('./DrugXMarketChart'), {
   ssr: false,
   loading: () => <div className="h-[260px] animate-pulse rounded-lg bg-muted/40" />,
@@ -53,27 +62,27 @@ const RELATED_PILL_COLORS: Record<string, [string, string]> = {
   'oxycodone-10mg': ['#8359bf', '#b796e4'],
   'ambien-10mg': ['#d84e8c', '#f18ab5'],
   'claritin-10mg': ['#d2a10d', '#f1d064'],
-  'adderall-xr-10mg': ['#3574c8', '#83afe8'],
+  'semaglutide-1mg': ['#f4f5f2', '#0c9f52'],
 }
 
 const HOW_IT_WORKS = [
   {
     icon: BadgeDollarSign,
     number: '01',
-    title: 'List what is left',
-    body: 'Choose the dosage, estimate the quantity, and provide the most plausible version of how it entered your possession.',
+    title: 'List unused supply',
+    body: 'Turn medication you no longer need into recoverable value instead of letting viable supply expire in a cabinet or go to waste.',
   },
   {
     icon: Beaker,
     number: '02',
-    title: 'We allegedly verify it',
-    body: 'DrugX Labs™ checks identity, purity, potency, and whether the label looks convincing from a responsible distance.',
+    title: 'Third-party verified',
+    body: 'Independent labs confirm identity, purity, and potency, then seal every accepted item in tamper-evident DrugX packaging.',
   },
   {
     icon: PackageCheck,
     number: '03',
-    title: 'The market decides',
-    body: 'The highest Offer meets the lowest Ask. Somewhere, a medicine cabinet achieves price discovery.',
+    title: 'Access at a fair market price',
+    body: 'Transparent Offers, Asks, and sales history help buyers access verified supply while sellers recover value from what they already own.',
   },
 ] as const
 
@@ -88,11 +97,14 @@ function RelatedCard({ listing, onSelect }: { listing: RelatedListing; onSelect:
       onClick={onSelect}
       className="group h-full w-full snap-start overflow-hidden rounded-lg border border-border bg-card text-left transition-all hover:-translate-y-0.5 hover:border-border-hover hover:shadow-xl focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-[#f1f2ef]">
-        <div
-          className="h-9 w-28 rotate-[-10deg] rounded-full shadow-[0_14px_28px_rgba(0,0,0,0.16)] transition-transform duration-300 group-hover:rotate-[-4deg] group-hover:scale-105"
-          style={{ background: `linear-gradient(90deg, ${color1} 0 50%, ${color2} 50% 100%)` }}
-        />
+      <div className="relative h-36 overflow-hidden bg-[#f1f2ef]">
+        <div className="pointer-events-none absolute inset-0 transition-transform duration-300 group-hover:scale-[1.04]">
+          {listing.visual === 'injection-pen' ? (
+            <InjectorScene />
+          ) : (
+            <PillScene color1={color1} color2={color2} />
+          )}
+        </div>
         <span className="absolute bottom-2 right-2 rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
           Verified
         </span>
@@ -505,7 +517,7 @@ export default function DrugXProductPage() {
         <section className="mt-20">
           <div className="mb-5">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: GREEN }}>Our process</p>
-            <h2 className="mt-1 text-xl font-bold">From cabinet to market in three steps</h2>
+            <h2 className="mt-1 text-xl font-bold">A safer secondary market in three steps</h2>
           </div>
           <div className="grid overflow-hidden rounded-xl border border-border bg-border md:grid-cols-3 md:gap-px">
             {HOW_IT_WORKS.map((step) => {

@@ -7,6 +7,7 @@ export interface RelatedListing {
   id: string
   name: string
   variant: string
+  visual: 'capsule' | 'injection-pen'
   price: number
   change: number
   changePercent: number
@@ -93,11 +94,11 @@ export const RECENT_SALES = [
 ] as const
 
 export const RELATED_LISTINGS: RelatedListing[] = [
-  { id: 'xanax-2mg',        name: 'Xanax',       variant: '2mg · White Bar',     price: 124, change: -3, changePercent: -2.4, trending: 'down' },
-  { id: 'oxycodone-10mg',   name: 'Oxycodone',   variant: '10mg · Round White',  price: 210, change: 15, changePercent:  7.7, trending: 'up'   },
-  { id: 'ambien-10mg',      name: 'Ambien',       variant: '10mg · Oval Pink',    price:  67, change:  1, changePercent:  1.5, trending: 'up'   },
-  { id: 'claritin-10mg',    name: 'Claritin',     variant: '10mg · White Round',  price:  12, change:  0, changePercent:  0.0, trending: 'flat' },
-  { id: 'adderall-xr-10mg', name: 'Adderall XR', variant: '10mg · Blue Capsule', price:  45, change:  3, changePercent:  7.1, trending: 'up'   },
+  { id: 'xanax-2mg',       name: 'Xanax',       variant: '2mg · White Bar',       visual: 'capsule',       price: 124, change: -3, changePercent: -2.4, trending: 'down' },
+  { id: 'oxycodone-10mg',  name: 'Oxycodone',   variant: '10mg · Round White',    visual: 'capsule',       price: 210, change: 15, changePercent:  7.7, trending: 'up'   },
+  { id: 'ambien-10mg',     name: 'Ambien',      variant: '10mg · Oval Pink',      visual: 'capsule',       price:  67, change:  1, changePercent:  1.5, trending: 'up'   },
+  { id: 'claritin-10mg',   name: 'Claritin',    variant: '10mg · White Round',    visual: 'capsule',       price:  12, change:  0, changePercent:  0.0, trending: 'flat' },
+  { id: 'semaglutide-1mg', name: 'Semaglutide', variant: '1mg · Prefilled Pen',   visual: 'injection-pen', price: 186, change: 22, changePercent: 13.4, trending: 'up'   },
 ]
 
 export const HISTORICAL_STATS = [
