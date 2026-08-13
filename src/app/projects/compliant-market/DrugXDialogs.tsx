@@ -106,7 +106,7 @@ export function DrugXInfoDialog({
           <div className="flex items-center gap-2">
             <ShieldCheck className="size-4" style={{ color: GREEN }} />
             <span className="text-[10px] font-black tracking-[0.16em]" style={{ color: GREEN }}>
-              VERIFIED-ish
+              INDEPENDENT ANALYSIS
             </span>
           </div>
           <DialogTitle className="font-sans text-xl font-bold">{title}</DialogTitle>

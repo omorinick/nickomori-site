@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import type { DrugXProduct } from '@/data/projects/compliant-market'
 import DrugXHeader from './DrugXHeader'
 import DrugXProductPage from './CompliantMarketClient'
 
@@ -10,7 +11,7 @@ import DrugXProductPage from './CompliantMarketClient'
 // scrolling up past 0 reveals the bar.
 const BACK_BAR_HEIGHT = 44
 
-export default function DrugXPageShell() {
+export default function DrugXPageShell({ product }: { product: DrugXProduct }) {
   useEffect(() => {
     // Push the viewport down past the back bar so the DrugX header
     // appears to be the top of the page on load.
@@ -35,7 +36,7 @@ export default function DrugXPageShell() {
       </div>
 
       <DrugXHeader />
-      <DrugXProductPage />
+      <DrugXProductPage product={product} />
     </div>
   )
 }

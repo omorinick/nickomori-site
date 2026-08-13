@@ -41,19 +41,14 @@ const PITCH_POINTS = [
 function AboutDrugX() {
   return (
     <Dialog>
-      <div className="relative group/about flex-shrink-0">
+      <div className="flex-shrink-0">
         <DialogTrigger
           aria-label="About DrugX"
-          className="size-7 rounded-full border border-border text-muted-foreground flex items-center justify-center hover:text-foreground hover:border-border-hover focus-visible:text-foreground transition-colors"
+          className="flex h-9 items-center gap-1.5 rounded-full border border-[#00bb29]/50 bg-[#00bb29]/8 px-3 text-xs font-bold text-[#3bd65c] transition-all hover:border-[#00bb29] hover:bg-[#00bb29]/14 hover:text-[#72ed8c] focus-visible:ring-2 focus-visible:ring-[#00bb29]/70"
         >
-          <CircleHelp size={15} strokeWidth={1.8} />
+          <CircleHelp size={16} strokeWidth={2} />
+          <span>About</span>
         </DialogTrigger>
-        <span
-          role="tooltip"
-          className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 rounded-md border border-border bg-surface-overlay px-2 py-1 text-[11px] font-medium text-foreground opacity-0 shadow-lg transition-opacity group-hover/about:opacity-100 group-focus-within/about:opacity-100"
-        >
-          About
-        </span>
       </div>
 
       <DialogContent
@@ -177,7 +172,6 @@ export default function DrugXHeader() {
         <nav className="hidden lg:flex items-center gap-6 text-sm text-muted-foreground flex-shrink-0">
           <span className="hover:text-foreground cursor-pointer transition-colors">Help</span>
           <span className="hover:text-foreground cursor-pointer transition-colors">Sell</span>
-          <span className="hover:text-foreground cursor-pointer transition-colors">Affiliate</span>
         </nav>
 
         {/* Auth */}

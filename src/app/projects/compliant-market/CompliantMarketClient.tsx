@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import {
   BadgeDollarSign,
   Beaker,
@@ -15,12 +16,10 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  HISTORICAL_STATS,
   MODALS,
-  PRODUCT,
-  RECENT_SALES,
   RELATED_LISTINGS,
-  type Dosage,
+  type DrugXProduct,
+  type ProductVisual,
   type RelatedListing,
   type Timeframe,
 } from '@/data/projects/compliant-market'
@@ -52,18 +51,28 @@ const InjectorScene = dynamic(() => import('./InjectorScene'), {
   ),
 })
 
+const TabletScene = dynamic(() => import('./TabletScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center" aria-label="Loading tablet image">
+      <div className="h-20 w-20 rotate-[-8deg] rounded-full bg-[#e4a0b5] shadow-[0_16px_32px_rgba(0,0,0,0.16)]" />
+    </div>
+  ),
+})
+
+const VialScene = dynamic(() => import('./VialScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center" aria-label="Loading vial image">
+      <div className="h-28 w-16 rounded-b-xl rounded-t-md border-4 border-white/70 bg-[#d8e4e7]/60 shadow-[0_16px_32px_rgba(0,0,0,0.16)]" />
+    </div>
+  ),
+})
+
 const MarketChart = dynamic(() => import('./DrugXMarketChart'), {
   ssr: false,
   loading: () => <div className="h-[260px] animate-pulse rounded-lg bg-muted/40" />,
 })
-
-const RELATED_PILL_COLORS: Record<string, [string, string]> = {
-  'xanax-2mg': ['#80858c', '#d8dadd'],
-  'oxycodone-10mg': ['#8359bf', '#b796e4'],
-  'ambien-10mg': ['#d84e8c', '#f18ab5'],
-  'claritin-10mg': ['#d2a10d', '#f1d064'],
-  'semaglutide-1mg': ['#f4f5f2', '#0c9f52'],
-}
 
 const HOW_IT_WORKS = [
   {
@@ -86,24 +95,60 @@ const HOW_IT_WORKS = [
   },
 ] as const
 
+function ProductScene({ visual }: { visual: ProductVisual }) {
+  if (visual.kind === 'injection-pen') {
+    return <InjectorScene accentColor={visual.accentColor} bodyColor={visual.bodyColor} />
+  }
+  if (visual.kind === 'tablet') {
+    return <TabletScene shape={visual.shape} color={visual.color} scoreColor={visual.scoreColor} />
+  }
+  if (visual.kind === 'vial') {
+    return (
+      <VialScene
+        contents={visual.contents}
+        capColor={visual.capColor}
+        contentsColor={visual.contentsColor}
+        labelColor={visual.labelColor}
+      />
+    )
+  }
+  return <PillScene color1={visual.color1} color2={visual.color2} />
+}
+
+function ProductSwatch({ visual }: { visual: ProductVisual }) {
+  if (visual.kind === 'capsule') {
+    return (
+      <span
+        className="h-3 w-5 rounded-full"
+        style={{ background: `linear-gradient(90deg, ${visual.color1} 50%, ${visual.color2} 50%)` }}
+      />
+    )
+  }
+  if (visual.kind === 'tablet') {
+    return (
+      <span
+        className={cn('block bg-current', visual.shape === 'round' ? 'size-3 rounded-full' : 'h-2.5 w-5 rounded')}
+        style={{ color: visual.color }}
+      />
+    )
+  }
+  if (visual.kind === 'vial') {
+    return <span className="block h-4 w-3 rounded-sm border border-black/15" style={{ background: visual.labelColor }} />
+  }
+  return (
+    <span className="block h-2.5 w-5 rounded-full" style={{ background: visual.accentColor }} />
+  )
+}
+
 function RelatedCard({ listing, onSelect }: { listing: RelatedListing; onSelect: () => void }) {
   const isUp = listing.trending === 'up'
   const isDown = listing.trending === 'down'
-  const [color1, color2] = RELATED_PILL_COLORS[listing.id] ?? ['#888', '#aaa']
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="group h-full w-full snap-start overflow-hidden rounded-lg border border-border bg-card text-left transition-all hover:-translate-y-0.5 hover:border-border-hover hover:shadow-xl focus-visible:ring-2 focus-visible:ring-ring"
-    >
+  const cardClassName = 'group block h-full w-full snap-start overflow-hidden rounded-lg border border-border bg-card text-left transition-all hover:-translate-y-0.5 hover:border-border-hover hover:shadow-xl focus-visible:ring-2 focus-visible:ring-ring'
+  const content = (
+    <>
       <div className="relative h-36 overflow-hidden bg-[#f1f2ef]">
         <div className="pointer-events-none absolute inset-0 transition-transform duration-300 group-hover:scale-[1.04]">
-          {listing.visual === 'injection-pen' ? (
-            <InjectorScene />
-          ) : (
-            <PillScene color1={color1} color2={color2} />
-          )}
+          <ProductScene visual={listing.visual} />
         </div>
         <span className="absolute bottom-2 right-2 rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
           Verified
@@ -124,8 +169,14 @@ function RelatedCard({ listing, onSelect }: { listing: RelatedListing; onSelect:
           </p>
         </div>
       </div>
-    </button>
+    </>
   )
+
+  if (listing.href) {
+    return <Link href={listing.href} className={cardClassName}>{content}</Link>
+  }
+
+  return <button type="button" onClick={onSelect} className={cardClassName}>{content}</button>
 }
 
 function AccordionRow({
@@ -167,8 +218,8 @@ function AccordionRow({
   )
 }
 
-export default function DrugXProductPage() {
-  const [activeDosage, setActiveDosage] = useState<Dosage>('30mg')
+export default function DrugXProductPage({ product }: { product: DrugXProduct }) {
+  const [activeDosage, setActiveDosage] = useState(product.defaultVariant)
   const [dosageOpen, setDosageOpen] = useState(false)
   const [activeTimeframe, setActiveTimeframe] = useState<Timeframe>('1M')
   const [infoModal, setInfoModal] = useState<'verification' | 'buyerProtection' | null>(null)
@@ -208,7 +259,7 @@ export default function DrugXProductPage() {
 
   const handleShare = async () => {
     const shareData = {
-      title: `DrugX — ${PRODUCT.name} ${activeDosage}`,
+      title: `DrugX — ${product.name} ${activeDosage}`,
       text: 'A verified secondary market for pharmaceutical assets. Obviously satire.',
       url: window.location.href,
     }
@@ -226,13 +277,13 @@ export default function DrugXProductPage() {
     }
   }
 
-  const ask = PRODUCT.dosageAsk[activeDosage]
-  const offer = PRODUCT.dosageBid[activeDosage]
-  const lastSale = PRODUCT.dosageLastSale[activeDosage]
-  const change = PRODUCT.dosageLastSaleChange[activeDosage]
-  const changePct = PRODUCT.dosageLastSaleChangePct[activeDosage]
-  const detail = PRODUCT.dosageDetails[activeDosage]
-  const chartData = PRODUCT.priceHistory[activeTimeframe]
+  const ask = product.asks[activeDosage]
+  const offer = product.bids[activeDosage]
+  const lastSale = product.lastSales[activeDosage]
+  const change = product.lastSaleChanges[activeDosage]
+  const changePct = product.lastSaleChangePercentages[activeDosage]
+  const detail = product.variantDetails[activeDosage]
+  const chartData = product.priceHistory[activeTimeframe]
   const chartMin = Math.min(...chartData.map((point) => point.price)) - 5
   const chartMax = Math.max(...chartData.map((point) => point.price)) + 5
   const timeframes: Timeframe[] = ['1W', '1M', '3M', '1Y']
@@ -242,15 +293,15 @@ export default function DrugXProductPage() {
       <div className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 overflow-x-auto py-5 text-xs text-muted-foreground">
           <span>Home</span><span aria-hidden>/</span>
-          <span>Pills</span><span aria-hidden>/</span>
-          <span>Stimulants</span><span aria-hidden>/</span>
-          <span className="whitespace-nowrap text-foreground">{PRODUCT.name} {activeDosage}</span>
+          <span>{product.category}</span><span aria-hidden>/</span>
+          <span>{product.subcategory}</span><span aria-hidden>/</span>
+          <span className="whitespace-nowrap text-foreground">{product.name} {activeDosage}</span>
         </nav>
 
         <section className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-12">
           <div className="relative h-[400px] overflow-hidden rounded-xl bg-[#f1f2ef] sm:h-[520px]">
             <div className="absolute inset-0">
-              <PillScene color1={detail.color1} color2={detail.color2} />
+              <ProductScene visual={detail.visual} />
             </div>
             <div className="absolute right-4 top-4 flex gap-2">
               <button
@@ -282,7 +333,7 @@ export default function DrugXProductPage() {
                 style={{ background: GREEN }}
               >
                 <Check size={12} strokeWidth={3} />
-                Verified by DrugX
+                Third-Party Verified
               </button>
               <span className="rounded bg-black/65 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur">
                 Spin for a second opinion
@@ -296,21 +347,21 @@ export default function DrugXProductPage() {
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: GREEN }}>
                   Verified Marketplace
                 </p>
-                <h1 className="text-3xl font-black leading-none tracking-tight sm:text-4xl">{PRODUCT.name}</h1>
+                <h1 className="text-3xl font-black leading-none tracking-tight sm:text-4xl">{product.name}</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {activeDosage} · Extended Release · {detail.variant}
+                  {activeDosage} · {product.form} · {detail.descriptor}
                 </p>
                 <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-foreground-subtle">SKU {detail.sku}</p>
               </div>
               <span className="rounded-md border border-border bg-card px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Open box
+                {product.condition}
               </span>
             </div>
 
             <div className="mt-5 flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-sm">
               <Zap size={14} style={{ color: GREEN }} />
-              <span className="font-semibold">Xpress Dose available.</span>
-              <span className="text-muted-foreground">Ships in 1–2 suspiciously fast days.</span>
+              <span className="font-semibold">{product.shippingTitle}</span>
+              <span className="text-muted-foreground">{product.shippingBody}</span>
             </div>
 
             <div ref={dosageRef} className="relative mt-4">
@@ -329,7 +380,7 @@ export default function DrugXProductPage() {
               </button>
               {dosageOpen && (
                 <div id="dosage-options" className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-border bg-surface-overlay shadow-xl">
-                  {PRODUCT.dosageOptions.map((dosage) => (
+                  {product.variantOptions.map((dosage) => (
                     <button
                       key={dosage}
                       type="button"
@@ -343,13 +394,10 @@ export default function DrugXProductPage() {
                       }}
                     >
                       <span className="flex items-center gap-3">
-                        <span
-                          className="size-3 rounded-full"
-                          style={{ background: `linear-gradient(90deg, ${PRODUCT.dosageDetails[dosage].color1} 50%, ${PRODUCT.dosageDetails[dosage].color2} 50%)` }}
-                        />
+                        <ProductSwatch visual={product.variantDetails[dosage].visual} />
                         {dosage}
                       </span>
-                      <span className="font-semibold">${PRODUCT.dosagePrices[dosage]}</span>
+                      <span className="font-semibold">${product.prices[dosage]}</span>
                     </button>
                   ))}
                 </div>
@@ -395,7 +443,7 @@ export default function DrugXProductPage() {
             <div className="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 text-sm">
               <div>
                 <span className="text-muted-foreground">30-day volume </span>
-                <span className="font-semibold">{PRODUCT.soldLast30Days.toLocaleString()} units</span>
+                <span className="font-semibold">{product.soldLast30Days.toLocaleString()} units</span>
               </div>
               <a href="#price-history" className="text-xs text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground">
                 View market data
@@ -412,13 +460,13 @@ export default function DrugXProductPage() {
 
             <div className="mt-3">
               <AccordionRow id="return" label="Return Policy" right={<span>Final-ish sale</span>} open={openAccordion === 'return'} onToggle={() => setOpenAccordion(openAccordion === 'return' ? null : 'return')}>
-                <p>Returns are accepted within 14 days if the item is materially different, unexpectedly effective, or still attached to the original prescription holder.</p>
+                <p>{product.returnCopy}</p>
               </AccordionRow>
               <AccordionRow id="promise" label="Buyer Promise" open={openAccordion === 'promise'} onToggle={() => setOpenAccordion(openAccordion === 'promise' ? null : 'promise')}>
-                <p>Wrong pill, wrong color, wrong vibe—we will make it right. Terms apply. Coverage is not currently valid in any state, territory, or legally recognized body of water.</p>
+                <p>{product.buyerPromiseCopy}</p>
               </AccordionRow>
               <AccordionRow id="process" label="Our Process" right={<span>Lab Verified</span>} open={openAccordion === 'process'} onToggle={() => setOpenAccordion(openAccordion === 'process' ? null : 'process')}>
-                <p>Every item is routed through a proprietary multi-step verification process. We test identity, purity, potency, and whether the seller became visibly nervous during onboarding.</p>
+                <p>{product.processCopy}</p>
               </AccordionRow>
             </div>
           </div>
@@ -429,7 +477,7 @@ export default function DrugXProductPage() {
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: GREEN }}>Market intelligence</p>
               <h2 className="mt-1 text-xl font-bold">Price History</h2>
-              <p className="mt-1 text-xs text-muted-foreground">{PRODUCT.name} {activeDosage} · verified sales only</p>
+              <p className="mt-1 text-xs text-muted-foreground">{product.name} {activeDosage} · verified sales only</p>
             </div>
             <div className="flex w-fit gap-1 rounded-lg border border-border bg-card p-1">
               {timeframes.map((timeframe) => (
@@ -454,7 +502,7 @@ export default function DrugXProductPage() {
             <MarketChart data={chartData} min={chartMin} max={chartMax} />
             {activeTimeframe === '1Y' && (
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                September spike attributed to back-to-school demand. Market self-corrected by November.
+                {product.marketNote}
               </p>
             )}
           </div>
@@ -483,10 +531,10 @@ export default function DrugXProductPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {RECENT_SALES.map((sale) => (
+                  {product.recentSales.map((sale) => (
                     <tr key={`${sale.price}-${sale.when}`} className="border-b border-border last:border-0">
                       <td className="px-5 py-3.5 font-bold">${sale.price}</td>
-                      <td className="px-3 py-3.5">{sale.dosage}</td>
+                      <td className="px-3 py-3.5">{sale.variant}</td>
                       <td className="px-3 py-3.5 text-muted-foreground">{sale.source}</td>
                       <td className="px-3 py-3.5 text-muted-foreground">{sale.condition}</td>
                       <td className="px-5 py-3.5 text-right text-xs text-muted-foreground">{sale.when}</td>
@@ -498,7 +546,7 @@ export default function DrugXProductPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2">
-            {HISTORICAL_STATS.map((stat) => (
+            {product.historicalStats.map((stat) => (
               <div key={`${stat.label}-${stat.sub}`} className="rounded-lg border border-border bg-card px-4 py-3.5">
                 <p className="text-xl font-bold">{stat.value}</p>
                 <p className="mt-0.5 text-sm font-medium">{stat.label}</p>

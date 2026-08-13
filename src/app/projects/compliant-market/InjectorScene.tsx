@@ -5,7 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import type { RootState } from '@react-three/fiber'
 import * as THREE from 'three'
 
-function InjectionPen() {
+function InjectionPen({ accentColor, bodyColor }: { accentColor: string; bodyColor: string }) {
   const groupRef = useRef<THREE.Group>(null)
   const reducedMotionRef = useRef(false)
 
@@ -36,17 +36,17 @@ function InjectionPen() {
       {/* Main pearl-finish barrel */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.27, 0.27, 2.25, 48]} />
-        <meshPhysicalMaterial color="#f4f5f2" roughness={0.16} clearcoat={0.8} clearcoatRoughness={0.12} />
+        <meshPhysicalMaterial color={bodyColor} roughness={0.16} clearcoat={0.8} clearcoatRoughness={0.12} />
       </mesh>
 
       {/* Branded green injection cap */}
       <mesh position={[1.34, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.3, 0.28, 0.58, 48]} />
-        <meshPhysicalMaterial color="#0c9f52" roughness={0.12} clearcoat={1} />
+        <meshPhysicalMaterial color={accentColor} roughness={0.12} clearcoat={1} />
       </mesh>
       <mesh position={[1.64, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.24, 0.3, 0.08, 48]} />
-        <meshPhysicalMaterial color="#087d40" roughness={0.2} clearcoat={0.7} />
+        <meshPhysicalMaterial color={accentColor} roughness={0.2} clearcoat={0.7} />
       </mesh>
 
       {/* Rear dose dial and button */}
@@ -56,7 +56,7 @@ function InjectionPen() {
       </mesh>
       <mesh position={[-1.45, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.2, 0.24, 0.14, 48]} />
-        <meshPhysicalMaterial color="#0c9f52" roughness={0.16} clearcoat={1} />
+        <meshPhysicalMaterial color={accentColor} roughness={0.16} clearcoat={1} />
       </mesh>
 
       {/* Dose window set into the front face */}
@@ -93,7 +93,13 @@ function InjectionPen() {
   )
 }
 
-export default function InjectorScene() {
+export default function InjectorScene({
+  accentColor = '#0c9f52',
+  bodyColor = '#f4f5f2',
+}: {
+  accentColor?: string
+  bodyColor?: string
+}) {
   return (
     <Canvas
       aria-label="Rotating prefilled injection pen product rendering"
@@ -106,7 +112,7 @@ export default function InjectorScene() {
       <directionalLight position={[4, 5, 5]} intensity={2.4} />
       <directionalLight position={[-4, -2, 3]} intensity={0.8} color="#d8ffe6" />
       <pointLight position={[0, -3, 3]} intensity={0.45} color="#9ee8bd" />
-      <InjectionPen />
+      <InjectionPen accentColor={accentColor} bodyColor={bodyColor} />
     </Canvas>
   )
 }
