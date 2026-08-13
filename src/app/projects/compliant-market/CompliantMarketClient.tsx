@@ -524,7 +524,7 @@ export default function DrugXProductPage({ product }: { product: DrugXProduct })
                 <thead className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr className="border-b border-border">
                     <th className="px-5 py-3 font-medium">Sale price</th>
-                    <th className="px-3 py-3 font-medium">Dosage</th>
+                    <th className="px-3 py-3 font-medium">Variant</th>
                     <th className="px-3 py-3 font-medium">Provenance</th>
                     <th className="px-3 py-3 font-medium">Condition</th>
                     <th className="px-5 py-3 text-right font-medium">When</th>

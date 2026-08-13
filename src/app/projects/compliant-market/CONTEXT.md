@@ -17,6 +17,7 @@ Satirical project: a StockX replica for drugs. The joke is that it looks indisti
 ## Route & entry point
 
 - **URL:** `/projects/compliant-market`
+- **Semaglutide URL:** `/projects/compliant-market/products/semaglutide`
 - **Card on:** `/projects` (labeled "Constructive Distractions" section)
 - **Card text:** "DrugX" with a "Satire" badge, description: "A peer-to-peer marketplace for pharmaceutical assets. Third-party verified. No questions asked."
 
@@ -27,10 +28,10 @@ Satirical project: a StockX replica for drugs. The joke is that it looks indisti
 ### Header (`DrugXHeader.tsx`)
 - Sticky full-width header styled like StockX
 - Logo: "Drug" white + "X" green (#00bb29)
-- Circled question-mark next to the logo with an "About" tooltip. Opens a polished pitch modal that explains the fictional marketplace thesis across leftover inventory, verification, unusual provenance, and neighbor-priced medicine; ends with a Mystery Box postscript and an explicit satire/safety disclosure.
+- Prominent green-outlined `? About` pill next to the logo. Opens a polished pitch modal that explains the fictional marketplace thesis across leftover inventory, verification, unusual provenance, and neighbor-priced medicine; ends with a Mystery Box postscript and an explicit satire/safety disclosure.
 - Wide search bar: "Search for substance, brand, etc." (non-functional, visual only)
 - Search and account actions collapse on small screens so the logo, About control, and pill-ID action remain usable.
-- Right nav: Help · Sell · Affiliate · Login · Sign Up
+- Right nav: Help · Sell · Login · Sign Up. Affiliate was removed to give About enough space without clutter.
 - Sub-nav with active underline: **Pills** | Injections | Powders | Collectibles | Mystery Box
 - All nav items are non-functional (visual only)
 
@@ -41,13 +42,13 @@ Satirical project: a StockX replica for drugs. The joke is that it looks indisti
 - On desktop, user reaches it by scrolling to the very top
 
 ### Product page (`CompliantMarketClient.tsx`)
-Hero drug: **Adderall XR 30mg**
+Hero drug at the root URL: **Adderall XR 30mg**. A shared product template also powers the dedicated **Semaglutide** route.
 
 **Left column (image):**
 - Light product-photo container with the 3D rotating pill (see PillScene below)
 - Pill color changes with the selected dosage; variant name and SKU update with it
 - Functional favorite toggle and native share / copy-link action
-- "Verified by DrugX" badge opens the verification dialog
+- "Third-Party Verified" badge opens the verification dialog
 - CSS capsule fallback displays while WebGL loads
 
 **Right column (purchase details):**
@@ -83,11 +84,16 @@ Hero drug: **Adderall XR 30mg**
 - Replaces the old generic information cards and non-functional Learn More links
 
 **Related Products:**
-- 5 cards: Xanax 2mg, Oxycodone 10mg, Ambien 10mg, Claritin 10mg (the OTC inclusion is an intentional joke), and Semaglutide 1mg
-- Capsule listings use the original rotating Three.js pill treatment
-- Semaglutide uses a dedicated procedural Three.js prefilled injection pen with a pearl barrel, branded cap, dose dial/window, transparent cartridge collar, and manufactured metal details
+- Order: Semaglutide pen, Oxycodone IR round tablet, Testosterone Cypionate multidose vial, BPC-157 research peptide vial, and a scored Xanax bar
+- Every product now uses an appropriate procedural 3D form rather than forcing tablets and bars into a capsule silhouette
+- Semaglutide links to its full product route; the other four retain fictional regulatory-review feedback
 - Responsive scroll-snap rail on mobile and five-column grid on desktop
-- Selecting a product gives fictional regulatory-review feedback; no additional product routes exist
+
+**Semaglutide product page:**
+- Uses the same marketplace shell and interactions as Adderall without duplicating the page component
+- Variants: 0.25 / 0.5mg starter pen, 1mg green pen, and 2mg gold pen
+- Product-specific pricing, history, volume, recent sales, market note, cold-chain fulfillment, accordions, and historical statistics
+- Dynamic route is statically generated from the hardcoded product registry; unknown product slugs return 404
 
 **DrugX Labs:**
 - Header ID action opens an accessible shadcn dialog with a fictional pill-upload surface
@@ -106,12 +112,17 @@ Hero drug: **Adderall XR 30mg**
 - Loaded via `dynamic(() => import('./PillScene'), { ssr: false })` — Three.js is client-only
 - White container background makes it look like a product photo
 
+### Additional 3D products
+- `InjectorScene.tsx` is configurable by pen accent/body color and is used for all Semaglutide variants
+- `TabletScene.tsx` supports round, oval, and scored-bar silhouettes
+- `VialScene.tsx` supports translucent glass, liquid or lyophilized-powder contents, configurable labels, stoppers, and crimp caps
+- All scenes rotate, float subtly, respect reduced-motion preferences, and load client-side only
+
 ### Data (`src/data/projects/compliant-market.ts`)
 All data is hardcoded. Types exported:
-- `PRODUCT` — dosage options, visual details, SKUs, prices/bid/ask/lastSale per dosage, price history per timeframe
-- `RELATED_LISTINGS` — 5 related drugs
-- `HISTORICAL_STATS` — 6 stat cards
-- `RECENT_SALES` — fictional market activity ledger
+- `PRODUCTS` — reusable registry containing Adderall and Semaglutide variants, copy, prices, history, sales, stats, and visual configuration
+- `DEFAULT_PRODUCT` — Adderall entry used by the original route
+- `RELATED_LISTINGS` — ordered five-product related rail with visual types and optional internal links
 - `MODALS` — verification + buyerProtection modal copy
 
 ### Scoped visual system (`globals.css`)
@@ -131,6 +142,7 @@ All data is hardcoded. Types exported:
 | Pill color | Dosage-specific two-tone palette | Makes the dosage control visible in the product image and keeps variant copy consistent |
 | Chart library | Recharts | Real interactivity, looks authentic |
 | Images | 3D pill for hero and related capsules; custom 3D injection pen for Semaglutide | Motion and product detail are part of the project's premium marketplace illusion |
+| Product routes | Shared typed product registry + static `[slug]` route | Keeps the POC hardcoded while avoiding copy-pasted detail pages |
 | Back navigation | Overscroll reveal above sticky header | Clever UX, doesn't break the StockX immersion |
 | All data | Hardcoded | No backend warranted for a satirical POC |
 
@@ -138,8 +150,9 @@ All data is hardcoded. Types exported:
 
 ## Known issues / gotchas
 
-- **Related products have no detail routes.** Selection currently provides an in-world status message. If individual product pages are added later, wire the cards to those routes.
+- **Only Semaglutide has a related-product detail route.** The remaining cards intentionally provide an in-world status message.
 - **The 3D pill fallback covers loading, not a hard WebGL failure.** A true runtime failure boundary would still be needed for browsers that cannot initialize WebGL.
+- **Six WebGL canvases can animate at once** when the related rail is visible. This is acceptable for the portfolio POC, but a larger catalog should pause offscreen scenes or use rendered thumbnails.
 - **The scroll-reveal back bar** is less obvious on desktop (you have to scroll to the very top). On iOS it feels natural via elastic bounce. Could add a subtle visual hint if this becomes confusing.
 - **`CapsuleGeometry`** is Y-axis aligned by default. The mesh is rotated `[0, 0, Math.PI/2]` to lay horizontal. The vertex color split is at y=0 in geometry space, which becomes the center of the horizontal pill. This is intentional.
 
@@ -151,5 +164,5 @@ All data is hardcoded. Types exported:
 - **Pill identification tool** — the CTA button is already present. Could hook up an open-source pill ID API or ML model. Nick flagged this as v2.
 - **Seller affiliate program page** — its own page, purely satirical copy
 - **Actual pill images** — Nick could swap the 3D pill for real product photography. The component accepts image props cleanly; the container is already sized for it.
-- **Individual pages for related products** — each related card could link to its own detail page. Data structure supports it; just needs routes.
+- **Individual pages for the remaining related products** — the shared registry and route now make these straightforward additions.
 - **Shareability** — add OG meta tags if this ever gets posted publicly
