@@ -41,12 +41,22 @@ export const STAGES = [
   { name: 'Automated platform', cohort: '100,000', how: 'Automated eligibility, acceptance, fulfillment', rate: 17 },
 ]
 
-export const FINDINGS = [
-  { label: 'Clearly positive reaction to the offer', n: 15 },
-  { label: 'Discussed their standing with PayPal', n: 13 },
-  { label: 'No obvious mechanism for moving payment volume', n: 15 },
-  { label: 'Showed clear active diversion to other processors', n: 2 },
+// PLACEHOLDER RESEARCH — every count here except "actively diverting volume" (8/20, Nick's
+// correction) is a reconstruction designed to fit the narrative, pending the real study. Each row
+// carries an `unresolved` flag in review mode so none of it can reach a live presentation
+// unnoticed. Each finding is also load-bearing for a downstream track, noted in `seeds`.
+export const FINDINGS: { label: string; n: number; seeds: string; real?: boolean }[] = [
+  { label: 'Reacted positively to the offer', n: 17, seeds: 'The wedge worked — but not for the reason we assumed' },
+  { label: 'Framed it as recognition, not a discount', n: 13, seeds: 'The insight — standing and loyalty as product surface' },
+  { label: 'Said the money mattered, but wouldn’t move volume for it', n: 12, seeds: '“Every dollar counts” — price is real, just not decisive' },
+  { label: 'Couldn’t say what their fees actually bought them', n: 14, seeds: '→ Value communication track' },
+  { label: 'Named a non-pricing frustration as the bigger issue', n: 11, seeds: '→ Disputes, risk holds, integration health tracks' },
+  { label: 'Made their payments decision years ago and never revisited it', n: 15, seeds: '→ The early-lifecycle move: decisions get made once, early' },
+  { label: 'Were actively diverting volume to another processor', n: 8, seeds: 'Real switching existed — but it was the minority', real: true },
 ]
+
+export const FINDING_NOTE =
+  'The merchants who were moving had decided months before our signal ever fired. That is the whole argument for meeting them earlier in the lifecycle.'
 
 export const CLUSTERS = [
   { name: 'Value Realization', q: 'Do merchants understand what they get for what they pay?' },
@@ -116,6 +126,111 @@ export const FAMILIES = [
   { name: 'Recognition & progress', note: 'Standing, progress, value framing' },
 ]
 
+// The tracks that spun out of the research. Breadth is the point here, not depth — most are small
+// bets that compound. All impact figures are placeholders pending Nick's numbers.
+export const TRACKS: {
+  name: string
+  what: string
+  size: 'Small bet' | 'Large bet'
+  status: 'Shipped' | 'In flight' | 'Exploring'
+  result?: string
+}[] = [
+  {
+    name: 'Dispute protection',
+    what: 'Absorb selected lost disputes for merchants in good standing, and make the protection visible',
+    size: 'Large bet',
+    status: 'In flight',
+    result: '+8pp 90-day TPV retention vs. holdout',
+  },
+  {
+    name: 'Value communication',
+    what: 'Reframe the bill: not “you paid $X,” but the fraud stopped, disputes won, uptime, and hours saved',
+    size: 'Large bet',
+    status: 'In flight',
+    result: 'Actively resourced today',
+  },
+  {
+    name: 'High-potential scoring',
+    what: 'The decline model inverted — score merchants early and deliver proven value in the first 90 days',
+    size: 'Large bet',
+    status: 'In flight',
+    result: '22% vs. 12% reached high value within 180 days',
+  },
+  {
+    name: 'Partner intelligence',
+    what: 'Detection and pricing controls exposed to platforms who serve their own merchants',
+    size: 'Large bet',
+    status: 'In flight',
+    result: '10% partner adoption in three months',
+  },
+  {
+    name: 'Milestone pricing',
+    what: '“You’ve processed $100K — you’ve unlocked a better rate”',
+    size: 'Small bet',
+    status: 'Shipped',
+  },
+  {
+    name: 'Product bundles',
+    what: 'Pricing built on complementary products, not raw product count',
+    size: 'Small bet',
+    status: 'Shipped',
+  },
+  {
+    name: 'Savings visibility',
+    what: '“You’ve saved $342 this month with your new rate” — make the win recur',
+    size: 'Small bet',
+    status: 'Shipped',
+  },
+  {
+    name: 'Integration health',
+    what: 'Detect technical degradation and tell the merchant before it costs them volume',
+    size: 'Small bet',
+    status: 'In flight',
+  },
+  {
+    name: 'Risk & holds transparency',
+    what: 'Surface limitations within 24 hours, resolve self-serve, stop them reading as punishment',
+    size: 'Small bet',
+    status: 'In flight',
+  },
+  {
+    name: 'Growth capability surfacing',
+    what: 'BNPL, working capital, and financing put in front of merchants who qualify',
+    size: 'Small bet',
+    status: 'Exploring',
+  },
+]
+
+// Substack's own growth-accounting vocabulary, mapped honestly — including the stage we chose not
+// to work on and why.
+export const LIFECYCLE = [
+  { stage: 'Acquisition', ours: 'Not my surface — owned elsewhere', state: 'none' as const },
+  {
+    stage: 'Activation',
+    ours: 'High-potential scoring at day 14; proven value delivered inside the first 90 days',
+    state: 'active' as const,
+  },
+  {
+    stage: 'Retention',
+    ours: 'Proactive pricing, dispute protection, value communication, integration health',
+    state: 'active' as const,
+  },
+  {
+    stage: 'Resurrection',
+    ours: 'Deliberately deprioritized — by the time volume hits zero it is bankruptcy or a completed migration, and they are unreachable',
+    state: 'skipped' as const,
+  },
+  { stage: 'Referral', ours: 'Not addressed', state: 'none' as const },
+]
+
+export const PARTNER_CAPABILITIES = [
+  { name: 'Detection', detail: 'Risk and potential bands, leading reason codes, eligibility decisions — on their merchants' },
+  { name: 'Banding', detail: 'Group merchants however their business works: subscription tier, processing volume, tenure, their own logic' },
+  { name: 'Pricing control', detail: 'Set rates per band — and offer permanent or temporary discounts to merchants the model flags' },
+  { name: 'Delivery', detail: 'Their brand, their consent model, their economics, their call to action' },
+  { name: 'Measurement', detail: 'Outcome reporting back on what the intervention did' },
+]
+
 export const DIVES: {
   tab: string
   hmw: string
@@ -171,17 +286,116 @@ export const PROFILES = [
   { name: 'Logistics-centric', pct: 10, note: 'Manufacturing & wholesale — reliability, reconciliation' },
 ]
 
-export const QUOTES = [
-  '“It’s about time PayPal recognized my loyalty. Thank you.”',
-  '“It forces me to stay and feel appreciated…it really enforces my stay with you guys.”',
-  '“With an offer like this I’m less worried about moving my customers to Zelle and Venmo because of fees.”',
-  '“Are these disputes going to lower my ranking in PayPal…are they going to see me as a problem customer?”',
+// The first four are real verbatims. The rest are reconstructions written to carry the same
+// narrative load, pending the real transcripts — flagged as such wherever they appear.
+export const QUOTES: { text: string; theme: string; real?: boolean }[] = [
+  { text: '“It’s about time PayPal recognized my loyalty. Thank you.”', theme: 'Recognition', real: true },
+  { text: '“It forces me to stay and feel appreciated…it really enforces my stay with you guys.”', theme: 'Recognition', real: true },
+  { text: '“With an offer like this I’m less worried about moving my customers to Zelle and Venmo because of fees.”', theme: 'Price is real', real: true },
+  { text: '“Are these disputes going to lower my ranking in PayPal…are they going to see me as a problem customer?”', theme: 'Standing', real: true },
+  { text: '“Every dollar counts at our size — but I’m not switching processors over twenty basis points.”', theme: 'Price isn’t decisive' },
+  { text: '“I set this up years ago and honestly haven’t looked at it since.”', theme: 'Entrenchment' },
+  { text: '“I couldn’t tell you what I actually get for what I pay.”', theme: 'Value legibility' },
 ]
 
 export const PRINCIPLES = [
   'Choose the first bet for learning-adjusted leverage.',
   'Quantitative evidence locates the problem; qualitative evidence interprets it.',
   'Customer success is the monetization model — deliver value, and make it legible.',
+]
+
+// ---------- narrative spine: acts, lessons, misses ----------
+
+export const ACTS = [
+  { id: 'act-1', num: 'I', title: 'From an ambiguous $15.9B to one specific bet', anchor: 'problem' },
+  { id: 'act-2', num: 'II', title: 'It worked. We didn’t know why.', anchor: 'wedge-results' },
+  { id: 'act-3', num: 'III', title: 'Follow the momentum', anchor: 'tracks' },
+  { id: 'act-4', num: 'IV', title: 'Multiply across segments', anchor: 'partner' },
+]
+
+export const LESSONS = [
+  {
+    n: 1,
+    id: 'lesson-1',
+    title: 'You don’t have to build it to learn it.',
+    sub: 'Growth is a paralyzingly large space. Don’t shrink the ambition — shrink the question.',
+    points: [
+      'Every assumption got matched to the cheapest method that could retire it: ask someone, run a prototype, check the data, or — last — build.',
+      'On our own learning board, “Just Ask” was the biggest column. Technical Investigations had one sticky on it.',
+      'The first version of this product was people making phone calls.',
+    ],
+    bridge:
+      'The constraint on a platform your size isn’t reach. It’s knowing which lever moves what — and most of that is learnable before anyone writes code.',
+  },
+  {
+    n: 2,
+    id: 'lesson-2',
+    title: 'We’re paid to create positive correlation, not to prove causation.',
+    sub: 'Causation matters later — for knowing where to double down.',
+    points: [
+      'We handed the outreach list to sales so reps could personally thank our highest-volume merchants for their loyalty.',
+      'It muddied the experiment. It also delivered more value to more merchants, faster.',
+      'We bought the causal answer afterward, with research — which is exactly when we needed it.',
+    ],
+    bridge:
+      'A clean experiment that delays value is not a win. Get the lift, then go find out why it happened.',
+  },
+  {
+    n: 3,
+    id: 'lesson-3',
+    title: 'Plan broadly. Commit narrowly. Come back for the good ideas.',
+    sub: 'The plan’s value was the map, not the itinerary.',
+    points: [
+      'Six problem spaces, seven opportunity areas, about forty candidate bets. We shipped one and followed where it led.',
+      'The row we dismissed on our own board as “measuring pre-decliners, lol” became the early-lifecycle program.',
+      'Value communication sat untouched for months, then came back as one of our most-invested tracks.',
+    ],
+    bridge:
+      'Momentum is information. When one thing starts working, the roadmap you wrote before you had that information is the thing that should move.',
+  },
+  {
+    n: 4,
+    id: 'lesson-4',
+    title: 'Multiply wins across segments, not just across the lifecycle.',
+    sub: 'The same intelligence, delivered through somebody else’s relationship.',
+    points: [
+      'We had already multiplied across the lifecycle — retention first, then early activation. The second axis was segment.',
+      'We gave platforms who serve their own merchants the detection model and the pricing controls, under their brand.',
+      'The most under-exploited product surface most companies own is the internal tool they built for themselves.',
+    ],
+    bridge:
+      'The tooling you build to understand readers is tooling your creators want for their own audiences.',
+  },
+]
+
+export const MISSES = [
+  {
+    id: 'miss-1',
+    act: 'Act I',
+    headline: 'We knowingly paid to reach merchants who were never going to leave.',
+    detail:
+      'Two rules-based cohorts is a blunt instrument. A meaningful share of the offers we sent went to merchants who would have stayed anyway — a real discount against real margin, for no incremental volume.',
+    resolution:
+      'Pricing Strategy warned us about exactly this, and they were directionally right. We couldn’t eliminate the cost, so we bounded it: narrow eligibility, capped concessions, sales-managed accounts carved out, holdouts preserved at every stage.',
+  },
+  {
+    id: 'miss-2',
+    act: 'Act II',
+    headline: 'The model’s core premise was wrong for most of the people it flagged.',
+    detail:
+      'We built something that looked for merchants leaving for a competitor. Most of the merchants it surfaced weren’t leaving at all — they were shrinking, distracted, or quietly frustrated about something that had nothing to do with price.',
+    resolution:
+      'We only found that out because we went and asked. The result held; the explanation didn’t. That reinterpretation is what produced every track that came after.',
+  },
+  {
+    id: 'miss-3',
+    act: 'Act III',
+    headline: 'We defined “high potential” in dollars, and it cost us the best merchants we had.',
+    detail:
+      'Scoring early-lifecycle merchants on monetary trajectory systematically undervalued small, durable service businesses — steady, loyal, low-volume, and far more likely to still be here in five years than the fast-growing accounts we prioritized.',
+    resolution:
+      'We were optimizing for the size of the relationship instead of its durability. Score creators by revenue alone and you will make exactly the same mistake.',
+  },
 ]
 
 export const DIVE_STEPS = [

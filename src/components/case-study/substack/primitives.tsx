@@ -89,6 +89,119 @@ export function Spine({
   )
 }
 
+// Act openers are the chapter markers of the deck — four of them, evenly spaced, so an interrupting
+// panelist can always see where we are and where we're going.
+export function ActOpener({ id, num, title }: { id: string; num: string; title: string }) {
+  return (
+    <section
+      id={id}
+      data-slide-id={id}
+      className="relative min-h-[45vh] flex flex-col justify-center px-6 md:px-20 py-24 scroll-mt-16 text-white"
+      style={{ background: '#0b0d12' }}
+    >
+      <div className="max-w-5xl mx-auto w-full flex items-center gap-8 md:gap-12">
+        <span className="font-black text-6xl md:text-8xl leading-none select-none" style={{ color: '#8FBCFF' }}>
+          {num}
+        </span>
+        <div className="h-16 md:h-24 w-px bg-white/15" />
+        <h2 className="font-extrabold tracking-tight text-2xl md:text-4xl max-w-2xl">{title}</h2>
+      </div>
+    </section>
+  )
+}
+
+// The lessons are the actual spine of this presentation. They get one recurring, unmistakable
+// treatment so the room can feel the rhythm even when we get interrupted off the running order.
+export function Lesson({
+  n,
+  id,
+  title,
+  sub,
+  points,
+  bridge,
+}: {
+  n: number
+  id: string
+  title: string
+  sub: string
+  points: string[]
+  bridge: string
+}) {
+  return (
+    <section
+      id={id}
+      data-slide-id={id}
+      className="relative min-h-[80vh] flex flex-col justify-center px-6 md:px-20 py-24 scroll-mt-16 text-white"
+      style={{ background: `linear-gradient(160deg, #0b0d12 0%, #101a2e 100%)` }}
+    >
+      <div className="max-w-5xl mx-auto w-full">
+        <div className="flex items-center gap-3 mb-8">
+          <span
+            className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm text-black"
+            style={{ background: '#8FBCFF' }}
+          >
+            {n}
+          </span>
+          <p className="font-semibold tracking-[0.22em] uppercase text-xs" style={{ color: '#8FBCFF' }}>
+            Lesson {n}
+          </p>
+        </div>
+        <h2 className="font-black tracking-tight text-3xl md:text-6xl max-w-4xl leading-[1.05]">{title}</h2>
+        <p className="mt-6 text-lg md:text-xl text-neutral-300 max-w-2xl">{sub}</p>
+        <ul className="mt-12 space-y-4 max-w-3xl">
+          {points.map((p) => (
+            <li key={p} className="flex items-start gap-4 text-base md:text-lg text-neutral-200">
+              <span className="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#8FBCFF' }} />
+              <span>{p}</span>
+            </li>
+          ))}
+        </ul>
+        <div
+          className="mt-12 rounded-2xl p-6 md:p-7 max-w-3xl"
+          style={{ background: 'rgba(143,188,255,0.08)', border: '1px solid rgba(143,188,255,0.25)' }}
+        >
+          <p className="font-bold uppercase tracking-wide text-[11px] mb-2.5" style={{ color: '#8FBCFF' }}>
+            Why I think this is useful to you
+          </p>
+          <p className="text-lg md:text-xl font-bold leading-snug">{bridge}</p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Misses are distributed through the acts rather than collected at the end — candour at the moment
+// of the decision reads very differently from candour in a closing disclosure slide.
+export function Miss({
+  headline,
+  detail,
+  resolution,
+}: {
+  headline: string
+  detail: string
+  resolution: string
+}) {
+  return (
+    <div className="mt-12 rounded-2xl border-2 overflow-hidden max-w-3xl" style={{ borderColor: '#E8A33D' }}>
+      <p
+        className="px-6 py-2.5 font-bold uppercase tracking-widest text-[11px]"
+        style={{ background: '#FFF8EC', color: '#8a5a12' }}
+      >
+        What we got wrong
+      </p>
+      <div className="px-6 py-5 bg-white">
+        <p className="font-black text-lg md:text-xl leading-snug" style={{ color: INK }}>
+          {headline}
+        </p>
+        <p className="mt-3 text-sm md:text-base text-neutral-600 leading-relaxed">{detail}</p>
+        <p className="mt-4 pt-4 border-t border-neutral-200 text-sm md:text-base text-neutral-700 leading-relaxed">
+          {resolution}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export function Rib({ branch, title, children }: { branch: string; title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   return (

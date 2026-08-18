@@ -1,6 +1,6 @@
 'use client'
 
-import { ArtifactModal, Guardrail, Note, Sticky } from './primitives'
+import { ArtifactModal, Guardrail, Miss, Note, Sticky } from './primitives'
 import { Quadrant, StageLadder } from './charts'
 import {
   ArtifactAssumptionMap,
@@ -10,7 +10,7 @@ import {
   ArtifactMetricsBoard,
   ArtifactSwimlane,
 } from './artifacts'
-import { BETS, CATEGORIES, CLUSTERS, DIVE_STEPS, FLOW_LAYERS, MATRIX } from './data'
+import { BETS, CATEGORIES, CLUSTERS, DIVE_STEPS, FLOW_LAYERS, MATRIX, MISSES } from './data'
 import { ACCENT, FILL, INK, TINT } from './tokens'
 import { Flag } from './primitives'
 
@@ -52,18 +52,14 @@ export function DivePanel({
   )
 }
 
-export function DeepDive({ onBack }: { onBack: () => void }) {
+export function ProcessAct() {
   return (
-    <div id="deep-dive">
+    <div id="process">
       <div className="sticky top-0 z-40 border-b border-neutral-200" style={{ background: 'rgba(240,244,250,0.97)' }}>
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-2.5 flex items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="text-sm font-semibold px-3.5 py-1.5 rounded-full border border-neutral-300 bg-white hover:border-neutral-500 transition-colors whitespace-nowrap"
-          >
-            ← Back to the presentation
-          </button>
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 whitespace-nowrap">
+            The working process
+          </span>
           <div className="hidden md:flex items-center gap-1 text-[11px] font-semibold text-neutral-500 overflow-x-auto">
             {DIVE_STEPS.map((s, i) => (
               <a key={s.id} href={`#${s.id}`} className="px-2 py-1 rounded hover:text-black whitespace-nowrap">
@@ -71,21 +67,22 @@ export function DeepDive({ onBack }: { onBack: () => void }) {
               </a>
             ))}
           </div>
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 whitespace-nowrap hidden sm:block">
-            Deep dive
-          </span>
         </div>
       </div>
 
-      <section className="px-6 md:px-20 pt-16 pb-10" style={{ background: '#f0f4fa', color: INK }}>
+      <section className="px-6 md:px-20 pt-20 pb-12" style={{ background: '#f0f4fa', color: INK }}>
         <div className="max-w-5xl mx-auto">
           <p className="font-semibold tracking-[0.18em] uppercase text-xs" style={{ color: ACCENT }}>
-            The first bet · deep dive
+            The first bet · how it actually ran
           </p>
           <h2 className="font-black tracking-tight text-4xl md:text-6xl mt-3 max-w-4xl">
             How the bet was chosen, de-risked, and earned its way to scale.
           </h2>
-          <p className="mt-5 text-sm text-neutral-500 max-w-2xl">
+          <p className="mt-6 text-lg text-neutral-600 max-w-3xl">
+            This is the part I can show you rather than tell you. Every board below is a recreation of the real
+            working artifact.
+          </p>
+          <p className="mt-4 text-sm text-neutral-500 max-w-2xl">
             Sanitized reconstruction of the working process; labels and groupings simplified for confidentiality.
           </p>
         </div>
@@ -396,8 +393,9 @@ export function DeepDive({ onBack }: { onBack: () => void }) {
       {/* 07 — scale */}
       <DivePanel id="dive-b7" num="07" step="Earn scale" title="Phone calls → product-assisted → automated">
         <p className="mb-8 text-base font-semibold text-neutral-600">
-          ~403K merchants scored by the model →{' '}
+          ~403K merchants flagged by the two cohorts →{' '}
           <span style={{ color: ACCENT }}>~300K survived the eligibility policy</span> → 2,000 called first.
+          <Flag kind="assumption" note="Funnel volumes per Nick — validate against records" />
         </p>
         <StageLadder />
         <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
@@ -452,14 +450,7 @@ export function DeepDive({ onBack }: { onBack: () => void }) {
           The numbers said: continue. They did not say <em>why</em> —{' '}
           <span style={{ color: ACCENT }}>and we had planned for exactly that question.</span>
         </p>
-        <button
-          type="button"
-          onClick={onBack}
-          className="mt-10 px-6 py-3 rounded-full text-white font-bold text-sm"
-          style={{ background: ACCENT }}
-        >
-          ← Back to the presentation — the research turn
-        </button>
+        <Miss {...MISSES[0]} />
       </DivePanel>
     </div>
   )

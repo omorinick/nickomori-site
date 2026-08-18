@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Flag } from './primitives'
 import { InterviewGrid } from './charts'
-import { QUOTES } from './data'
+import { FINDING_NOTE, QUOTES } from './data'
 import { ACCENT_DARK } from './tokens'
 
 // The research turn is a three-stage progressive reveal: the result, the interviews that broke the
@@ -73,6 +73,7 @@ export function ResearchTurn() {
           <div className="text-black rounded-2xl bg-white p-8 mt-8">
             <InterviewGrid />
           </div>
+          <p className="mt-6 text-base md:text-lg text-neutral-300 max-w-3xl">{FINDING_NOTE}</p>
           <button
             type="button"
             onClick={() => setStage(2)}
@@ -93,7 +94,7 @@ export function ResearchTurn() {
             className="mt-10 rounded-2xl bg-white/5 border border-white/10 p-8 text-2xl md:text-3xl leading-snug font-bold text-white max-w-3xl"
             style={{ borderLeft: `5px solid ${ACCENT_DARK}` }}
           >
-            {QUOTES[0]}
+            {QUOTES[0].text}
           </blockquote>
           <div
             className="mt-10 rounded-2xl p-7 max-w-3xl"

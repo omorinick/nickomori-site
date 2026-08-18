@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Flag, useInView } from './primitives'
-import { DIVES, FINDINGS, MONEY_MAP, QUADRANT, STAGES } from './data'
+import { DIVES, FINDINGS, LIFECYCLE, MONEY_MAP, QUADRANT, STAGES, TRACKS } from './data'
 import { ACCENT, FILL, INK, TINT } from './tokens'
 
 export function MoneyMap() {
@@ -79,10 +79,10 @@ export function StageLadder() {
 }
 
 export function InterviewGrid() {
-  const [active, setActive] = useState(3)
+  const [active, setActive] = useState(1)
   const f = FINDINGS[active]
   return (
-    <div className="grid lg:grid-cols-2 gap-10 items-center">
+    <div className="grid lg:grid-cols-2 gap-10 items-start">
       <div>
         <div className="grid grid-cols-5 gap-3 max-w-xs">
           {Array.from({ length: 20 }, (_, i) => (
@@ -93,9 +93,23 @@ export function InterviewGrid() {
             />
           ))}
         </div>
-        <p className="mt-4 text-sm text-neutral-500">
-          <strong style={{ color: INK }}>{f.n} of 20</strong> — {f.label.toLowerCase()}
+        <p className="mt-5 text-sm text-neutral-500">
+          <strong style={{ color: INK }}>
+            {f.n} of 20
+          </strong>{' '}
+          — {f.label.toLowerCase()}
+          <Flag
+            kind={f.real ? 'assumption' : 'unresolved'}
+            note={
+              f.real
+                ? 'Nick’s corrected figure — validate against the study'
+                : 'PLACEHOLDER — reconstructed count designed to fit the narrative; replace with the real study'
+            }
+          />
         </p>
+        <div className="mt-4 rounded-xl px-4 py-3 text-sm" style={{ background: TINT, color: ACCENT }}>
+          <span className="font-bold">{f.seeds}</span>
+        </div>
       </div>
       <div className="flex flex-col gap-2">
         {FINDINGS.map((x, i) => (
@@ -103,8 +117,10 @@ export function InterviewGrid() {
             key={x.label}
             type="button"
             onClick={() => setActive(i)}
-            className={`text-left px-4 py-3 rounded-lg border text-sm transition-colors ${
-              i === active ? 'border-transparent text-black font-semibold' : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
+            className={`text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ${
+              i === active
+                ? 'border-transparent text-black font-semibold'
+                : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
             }`}
             style={i === active ? { background: TINT, borderColor: FILL } : undefined}
           >
@@ -115,6 +131,98 @@ export function InterviewGrid() {
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+export function TracksMap() {
+  const large = TRACKS.filter((t) => t.size === 'Large bet')
+  const small = TRACKS.filter((t) => t.size === 'Small bet')
+  const statusStyle = (s: string) =>
+    s === 'Shipped'
+      ? { background: '#E7F4E4', color: '#1f6b32' }
+      : s === 'In flight'
+        ? { background: TINT, color: ACCENT }
+        : { background: '#f5f5f5', color: '#737373' }
+
+  return (
+    <div className="mt-10 space-y-8">
+      <div>
+        <p className="font-bold text-xs uppercase tracking-widest text-neutral-400 mb-3">Large bets</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          {large.map((t) => (
+            <div key={t.name} className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <p className="font-black text-base">{t.name}</p>
+                <span
+                  className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0"
+                  style={statusStyle(t.status)}
+                >
+                  {t.status}
+                </span>
+              </div>
+              <p className="text-sm text-neutral-600 leading-relaxed">{t.what}</p>
+              {t.result && (
+                <p className="mt-3 text-sm font-bold" style={{ color: ACCENT }}>
+                  {t.result}
+                  <Flag kind="assumption" note="Placeholder — awaiting Nick's figures" />
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="font-bold text-xs uppercase tracking-widest text-neutral-400 mb-3">
+          Small bets — the thousand paper cuts
+        </p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {small.map((t) => (
+            <div key={t.name} className="rounded-xl border border-neutral-200 p-4">
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <p className="font-bold text-sm">{t.name}</p>
+                <span
+                  className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0"
+                  style={statusStyle(t.status)}
+                >
+                  {t.status}
+                </span>
+              </div>
+              <p className="text-xs text-neutral-500 leading-relaxed">{t.what}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function LifecycleMap() {
+  return (
+    <div className="mt-10 grid md:grid-cols-5 gap-3">
+      {LIFECYCLE.map((s) => (
+        <div
+          key={s.stage}
+          className="rounded-xl border p-5 flex flex-col"
+          style={
+            s.state === 'active'
+              ? { borderColor: FILL, background: TINT }
+              : s.state === 'skipped'
+                ? { borderColor: '#E8A33D', background: '#FFF8EC' }
+                : { borderColor: '#e5e5e5', background: 'white' }
+          }
+        >
+          <p
+            className="font-black text-sm mb-2"
+            style={{ color: s.state === 'active' ? ACCENT : s.state === 'skipped' ? '#8a5a12' : '#a3a3a3' }}
+          >
+            {s.stage}
+          </p>
+          <p className={`text-xs leading-relaxed ${s.state === 'none' ? 'text-neutral-400' : 'text-neutral-600'}`}>
+            {s.ours}
+          </p>
+        </div>
+      ))}
     </div>
   )
 }
