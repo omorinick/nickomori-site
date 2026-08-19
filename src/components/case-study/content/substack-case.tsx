@@ -14,7 +14,14 @@ import {
   Rib,
   Spine,
 } from '../substack/primitives'
-import { DeepDives, LargeBets, LifecycleMap, MoneyMap, TpvWaterfall, UpstreamBars } from '../substack/charts'
+import {
+  EarlyInterventions,
+  LargeBets,
+  LifecycleMap,
+  MilestoneLadder,
+  MoneyMap,
+  TpvWaterfall,
+} from '../substack/charts'
 import { ArtifactAttribution } from '../substack/artifacts'
 import {
   AssumptionsSection,
@@ -31,18 +38,17 @@ import { ResearchTurn } from '../substack/research'
 import {
   ACTS,
   DEFINITION,
-  FAMILIES,
   FIRST_BET_REASONS,
-  SPACE_CHOICE,
-  WEDGE_REASONS,
-  TAKEAWAYS,
+  MILESTONE_HEADLINE,
   MISSES,
   PARTNER_CAPABILITIES,
   PRINCIPLES,
-  PROFILES,
   QUOTES,
   SIX_QUESTIONS,
+  SPACE_CHOICE,
+  TAKEAWAYS,
   TRAJECTORIES,
+  WEDGE_REASONS,
 } from '../substack/data'
 import { ACCENT, ACCENT_DARK, FILL, INK, REVIEW_TOOLS, TINT } from '../substack/tokens'
 
@@ -589,79 +595,69 @@ export default function SubstackCaseContent() {
               None of these were on the original roadmap in this form.{' '}
               <span style={{ color: ACCENT }}>They came from asking twenty people what was actually going on.</span>
             </p>
-            <Rib branch="Appendix" title="Earlier framings kept for reference — value families, operating profiles, treatment deep dives">
-              <div className="space-y-6">
-                <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                  <strong>Flagged for Nick&apos;s review.</strong> The five “value families” and the four operating
-                  profiles below were synthesised in an earlier pass and Nick could not source the profile
-                  percentages. They are parked here rather than deleted — decide whether to keep, re-source, or cut.
-                </div>
-                <div>
-                  <p className="font-bold mb-2">Five value families (earlier framing)</p>
-                  <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-3">
-                    {FAMILIES.map((f) => (
-                      <div key={f.name} className="rounded-xl border border-neutral-200 p-4">
-                        <p className="font-bold text-sm leading-tight">{f.name}</p>
-                        <p className="text-xs text-neutral-500 mt-1.5">{f.note}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="font-bold mb-2">
-                    Four operating profiles
-                    <Flag kind="unresolved" note="Percentages unsourced — n=20 cannot produce these. Re-source or cut." />
-                  </p>
-                  <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
-                    {PROFILES.map((p) => (
-                      <div key={p.name} className="rounded-xl border border-neutral-200 p-4">
-                        <p className="font-black text-2xl" style={{ color: ACCENT }}>
-                          {p.pct}%
-                        </p>
-                        <p className="font-bold text-sm mt-1">{p.name}</p>
-                        <p className="text-xs text-neutral-500 mt-1">{p.note}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="font-bold mb-2">Treatment deep dives</p>
-                  <DeepDives />
-                </div>
-              </div>
-            </Rib>
           </Spine>
 
           <Spine id="early-lifecycle" kicker="The biggest one · move earlier" dark>
             <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-              The merchants we could least afford to lose had decided years ago.
+              Switching cost is the moat. So we started building it on purpose.
             </h2>
             <p className="mt-6 text-lg text-neutral-400 max-w-3xl">
-              Fifteen of twenty had set up their payment stack once and never revisited it. Entrenchment cuts both
-              ways: it&apos;s why they bleed instead of switching, and it&apos;s why intervening late is expensive.
-              So we inverted the decline model — score merchants for{' '}
-              <strong className="text-white">high potential</strong> at day 14 and deliver proven value inside the
-              first 90 days.
-              <Flag kind="assumption" note="~600K newly active merchants scored annually — working assumption" />
+              What actually protects a mature merchant is how much of their business runs through us. That is why
+              fifteen of twenty had never revisited a decision they made years ago — and why, once one of them does
+              start leaving, it is expensive to stop. By then the moat is already gone.
             </p>
-            <div className="rounded-2xl bg-white text-black p-8 mt-10">
-              <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">
-                Reached high value within 180 days
+            <p className="mt-6 text-xl md:text-2xl font-bold max-w-3xl">
+              So the question flipped:{' '}
+              <span style={{ color: ACCENT_DARK }}>
+                what if we built that stickiness deliberately, at the start?
+              </span>
+            </p>
+
+            <div className="mt-16">
+              <p className="font-bold uppercase tracking-widest text-[11px] mb-4" style={{ color: ACCENT_DARK }}>
+                The analysis that justified it
               </p>
-              <UpstreamBars />
+              <div className="flex flex-wrap items-end gap-8">
+                <p className="font-black text-6xl md:text-8xl">{MILESTONE_HEADLINE.stat}</p>
+                <p className="text-lg text-neutral-300 mb-3 max-w-md">
+                  {MILESTONE_HEADLINE.claim}
+                  <Flag kind="unresolved" note="PLACEHOLDER — reconstructed to carry the story; replace with the real analysis" />
+                </p>
+              </div>
+              <div className="rounded-2xl bg-white text-black p-6 md:p-8 mt-8">
+                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400">
+                  Merchants who cleared these windows
+                </p>
+                <MilestoneLadder />
+              </div>
+              <p className="mt-5 text-sm text-neutral-400 max-w-3xl leading-relaxed">
+                {MILESTONE_HEADLINE.qualifier}
+              </p>
             </div>
-            <p className="mt-8 text-xl md:text-2xl font-bold max-w-3xl">
-              Same intelligence, same delivery layers, opposite end of the lifecycle —{' '}
-              <span style={{ color: ACCENT_DARK }}>and it only existed because retention taught us what durable
-              value looked like.</span>
+
+            <div className="mt-16">
+              <p className="font-bold uppercase tracking-widest text-[11px] mb-4" style={{ color: ACCENT_DARK }}>
+                So we pushed on exactly those
+              </p>
+              <div className="rounded-2xl bg-white text-black p-6 md:p-8">
+                <EarlyInterventions />
+              </div>
+            </div>
+
+            <p className="mt-14 text-xl md:text-2xl font-bold max-w-3xl">
+              The same lever, pointed at the other end of the lifecycle —{' '}
+              <span style={{ color: ACCENT_DARK }}>
+                a rate cut to stop someone leaving became a volume incentive to get them further in.
+              </span>
             </p>
             <div className="mt-4">
               <Miss {...MISSES[1]} />
             </div>
             <Note>
-              The callback to land here: this exact idea sat on our ideation board months earlier, dismissed in
-              writing as “measuring pre-decliners, lol.” We were right to defer it — we didn&apos;t yet know what
-              durable value was — and wrong to laugh at it.
+              The callback worth landing: this exact idea sat on our ideation board months earlier, dismissed in
+              writing as “measuring pre-decliners, lol.” We were right to defer it — we did not yet know what durable
+              value looked like — and wrong to laugh at it. Be explicit that the 2× is correlative; a data scientist
+              will ask, and conceding it before they do is worth more than the number is.
             </Note>
           </Spine>
 

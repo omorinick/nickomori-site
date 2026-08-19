@@ -937,3 +937,59 @@ export const GATES = [
     outcome: 'Proceed — and reuse the layers elsewhere',
   },
 ]
+
+// ---------- early lifecycle ----------
+//
+// The argument is switching cost, not entrenchment-as-obstacle: the thing that protects a mature
+// merchant is how much of their business runs through us. So build that earlier, deliberately.
+//
+// MILESTONE FIGURES ARE INVENTED at Nick's request — plausible placeholders to carry the story
+// until the real analysis is to hand. Every one carries an `unresolved` flag in review mode.
+export const MILESTONES = [
+  {
+    window: 'First 90 days',
+    volume: '$25K processed',
+    engagement: 'Two products live — typically checkout plus invoicing',
+    why: 'Past this point they have stopped evaluating and started operating.',
+  },
+  {
+    window: 'First 6 months',
+    volume: '$100K processed',
+    engagement: 'Three products, used at least monthly',
+    why: 'Enough of the business runs through us that moving it means real work.',
+  },
+  {
+    window: 'First 12 months',
+    volume: '$250K processed',
+    engagement: 'Three products monthly, plus one growth capability — BNPL, working capital or ads',
+    why: 'Now we are part of how they grow, not just how they get paid.',
+  },
+]
+
+export const MILESTONE_HEADLINE = {
+  stat: '2×',
+  claim: 'more likely to still be processing with us years later',
+  qualifier:
+    'Merchants who cleared all three windows versus those who cleared none. Correlative, not causal — we could never rule out that the merchants who were going to thrive anyway were simply the ones who cleared them. But it told us where to push.',
+}
+
+export const EARLY_INTERVENTIONS = [
+  {
+    name: 'Pricing, moved up the funnel',
+    what: 'The same lever as the save offer, pointed the other way: a volume-based incentive early in the relationship instead of a rate cut late in it. Hit the next tier, unlock the better rate.',
+    result: 'Cohorts given the volume incentive grew volume by over 12% more on average than control.',
+    status: 'Shipped',
+  },
+  {
+    name: 'Beta features, offered earlier',
+    what: 'The same beta-repositioning motion that worked on high-value merchants, tested on new ones — can early access pull more of their volume onto us in the first year?',
+    result: 'In test.',
+    status: 'Testing',
+  },
+  {
+    name: 'High-potential scoring at day 14',
+    what: 'The decline model inverted, so we know who to point all of this at before they have shown us anything.',
+    result: '22% of treated merchants reached high value within 180 days, against 12% of control.',
+    status: 'In flight',
+  },
+]

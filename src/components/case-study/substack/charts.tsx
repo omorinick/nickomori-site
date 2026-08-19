@@ -6,11 +6,13 @@ import {
   ASSUMPTIONS,
   ASSUMPTION_CATS,
   DIVES,
+  EARLY_INTERVENTIONS,
   GATES,
   LARGE_BETS,
   LEARNING_METHODS,
   FINDINGS,
   LIFECYCLE,
+  MILESTONES,
   MONEY_MAP,
   QUADRANT,
   STAGES,
@@ -731,6 +733,72 @@ export function GateStrip() {
           </p>
           <p className="text-xs font-bold mt-3" style={{ color: ACCENT }}>
             {g.outcome}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// The milestone ladder — what "getting enough of their business early" actually looked like.
+export function MilestoneLadder() {
+  return (
+    <div className="mt-8 space-y-3">
+      {MILESTONES.map((m, i) => (
+        <div key={m.window} className="rounded-2xl bg-white border border-neutral-200 p-6">
+          <div className="grid md:grid-cols-[9rem_1fr_1fr] gap-5 items-start">
+            <div>
+              <p className="font-black text-base" style={{ color: ACCENT }}>
+                {m.window}
+              </p>
+              <div className="mt-2 h-1.5 rounded-full bg-neutral-100 overflow-hidden">
+                <div className="h-1.5 rounded-full" style={{ width: `${(i + 1) * 33}%`, background: FILL }} />
+              </div>
+            </div>
+            <div>
+              <p className="font-bold uppercase tracking-wide text-[10px] text-neutral-400 mb-1">Volume</p>
+              <p className="font-bold text-sm">
+                {m.volume}
+                <Flag kind="unresolved" note="PLACEHOLDER threshold — replace with the real analysis" />
+              </p>
+            </div>
+            <div>
+              <p className="font-bold uppercase tracking-wide text-[10px] text-neutral-400 mb-1">Engagement</p>
+              <p className="font-bold text-sm">
+                {m.engagement}
+                <Flag kind="unresolved" note="PLACEHOLDER threshold — replace with the real analysis" />
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 pt-4 border-t border-neutral-100 text-sm text-neutral-600 italic">{m.why}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function EarlyInterventions() {
+  return (
+    <div className="mt-8 grid md:grid-cols-3 gap-4">
+      {EARLY_INTERVENTIONS.map((x) => (
+        <div key={x.name} className="rounded-2xl bg-white border border-neutral-200 p-6 flex flex-col">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <p className="font-black text-base">{x.name}</p>
+            <span
+              className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0"
+              style={
+                x.status === 'Shipped'
+                  ? { background: '#E7F4E4', color: '#1f6b32' }
+                  : { background: TINT, color: ACCENT }
+              }
+            >
+              {x.status}
+            </span>
+          </div>
+          <p className="text-sm text-neutral-600 leading-relaxed flex-1">{x.what}</p>
+          <p className="mt-4 pt-4 border-t border-neutral-100 text-sm font-bold" style={{ color: ACCENT }}>
+            {x.result}
+            <Flag kind="assumption" note="Confirm figure before presenting" />
           </p>
         </div>
       ))}
