@@ -79,9 +79,11 @@ export function StageLadder() {
                 </p>
               </div>
             </div>
-            <div className="mt-3 h-2 rounded-full bg-neutral-200">
-              <div className="h-2 rounded-full" style={{ width: `${(s.rate / 20) * 100}%`, background: FILL }} />
+            {/* True proportion of the cohort — a 5% bar should look like 5%. */}
+            <div className="mt-3 h-2 rounded-full bg-neutral-200 overflow-hidden">
+              <div className="h-2 rounded-full" style={{ width: `${s.rate}%`, background: FILL }} />
             </div>
+            <p className="mt-1.5 text-[10px] uppercase tracking-wide text-neutral-400">share of cohort</p>
           </div>
         ))}
       </div>

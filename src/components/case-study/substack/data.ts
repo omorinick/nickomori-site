@@ -497,15 +497,6 @@ export const TAKEAWAYS = [
 
 export const MISSES = [
   {
-    id: 'miss-1',
-    act: 'Act I',
-    headline: 'We knowingly paid to reach merchants who were never going to leave.',
-    detail:
-      'Two rules-based cohorts is a blunt instrument. A meaningful share of the offers we sent went to merchants who would have stayed anyway — a real discount against real margin, for no incremental volume.',
-    resolution:
-      'Pricing Strategy warned us about exactly this, and they were directionally right. We couldn’t eliminate the cost, so we bounded it: narrow eligibility, capped concessions, sales-managed accounts carved out, holdouts preserved at every stage.',
-  },
-  {
     id: 'miss-2',
     act: 'Act II',
     headline: 'The model’s core premise was wrong for most of the people it flagged.',

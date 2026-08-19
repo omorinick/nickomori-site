@@ -1,6 +1,6 @@
 'use client'
 
-import { ArtifactModal, Flag, Guardrail, Miss, Note, Sticky } from './primitives'
+import { ArtifactModal, Flag, Guardrail, Note, Sticky } from './primitives'
 import { AssumptionPlot, AssumptionRegister, GateStrip, LearningPlanDetail, StageLadder } from './charts'
 import {
   ArtifactAssumptionMap,
@@ -10,7 +10,7 @@ import {
   ArtifactMetricsBoard,
   ArtifactSwimlane,
 } from './artifacts'
-import { CLUSTERS, FLOW_LAYERS, JOURNEY_PHASES, MISSES, PROPRIETARY_LINE } from './data'
+import { CLUSTERS, FLOW_LAYERS, JOURNEY_PHASES, PROPRIETARY_LINE } from './data'
 import { ACCENT, ACCENT_DARK, FILL, INK, TINT } from './tokens'
 
 // The working-process sections. These are ordinary slides in the run of show — no step numbers,
@@ -385,7 +385,6 @@ export function ResultsSection() {
         The numbers said: continue. They did not say <em>why</em> —{' '}
         <span style={{ color: ACCENT }}>and we had planned for exactly that question.</span>
       </p>
-      <Miss {...MISSES[0]} />
     </ProcessPanel>
   )
 }

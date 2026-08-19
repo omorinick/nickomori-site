@@ -575,7 +575,7 @@ export default function SubstackCaseContent() {
               </div>
             </Rib>
             <div className="mt-4">
-              <Miss {...MISSES[1]} />
+              <Miss {...MISSES[0]} />
             </div>
           </Spine>
 
@@ -667,7 +667,7 @@ export default function SubstackCaseContent() {
               value looked like.</span>
             </p>
             <div className="mt-4">
-              <Miss {...MISSES[2]} />
+              <Miss {...MISSES[1]} />
             </div>
             <Note>
               The callback to land here: this exact idea sat on our ideation board months earlier, dismissed in
