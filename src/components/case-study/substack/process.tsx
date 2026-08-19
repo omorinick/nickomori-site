@@ -149,19 +149,9 @@ export function ProcessAct() {
       <DivePanel id="dive-b2" num="02" step="Diverge" title="Seven clusters, about forty candidate bets" tint>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {CLUSTERS.map((c, i) => (
-            <Sticky
-              key={c.name}
-              tone={c.gap ? 'orange' : 'green'}
-              tilt={[-1.2, 0.8, -0.6, 1.1, -0.9, 0.7, -1.4][i]}
-              highlight={c.gap}
-            >
+            <Sticky key={c.name} tone="green" tilt={[-1.2, 0.8, -0.6, 1.1, -0.9, 0.7, -1.4][i]}>
               <p className="font-bold text-sm mb-1">{c.name}</p>
               <p className="text-xs text-neutral-600 leading-snug">{c.q}</p>
-              {c.gap && (
-                <p className="text-xs font-bold mt-2" style={{ color: ACCENT }}>
-                  “Gap — no direct metric.” Remember this one.
-                </p>
-              )}
             </Sticky>
           ))}
         </div>

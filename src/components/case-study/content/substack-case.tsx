@@ -412,7 +412,10 @@ export default function SubstackCaseContent() {
                   <p className="font-bold mb-1.5">The clues were already in our artifacts</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>The original problem-space map had no recognition space at all.</li>
-                    <li>The Relationship &amp; Loyalty cluster carried “Gap — no direct metric.”</li>
+                    <li>
+                      Every metric we wrote for Relationship &amp; Loyalty was a sentiment proxy. Not one of them
+                      connected to revenue, and nobody noticed at the time.
+                    </li>
                     <li>The learning plan pre-registered: “If pricing wasn’t their primary concern, we’ll figure out what is.”</li>
                   </ul>
                 </div>

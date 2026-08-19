@@ -15,7 +15,7 @@ import {
   SWIMLANES,
   SWIM_STAGES,
 } from './data'
-import { ACCENT, FILL, TINT } from './tokens'
+import { ACCENT, TINT } from './tokens'
 
 const HEADER_BG = '#12294f'
 
@@ -119,11 +119,7 @@ export function ArtifactHMWBoard() {
         <p className="font-bold text-sm mb-3 text-neutral-500">Synthesized HMW clusters, each tied back to a metric</p>
         <div className="grid md:grid-cols-2 gap-4">
           {HMW_DETAIL.map((c) => (
-            <div
-              key={c.name}
-              className="rounded-xl border p-5"
-              style={c.gap ? { borderColor: FILL, background: TINT } : { borderColor: '#e5e5e5', background: '#F3FAF3' }}
-            >
+            <div key={c.name} className="rounded-xl border p-5" style={{ borderColor: '#e5e5e5', background: '#F3FAF3' }}>
               <p className="font-black text-sm">{c.name}</p>
               <p className="text-sm text-neutral-600 italic mt-0.5 mb-2.5">{c.q}</p>
               <ul className="space-y-1.5 text-[13px] text-neutral-700 list-disc pl-4">
@@ -131,12 +127,7 @@ export function ArtifactHMWBoard() {
                   <li key={h}>{h}</li>
                 ))}
               </ul>
-              <p
-                className={`mt-3 text-xs font-bold ${c.gap ? '' : 'text-neutral-500'}`}
-                style={c.gap ? { color: ACCENT } : undefined}
-              >
-                Primary metric: {c.metric}
-              </p>
+              <p className="mt-3 text-xs font-bold text-neutral-500">Primary metric: {c.metric}</p>
             </div>
           ))}
         </div>

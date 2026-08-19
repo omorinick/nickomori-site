@@ -63,7 +63,7 @@ export const CLUSTERS = [
   { name: 'Competitive Clarity', q: 'Do we get a chance to compete?' },
   { name: 'Right Offer, Right Time', q: 'Are we reaching at-risk merchants fast enough?' },
   { name: 'Transparency Without Backfire', q: 'Honesty without creating new problems?' },
-  { name: 'Relationship & Loyalty', q: 'Do merchants feel valued, or just transactional?', gap: true },
+  { name: 'Relationship & Loyalty', q: 'Do merchants feel valued, or just transactional?' },
   { name: 'Channel & Persona Fit', q: 'Where and how do merchants want to hear from us?' },
   { name: 'System Integrity', q: 'How do we prevent gaming?' },
 ]
@@ -82,12 +82,12 @@ export const MATRIX = {
   cols: ['Proactive pricing', 'Tech issues', 'Risk / limitations', 'Value communication'],
   rows: [
     { c: 'Attributed pool', v: ['◐ ~$3.6B', '● ~$3.8B', '○ ~$1.8B', '○ cuts across'] },
-    { c: 'Speed to first learning', v: ['● calls in weeks', '○ eng discovery', '○ policy change', '◐'] },
-    { c: 'Manually testable', v: ['● MVP with humans', '○', '◐', '◐'] },
-    { c: 'Reversible, capped exposure', v: ['● narrow + caps', '●', '◐ loss exposure', '●'] },
-    { c: 'Cleanly measurable', v: ['● holdouts, margin', '◐ messy attribution', '◐', '○ survey-based'] },
+    { c: 'Speed to first learning', v: ['● calls in weeks', '○ eng discovery', '○ policy change', '◐ survey cycles'] },
+    { c: 'Manually testable', v: ['● MVP with humans', '○ needs an eng fix', '◐ case-by-case review', '◐ mocked reports'] },
+    { c: 'Reversible, capped exposure', v: ['● narrow + caps', '● ship and revert', '◐ loss exposure', '● comms only'] },
+    { c: 'Cleanly measurable', v: ['● holdouts, margin', '◐ messy attribution', '◐ confounded by risk actions', '○ survey-based'] },
     { c: 'Operational readiness', v: ['● pricing ops existed', '○ many teams', '○ risk org owns', '○ data not plumbed'] },
-    { c: 'Margin / downside risk', v: ['◐ real concession cost', '● none', '◐', '●'] },
+    { c: 'Margin / downside risk', v: ['◐ real concession cost', '● none', '◐ absorbed losses', '● none'] },
   ],
 }
 
@@ -168,36 +168,42 @@ export const TRACKS: {
     what: '“You’ve processed $100K — you’ve unlocked a better rate”',
     size: 'Small bet',
     status: 'Shipped',
+    result: '~12% of eligible merchants hit a milestone in the first quarter',
   },
   {
     name: 'Product bundles',
     what: 'Pricing built on complementary products, not raw product count',
     size: 'Small bet',
     status: 'Shipped',
+    result: '~20% relative lift in second-product activation',
   },
   {
     name: 'Savings visibility',
     what: '“You’ve saved $342 this month with your new rate” — make the win recur',
     size: 'Small bet',
     status: 'Shipped',
+    result: '~2× repeat engagement with the monthly savings summary',
   },
   {
     name: 'Integration health',
     what: 'Detect technical degradation and tell the merchant before it costs them volume',
     size: 'Small bet',
     status: 'In flight',
+    result: 'Detection live; merchant-facing alerts in build',
   },
   {
     name: 'Risk & holds transparency',
     what: 'Surface limitations within 24 hours, resolve self-serve, stop them reading as punishment',
     size: 'Small bet',
     status: 'In flight',
+    result: 'Surfacing live; self-serve resolution in build',
   },
   {
     name: 'Growth capability surfacing',
     what: 'BNPL, working capital, and financing put in front of merchants who qualify',
     size: 'Small bet',
     status: 'Exploring',
+    result: 'Eligibility model scoped; no build committed yet',
   },
 ]
 
@@ -359,7 +365,7 @@ export const SHIPPED_BETS = [
   {
     name: 'Proactive Risk Experience Audit',
     status: 'Shipped · Global',
-    alias: '',
+    alias: 'Internally: “the rules audit”',
     front: 'Fewer holds and limitations landing on merchant accounts.',
     back: 'Stood up a tiger team and the data infrastructure to audit back-end rules with high appeal and lift rates.',
     impact: '~$65M TPV protected in 2026; ~4K fewer merchants per month hit by risk actions.',
@@ -592,8 +598,7 @@ export const HMW_DETAIL = [
       'HMW make merchants feel valued before they’re at risk?',
       'HMW help merchants feel the relationship cost of leaving, not just the financial cost?',
     ],
-    metric: 'GAP — no direct metric existed in the table',
-    gap: true,
+    metric: '% of good-standing merchants recognized before any risk signal · sentiment on “PayPal values my business”',
   },
   {
     name: '6 · Channel & Persona Fit',
@@ -630,13 +635,13 @@ export const IDEA_WALL = [
 export const BETS_FULL = [
   ['Rate reduction for detected decliners', '“We value your business — here’s a reduced rate,” multi-channel', 'Must Have', 'Acceptance rate · 90-day retention of acceptors', 'Margin impact · non-decliner request rate (gaming)', '“We can MVP with humans” — near-term pilot target', true],
   ['Alternative value for non-qualifiers', '“You don’t qualify for a rate reduction — here’s 3 months of Advanced Fraud Protection free”', 'Should Have', 'Alternative acceptance vs. no-offer control', 'Perception of “second tier”', 'Value instead of discount', false],
-  ['Volume-based recapture incentive', '“Hit $50K volume in the next 60 days and lock in the 2.6% rate”', 'Could Have', 'Volume recovery % · rate-lock conversion', 'Gaming via temporary volume spike', '', false],
+  ['Volume-based recapture incentive', '“Hit $50K volume in the next 60 days and lock in the 2.6% rate”', 'Could Have', 'Volume recovery % · rate-lock conversion', 'Gaming via temporary volume spike', 'Parked — milestone pricing picked this up later', false],
   ['Escalating offer ladders', 'Offer 1: 10bps → Offer 2: 20bps + fee waiver → Offer 3: rep outreach', 'Won’t Have', 'Cumulative conversion across tiers', 'Trains merchants to wait for better offers', '“Too easy to game”', false],
-  ['Tailored offers by merchant type', 'SMB: automated rate reduction · Micro: fee cap', 'Could Have', 'Segment-specific retention lift', 'Complexity · fairness perception', '', false],
-  ['Offer at point of offboarding intent', 'In-flow modal: “Before you go — would a 15% rate reduction change your mind?”', 'Should Have', 'Save rate · reactivation within 30 days', 'Flow friction · false-positive “leaving” signals', '', false],
+  ['Tailored offers by merchant type', 'SMB: automated rate reduction · Micro: fee cap', 'Could Have', 'Segment-specific retention lift', 'Complexity · fairness perception', 'Deferred until the segments were real', false],
+  ['Offer at point of offboarding intent', 'In-flow modal: “Before you go — would a 15% rate reduction change your mind?”', 'Should Have', 'Save rate · reactivation within 30 days', 'Flow friction · false-positive “leaving” signals', 'Blocked — no reliable offboarding-intent signal', false],
   ['Win-backs for churned merchants', '“Come back — submit your current processor’s rate and we’ll try to beat it”', 'Should Have', 'Return rate · post-return retention', 'Cost of matching · intel accuracy', 'Most votes in the session', false],
-  ['Rep-initiated saves during pricing complaints', 'Support rep empowered to offer a rate reduction in real time', 'Could Have', 'Retention of support-saved merchants', 'Rep discretion abuse · inconsistency', '', false],
-  ['Goodwill offers on billing issues', '“We noticed a billing issue — here’s a rate reduction while we sort it out”', 'Won’t Have', 'Issue resolution + retention', 'Abuse via manufactured issues', '', false],
+  ['Rep-initiated saves during pricing complaints', 'Support rep empowered to offer a rate reduction in real time', 'Could Have', 'Retention of support-saved merchants', 'Rep discretion abuse · inconsistency', 'Needed rep guardrails we did not have yet', false],
+  ['Goodwill offers on billing issues', '“We noticed a billing issue — here’s a rate reduction while we sort it out”', 'Won’t Have', 'Issue resolution + retention', 'Abuse via manufactured issues', 'Rejected — support already had a credit path', false],
 ] as const
 
 export const BET_AREAS = [
