@@ -2,7 +2,7 @@
 //
 // Gates the presenter-notes toggle. Flip to false to strip Nick's speaking notes from the build
 // entirely — do that before sharing the link with anyone who shouldn't read them.
-export const PRESENTER_TOOLS = true
+export const PRESENTER_TOOLS = false
 
 export const ACCENT = '#002991' // PayPal deep blue — text accents on light surfaces
 export const FILL = '#0070E0' // PayPal bright blue — bars, dots, buttons
