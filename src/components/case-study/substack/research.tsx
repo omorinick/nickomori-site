@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Flag } from './primitives'
 import { InterviewGrid } from './charts'
 import { FINDING_NOTE, QUOTES } from './data'
 import { ACCENT_DARK } from './tokens'
@@ -33,17 +32,16 @@ export function ResearchTurn() {
           <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">The pricing wedge worked.</h2>
           <div className="mt-12 grid grid-cols-3 gap-6 max-w-3xl">
             {[
-              ['5% → 20%', 'opt-in, call pilot → product-assisted', null],
-              ['~$100M', 'net growth TPV, manual stages', 'Recollection; counterfactual method to validate'],
-              ['~$2M', 'net growth margin, after discount cost', 'Net of discount per Nick; method to validate'],
-            ].map(([v, l, note]) => (
+              ['5% → 20%', 'opt-in, call pilot → product-assisted'],
+              ['~$100M', 'net growth TPV, manual stages'],
+              ['~$2M', 'net growth margin, after discount cost'],
+            ].map(([v, l]) => (
               <div key={l as string}>
                 <p className="font-black text-3xl md:text-5xl" style={{ color: ACCENT_DARK }}>
                   {v}
                 </p>
                 <p className="mt-2 text-sm text-neutral-400">
                   {l}
-                  {note && <Flag kind="assumption" note={note as string} />}
                 </p>
               </div>
             ))}

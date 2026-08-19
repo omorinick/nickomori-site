@@ -4,7 +4,6 @@
 // artifact reconstruction ledger (project memory: pricing-reconstruction-ledger.md).
 // All working-process artifacts are sanitized recreations — no original images, dates, or names.
 
-import type { FlagKind } from './primitives'
 import type { StickyTone } from './tokens'
 
 export const SIX_QUESTIONS = [
@@ -228,7 +227,7 @@ export const DIVES: {
   hmw: string
   target: string
   treatment: string
-  results: { text: string; kind: FlagKind }[]
+  results: string[]
   learning: string
 }[] = [
   {
@@ -238,8 +237,8 @@ export const DIVES: {
     treatment:
       'Temporary 25bps incentive for adopting an additional capability; volume milestones unlocking preferred pricing; bundles built on complementary products, not raw product count.',
     results: [
-      { text: '~20% relative lift in second-product activation', kind: 'assumption' },
-      { text: '~6–8% incremental TPV over 90 days', kind: 'assumption' },
+      '~20% relative lift in second-product activation',
+      '~6–8% incremental TPV over 90 days',
     ],
     learning: 'Incentives worked best when they unlocked a visible business outcome, not product count.',
   },
@@ -250,9 +249,9 @@ export const DIVES: {
     treatment:
       'PayPal covered selected lost disputes, with guardrails on tenure, fraud, dispute-loss rate, reason code, history, duration, and amount. Proactive reporting made the protection visible.',
     results: [
-      { text: '+8pp 90-day TPV retention vs. holdout', kind: 'assumption' },
-      { text: '15–20% fewer eligible merchants entered extreme contraction', kind: 'assumption' },
-      { text: '~2× contribution-margin return relative to covered losses', kind: 'assumption' },
+      '+8pp 90-day TPV retention vs. holdout',
+      '15–20% fewer eligible merchants entered extreme contraction',
+      '~2× contribution-margin return relative to covered losses',
     ],
     learning: 'Loyalty benefits were most powerful resolving a moment where a good merchant felt unfairly treated.',
   },
@@ -263,9 +262,9 @@ export const DIVES: {
     treatment:
       'Instead of only “you paid $X,” show what the spend delivered: uptime, fraud prevented, disputes resolved, BNPL-associated AOV, payout performance, analytics, tax support.',
     results: [
-      { text: '~2× engagement with benefit-detail content', kind: 'assumption' },
-      { text: '~10–15% lift in relevant product exploration', kind: 'assumption' },
-      { text: 'No statistically meaningful immediate TPV movement', kind: 'assumption' },
+      '~2× engagement with benefit-detail content',
+      '~10–15% lift in relevant product exploration',
+      'No statistically meaningful immediate TPV movement',
     ],
     learning: 'Relationship treatments can create value without immediate transaction movement — but need different success metrics.',
   },
@@ -403,7 +402,7 @@ export const TAKEAWAYS = [
   {
     n: 1,
     id: 'takeaway-1',
-    title: 'You don’t have to build it to learn it.',
+    title: 'Maximize learning.',
     sub: 'Growth is a paralyzingly large space. What unlocked it for me was shrinking the question, not the ambition.',
     points: [
       'Every assumption got matched to the cheapest method that could retire it: ask someone, run a prototype, check the data, or — last — build.',
@@ -417,7 +416,7 @@ export const TAKEAWAYS = [
   {
     n: 2,
     id: 'takeaway-2',
-    title: 'We’re paid to create positive correlation, not to prove causation.',
+    title: 'Correlation > Causation.',
     sub: 'Causation still matters — just later, and for a different job: knowing where to double down.',
     points: [
       'We handed the outreach list to sales so reps could personally thank our highest-volume merchants for their loyalty.',
@@ -430,7 +429,7 @@ export const TAKEAWAYS = [
   {
     n: 3,
     id: 'takeaway-3',
-    title: 'Plan broadly. Commit narrowly. Come back for the good ideas.',
+    title: 'Fall in love with the problem, not the solution.',
     sub: 'The plan’s value turned out to be the map, not the itinerary.',
     points: [
       'Six problem spaces, seven opportunity areas, about forty candidate bets. We shipped one and followed where it led.',

@@ -8,41 +8,7 @@ import { ACCENT, FILL, INK, STICKY_TONES, type StickyTone } from './tokens'
 //   2. Evidence drawers (Rib) and recreated artifacts (ArtifactModal) — tables, methodology, caveats.
 //   3. Presenter notes (Note) — spoken context; visible only via the Notes toggle.
 
-export const ReviewCtx = createContext(false)
 export const NotesCtx = createContext(false)
-
-const FLAG_STYLES = {
-  confirmed: { label: 'Confirmed', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  assumption: { label: 'Working assumption', cls: 'bg-amber-50 text-amber-700 border-amber-300' },
-  unresolved: { label: 'Unresolved', cls: 'bg-red-50 text-red-700 border-red-300' },
-} as const
-
-export type FlagKind = keyof typeof FLAG_STYLES
-
-export function Flag({ kind, note }: { kind: FlagKind; note?: string }) {
-  const on = useContext(ReviewCtx)
-  if (!on) return null
-  const s = FLAG_STYLES[kind]
-  return (
-    <span
-      title={note}
-      className={`inline-block align-middle ml-2 px-1.5 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap ${s.cls}`}
-    >
-      {s.label}
-    </span>
-  )
-}
-
-export function Guardrail({ children }: { children: React.ReactNode }) {
-  const on = useContext(ReviewCtx)
-  if (!on) return null
-  return (
-    <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-      <span className="font-bold uppercase tracking-wide text-[11px] mr-2">Do not claim</span>
-      {children}
-    </div>
-  )
-}
 
 export function Note({ children }: { children: React.ReactNode }) {
   const on = useContext(NotesCtx)

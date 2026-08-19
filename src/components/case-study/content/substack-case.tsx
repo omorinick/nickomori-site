@@ -4,13 +4,10 @@ import { useState } from 'react'
 import {
   ActOpener,
   ArtifactModal,
-  Flag,
-  Guardrail,
   Takeaway,
   Miss,
   Note,
   NotesCtx,
-  ReviewCtx,
   Rib,
   Spine,
 } from '../substack/primitives'
@@ -50,7 +47,7 @@ import {
   TRAJECTORIES,
   WEDGE_REASONS,
 } from '../substack/data'
-import { ACCENT, ACCENT_DARK, FILL, INK, REVIEW_TOOLS, TINT } from '../substack/tokens'
+import { ACCENT, ACCENT_DARK, FILL, INK, PRESENTER_TOOLS, TINT } from '../substack/tokens'
 
 // The spine of the deck. Four acts, each closing on a lesson, with the misses distributed through
 // the acts rather than collected in a graveyard slide at the end.
@@ -59,11 +56,10 @@ import { ACCENT, ACCENT_DARK, FILL, INK, REVIEW_TOOLS, TINT } from '../substack/
 // artifacts in ../substack/artifacts, and the vertical process act in ../substack/process.
 
 export default function SubstackCaseContent() {
-  const [review, setReview] = useState(false)
   const [notes, setNotes] = useState(false)
 
   return (
-    <ReviewCtx.Provider value={review}>
+    <>
       <NotesCtx.Provider value={notes}>
         <main className="font-sans" style={{ color: INK }}>
           {/* ---------- OPEN ---------- */}
@@ -77,17 +73,16 @@ export default function SubstackCaseContent() {
             </p>
             <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12 max-w-3xl">
               {[
-                ['~$15.9B', 'the annual leak we were sizing against', 'assumption' as const],
-                ['~$450M', 'net growth TPV, year one', 'assumption' as const],
-                ['~$1B', 'on track this year, across all tracks', 'assumption' as const],
-              ].map(([v, l, k]) => (
+                ['~$15.9B', 'the annual leak we were sizing against'],
+                ['~$450M', 'net growth TPV, year one'],
+                ['~$1B', 'on track this year, across all tracks'],
+              ].map(([v, l]) => (
                 <div key={l as string}>
                   <p className="font-black text-4xl md:text-5xl leading-none" style={{ color: ACCENT }}>
                     {v}
                   </p>
                   <p className="mt-3 text-sm text-neutral-500">
                     {l}
-                    <Flag kind={k as 'assumption'} note="Counterfactual method still to be validated" />
                   </p>
                 </div>
               ))}
@@ -202,7 +197,6 @@ export default function SubstackCaseContent() {
                 </p>
                 <p className="mt-2 text-sm text-neutral-400 max-w-[16rem]">
                   {DEFINITION.real.sub}
-                  <Flag kind="assumption" note="~$15.9B annualized; official churn figure to be confirmed" />
                 </p>
               </div>
             </div>
@@ -217,7 +211,6 @@ export default function SubstackCaseContent() {
               Everyone was talking about growth.{' '}
               <span style={{ color: ACCENT_DARK }}>Nobody was talking about decline.</span>
             </p>
-            <Guardrail>That the full pool was recoverable. It sizes the problem, not the addressable opportunity.</Guardrail>
             <Note>
               First month on the team. The tell was that churn looked far too small for a business this old — most of
               the volume we were losing came from merchants who were still transacting, just less every month. Nobody
@@ -247,7 +240,6 @@ export default function SubstackCaseContent() {
                   </p>
                   <p className="mt-2 text-sm text-neutral-500">
                     {l}
-                    <Flag kind="assumption" note="Outreach and response volumes per Nick — validate" />
                   </p>
                 </div>
               ))}
@@ -558,9 +550,6 @@ export default function SubstackCaseContent() {
                       {q.text}
                       <span className="block mt-2 text-[11px] font-bold uppercase tracking-wide text-neutral-400">
                         {q.theme}
-                        {!q.real && (
-                          <Flag kind="unresolved" note="PLACEHOLDER verbatim — replace with the real transcript" />
-                        )}
                       </span>
                     </blockquote>
                   ))}
@@ -621,7 +610,6 @@ export default function SubstackCaseContent() {
                 <p className="font-black text-6xl md:text-8xl">{MILESTONE_HEADLINE.stat}</p>
                 <p className="text-lg text-neutral-300 mb-3 max-w-md">
                   {MILESTONE_HEADLINE.claim}
-                  <Flag kind="unresolved" note="PLACEHOLDER — reconstructed to carry the story; replace with the real analysis" />
                 </p>
               </div>
               <div className="rounded-2xl bg-white text-black p-6 md:p-8 mt-8">
@@ -704,7 +692,6 @@ export default function SubstackCaseContent() {
               </p>
               <p className="text-neutral-500 mb-2 max-w-sm text-sm">
                 of partners adopted within three months
-                <Flag kind="assumption" note="Denominator and definition of adoption still to be confirmed" />
               </p>
             </div>
             <Rib branch="Partner architecture" title="What flowed where, and what adoption looked like">
@@ -712,16 +699,13 @@ export default function SubstackCaseContent() {
                 <ul className="list-disc pl-5 space-y-1.5">
                   <li>
                     ~2× more at-risk merchants reached than prior manual identification.
-                    <Flag kind="assumption" />
                   </li>
                   <li>
                     Partner pricing campaigns: low-double-digit acceptance.
-                    <Flag kind="assumption" />
                   </li>
                   <li>
                     Intelligence-only adoption exceeded full-campaign adoption — validating detection separated from
                     delivery.
-                    <Flag kind="assumption" note="Consistent with observed behavior" />
                   </li>
                 </ul>
                 <p className="text-neutral-500">
@@ -782,18 +766,17 @@ export default function SubstackCaseContent() {
             </h2>
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl">
               {[
-                ['5% → 30%', 'opt-in, phone calls → automation', 'confirmed' as const],
-                ['~$450M', 'net growth TPV from the pricing program', 'assumption' as const],
-                ['~$9M', 'net growth margin, after discounts', 'assumption' as const],
-                ['~$1B', 'on track this year across all tracks', 'assumption' as const],
-              ].map(([v, l, k]) => (
+                ['5% → 30%', 'opt-in, phone calls → automation'],
+                ['~$450M', 'net growth TPV from the pricing program'],
+                ['~$9M', 'net growth margin, after discounts'],
+                ['~$1B', 'on track this year across all tracks'],
+              ].map(([v, l]) => (
                 <div key={l as string}>
                   <p className="font-black text-3xl md:text-4xl" style={{ color: ACCENT }}>
                     {v}
                   </p>
                   <p className="mt-1.5 text-xs text-neutral-500">
                     {l}
-                    <Flag kind={k as 'confirmed' | 'assumption'} />
                   </p>
                 </div>
               ))}
@@ -924,51 +907,22 @@ export default function SubstackCaseContent() {
             </Rib>
           </Spine>
 
-          {REVIEW_TOOLS && (
-            <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
-              {review && (
-                <div className="rounded-lg bg-white border border-neutral-200 shadow-lg px-3 py-2 text-[11px] text-neutral-600 space-y-1">
-                  <p className="font-semibold text-neutral-800">Evidence status — pin comments on anything flagged</p>
-                  <p>
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5" />
-                    Confirmed from source material
-                  </p>
-                  <p>
-                    <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5" />
-                    Working assumption — validate before presenting
-                  </p>
-                  <p>
-                    <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-1.5" />
-                    Unresolved / placeholder — could change the claim
-                  </p>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setReview(!review)}
-                  className={`rounded-full px-4 py-2 text-xs font-semibold border shadow-sm transition-colors ${
-                    review ? 'text-white border-transparent' : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-500'
-                  }`}
-                  style={review ? { background: FILL } : undefined}
-                >
-                  {review ? 'Review mode on' : 'Review mode'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setNotes(!notes)}
-                  className={`rounded-full px-4 py-2 text-xs font-semibold border shadow-sm transition-colors ${
-                    notes ? 'text-white border-transparent' : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-500'
-                  }`}
-                  style={notes ? { background: ACCENT } : undefined}
-                >
-                  {notes ? 'Notes on' : 'Notes'}
-                </button>
-              </div>
+          {PRESENTER_TOOLS && (
+            <div className="fixed bottom-6 left-6 z-50">
+              <button
+                type="button"
+                onClick={() => setNotes(!notes)}
+                className={`rounded-full px-4 py-2 text-xs font-semibold border shadow-sm transition-colors ${
+                  notes ? 'text-white border-transparent' : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-500'
+                }`}
+                style={notes ? { background: ACCENT } : undefined}
+              >
+                {notes ? 'Notes on' : 'Notes'}
+              </button>
             </div>
           )}
         </main>
       </NotesCtx.Provider>
-    </ReviewCtx.Provider>
+    </>
   )
 }

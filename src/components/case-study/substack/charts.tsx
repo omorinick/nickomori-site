@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Flag, useInView } from './primitives'
+import { useInView } from './primitives'
 import {
   ASSUMPTIONS,
   ASSUMPTION_CATS,
@@ -53,7 +53,6 @@ export function MoneyMap() {
       ))}
       <p className="text-sm text-neutral-500 pt-2">
         ~$15.9B annualized · ~87% concentrated in high-value merchants
-        <Flag kind="assumption" note="Naive ×12 annualization of a single-month snapshot; simplified from fuller churn+decline constructs" />
       </p>
     </div>
   )
@@ -90,7 +89,6 @@ export function StageLadder() {
       </div>
       <p className="mt-4 text-sm text-neutral-500">
         Every stage gate: evidence bought the next investment.
-        <Flag kind="assumption" note="Opt-in = accepted and repriced, per Nick's recollection — validate against records" />
       </p>
     </div>
   )
@@ -116,14 +114,6 @@ export function InterviewGrid() {
             {f.n} of 20
           </strong>{' '}
           — {f.label.toLowerCase()}
-          <Flag
-            kind={f.real ? 'assumption' : 'unresolved'}
-            note={
-              f.real
-                ? 'Nick’s corrected figure — validate against the study'
-                : 'PLACEHOLDER — reconstructed count designed to fit the narrative; replace with the real study'
-            }
-          />
         </p>
         <div className="mt-4 rounded-xl px-4 py-3 text-sm" style={{ background: TINT, color: ACCENT }}>
           <span className="font-bold">{f.seeds}</span>
@@ -207,7 +197,6 @@ export function UpstreamBars() {
       ))}
       <p className="text-sm text-neutral-500">
         Reached EHV/HV within 180 days — ~1.8×.
-        <Flag kind="assumption" note="Working assumption; validate cohort window and criteria" />
       </p>
     </div>
   )
@@ -290,12 +279,9 @@ export function DeepDives() {
             <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">Working results</p>
             <ul className="space-y-2">
               {d.results.map((r) => (
-                <li key={r.text} className="flex items-start gap-2">
+                <li key={r} className="flex items-start gap-2">
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: FILL }} />
-                  <span>
-                    {r.text}
-                    <Flag kind={r.kind} />
-                  </span>
+                  <span>{r}</span>
                 </li>
               ))}
             </ul>
@@ -398,7 +384,6 @@ export function TpvWaterfall() {
       </div>
       <p className="text-center text-sm text-neutral-500 mt-5">
         {TPV_CAPTIONS[yr]}
-        <Flag kind="assumption" note="Carried over from the merchant-experience commercial case — confirm before presenting" />
       </p>
     </div>
   )
@@ -440,7 +425,6 @@ export function LargeBets() {
                       </p>
                       <p className={`text-sm leading-relaxed ${bold ? 'font-bold text-neutral-800' : 'text-neutral-600'}`}>
                         {body}
-                        {bold ? <Flag kind="assumption" note="Confirm figures before presenting" /> : null}
                       </p>
                     </div>
                   ))}
@@ -534,7 +518,6 @@ export function AssumptionRegister() {
       </div>
       <p className="mt-3 text-xs text-neutral-500">
         Importance and uncertainty are a reconstruction — the historical board carried no scores.
-        <Flag kind="assumption" note="Scoring reconstructed; the sorting logic is real, the numbers are not" />
       </p>
     </div>
   )
@@ -759,14 +742,12 @@ export function MilestoneLadder() {
               <p className="font-bold uppercase tracking-wide text-[10px] text-neutral-400 mb-1">Volume</p>
               <p className="font-bold text-sm">
                 {m.volume}
-                <Flag kind="unresolved" note="PLACEHOLDER threshold — replace with the real analysis" />
               </p>
             </div>
             <div>
               <p className="font-bold uppercase tracking-wide text-[10px] text-neutral-400 mb-1">Engagement</p>
               <p className="font-bold text-sm">
                 {m.engagement}
-                <Flag kind="unresolved" note="PLACEHOLDER threshold — replace with the real analysis" />
               </p>
             </div>
           </div>
@@ -798,7 +779,6 @@ export function EarlyInterventions() {
           <p className="text-sm text-neutral-600 leading-relaxed flex-1">{x.what}</p>
           <p className="mt-4 pt-4 border-t border-neutral-100 text-sm font-bold" style={{ color: ACCENT }}>
             {x.result}
-            <Flag kind="assumption" note="Confirm figure before presenting" />
           </p>
         </div>
       ))}

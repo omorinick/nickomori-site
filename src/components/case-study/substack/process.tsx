@@ -1,6 +1,6 @@
 'use client'
 
-import { ArtifactModal, Flag, Guardrail, Note, Sticky } from './primitives'
+import { ArtifactModal, Note, Sticky } from './primitives'
 import { AssumptionPlot, AssumptionRegister, GateStrip, LearningPlanDetail, StageLadder } from './charts'
 import {
   ArtifactAssumptionMap,
@@ -326,7 +326,6 @@ export function StagesSection() {
           ~300K survived the eligibility policy
         </span>{' '}
         → 2,000 called first.
-        <Flag kind="assumption" note="Funnel volumes per Nick — validate against records" />
       </p>
       <StageLadder />
       <p className="mt-10 text-lg md:text-xl font-bold max-w-3xl">
@@ -360,7 +359,6 @@ export function ResultsSection() {
               <td className="px-3 py-3 whitespace-nowrap font-semibold">~$100M</td>
               <td className="px-3 py-3 whitespace-nowrap font-semibold">
                 ~$2M
-                <Flag kind="assumption" note="Recollection; counterfactual method to validate" />
               </td>
             </tr>
             <tr>
@@ -368,7 +366,6 @@ export function ResultsSection() {
               <td className="px-3 py-3 whitespace-nowrap font-semibold">~$350M</td>
               <td className="px-3 py-3 whitespace-nowrap font-semibold">
                 ~$7M
-                <Flag kind="assumption" note="Per Nick; counterfactual method to validate" />
               </td>
             </tr>
           </tbody>
@@ -378,9 +375,6 @@ export function ResultsSection() {
         Net of the discount cost, and read against comparison groups drawn from merchants who had been declining or
         plateauing.
       </p>
-      <Guardrail>
-        That opt-in alone proved behaviour change, or that observed TPV was automatically incremental.
-      </Guardrail>
       <p className="mt-12 text-xl md:text-2xl font-black max-w-3xl">
         The numbers said: continue. They did not say <em>why</em> —{' '}
         <span style={{ color: ACCENT }}>and we had planned for exactly that question.</span>

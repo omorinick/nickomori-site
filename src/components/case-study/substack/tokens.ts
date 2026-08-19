@@ -1,8 +1,8 @@
 // Shared design tokens and build-time switches for the Substack case study deck.
 //
-// Before Nick presents live: flip REVIEW_TOOLS to false and deploy — review chips, guardrails,
-// and presenter notes all disappear.
-export const REVIEW_TOOLS = true
+// Gates the presenter-notes toggle. Flip to false to strip Nick's speaking notes from the build
+// entirely — do that before sharing the link with anyone who shouldn't read them.
+export const PRESENTER_TOOLS = true
 
 export const ACCENT = '#002991' // PayPal deep blue — text accents on light surfaces
 export const FILL = '#0070E0' // PayPal bright blue — bars, dots, buttons

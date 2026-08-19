@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment } from 'react'
-import { Flag, Sticky } from './primitives'
+import { Sticky } from './primitives'
 import {
   ASSUMPTION_MAP,
   ATTR_COLS,
@@ -230,7 +230,6 @@ export function ArtifactSwimlane() {
         <p className="mt-4 text-xs text-neutral-500">
           The negotiate path — merchant submits a competitor rate, the system verifies legitimacy and counters — was
           part of the designed flow.
-          <Flag kind="assumption" note="Designed in the artifacts; shipped scope of the counter-offer path to be validated" />
         </p>
       </div>
     </div>
