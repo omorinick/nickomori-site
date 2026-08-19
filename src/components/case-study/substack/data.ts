@@ -307,10 +307,63 @@ export const PRINCIPLES = [
 // ---------- narrative spine: acts, lessons, misses ----------
 
 export const ACTS = [
-  { id: 'act-1', num: 'I', title: 'From an ambiguous $15.9B to one specific bet', anchor: 'problem' },
+  { id: 'act-1', num: 'I', title: 'The Opportunity', anchor: 'problem' },
   { id: 'act-2', num: 'II', title: 'It worked. We didn’t know why.', anchor: 'wedge-results' },
   { id: 'act-3', num: 'III', title: 'Follow the momentum', anchor: 'tracks' },
   { id: 'act-4', num: 'IV', title: 'Multiply across segments', anchor: 'partner' },
+]
+
+// Merchant TPV waterfall — acquisition and back-book growth pour in, churn & decline erases it.
+// Figures carried over from Nick's merchant-experience commercial case.
+export const TPV_YEARS: Record<string, { label: string; value: number; type: 'total' | 'up' | 'down' }[]> = {
+  'FY23→24': [
+    { label: 'FY 2023', value: 118.3, type: 'total' },
+    { label: 'Acquisition', value: 4.5, type: 'up' },
+    { label: 'Back-book growth', value: 28.3, type: 'up' },
+    { label: 'Churn & decline', value: -33.5, type: 'down' },
+    { label: 'FY 2024', value: 117.6, type: 'total' },
+  ],
+  'FY24→25': [
+    { label: 'FY 2024', value: 117.6, type: 'total' },
+    { label: 'Acquisition', value: 4.9, type: 'up' },
+    { label: 'Back-book growth', value: 28.5, type: 'up' },
+    { label: 'Churn & decline', value: -33.0, type: 'down' },
+    { label: 'FY 2025', value: 118.0, type: 'total' },
+  ],
+}
+
+export const TPV_CAPTIONS: Record<string, string> = {
+  'FY23→24': '$118.3B → $117.6B · net −1%',
+  'FY24→25': '$117.6B → $118.0B · net 0% growth',
+}
+
+// Shipped bets, in the format Nick used in the commercial case: what the merchant saw, what had to
+// be built behind it, and what it moved.
+export const SHIPPED_BETS = [
+  {
+    name: 'Proactive Save Discounts',
+    status: 'Shipped · US',
+    alias: 'The first bet — “Proactive Retention Pricing”',
+    front: 'Self-serve discount offers through the Merchant Portal and email for at-risk merchants.',
+    back: 'Built the first instant opt-in pricing interface in the Portal; stitched the pricing engine to ops; aligned a new pricing strategy.',
+    impact: '1.4K+ merchants opted in; sub-$1M TPV cohort showing +5% TPV uplift vs. control (~$40M incremental TPV).',
+  },
+  {
+    name: 'Enhanced Seller Protection',
+    status: 'Shipped · Global',
+    alias: 'a.k.a. “Enhanced Dispute Protection”',
+    front: 'Portal auto-covers high-value disputes; “we have your back” comms reinforce the value monthly.',
+    back: 'Approved a contra budget; built back-end logic to override legacy buyer-biased dispute rules.',
+    impact: '~15K merchants covered in month one; +7% TPV uplift; 4pp improvement in churn & decline (~$100M+ incremental TPV).',
+  },
+  {
+    name: 'Proactive Risk Experience Audit',
+    status: 'Shipped · Global',
+    alias: '',
+    front: 'Fewer holds and limitations landing on merchant accounts.',
+    back: 'Stood up a tiger team and the data infrastructure to audit back-end rules with high appeal and lift rates.',
+    impact: '~$65M TPV protected in 2026; ~4K fewer merchants per month hit by risk actions.',
+  },
 ]
 
 export const LESSONS = [

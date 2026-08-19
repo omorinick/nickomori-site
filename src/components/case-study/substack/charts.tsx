@@ -2,7 +2,18 @@
 
 import { useState } from 'react'
 import { Flag, useInView } from './primitives'
-import { DIVES, FINDINGS, LIFECYCLE, MONEY_MAP, QUADRANT, STAGES, TRACKS } from './data'
+import {
+  DIVES,
+  FINDINGS,
+  LIFECYCLE,
+  MONEY_MAP,
+  QUADRANT,
+  SHIPPED_BETS,
+  STAGES,
+  TPV_CAPTIONS,
+  TPV_YEARS,
+  TRACKS,
+} from './data'
 import { ACCENT, FILL, INK, TINT } from './tokens'
 
 export function MoneyMap() {
@@ -347,6 +358,154 @@ export function DeepDives() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Merchant TPV waterfall — the shape of the opportunity. Acquisition and back-book growth pour in;
+// churn and decline erases almost exactly the same amount, every year.
+export function TpvWaterfall() {
+  const years = Object.keys(TPV_YEARS)
+  const [yr, setYr] = useState(years[1])
+  const { ref, seen } = useInView()
+  const steps = TPV_YEARS[yr]
+  const yMin = 108
+  const yMax = 156
+  const pct = (v: number) => ((v - yMin) / (yMax - yMin)) * 100
+
+  // Reduce rather than mutate a closure variable — each bar's floor is the running total so far.
+  const bars = steps.reduce<{ rows: (typeof steps[number] & { bottom: number; top: number })[]; running: number }>(
+    (acc, step) => {
+      if (step.type === 'total') {
+        acc.rows.push({ ...step, bottom: 0, top: pct(step.value) })
+        return { rows: acc.rows, running: step.value }
+      }
+      const end = acc.running + step.value
+      acc.rows.push({
+        ...step,
+        bottom: pct(Math.min(acc.running, end)),
+        top: pct(Math.max(acc.running, end)),
+      })
+      return { rows: acc.rows, running: end }
+    },
+    { rows: [], running: 0 },
+  ).rows
+
+  const color = (t: string) => (t === 'total' ? '#181818' : t === 'down' ? '#C8102E' : FILL)
+
+  return (
+    <div className="mt-10 bg-white border border-neutral-200 rounded-2xl p-6 md:p-9">
+      <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
+        <p className="font-bold text-lg md:text-xl">Merchant TPV — year over year</p>
+        <div className="flex gap-1 bg-neutral-100 rounded-full p-1">
+          {years.map((y) => (
+            <button
+              key={y}
+              type="button"
+              onClick={() => setYr(y)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                yr === y ? 'text-white' : 'text-neutral-500 hover:text-neutral-800'
+              }`}
+              style={yr === y ? { background: ACCENT } : undefined}
+            >
+              {y}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div ref={ref} className="w-full">
+        <div className="relative flex items-end gap-2 md:gap-4" style={{ height: '320px' }}>
+          {bars.map((b, i) => (
+            <div key={b.label} className="flex-1 relative h-full flex flex-col justify-end">
+              <div className="absolute left-0 right-0 text-center" style={{ bottom: `calc(${b.top}% + 6px)` }}>
+                <span
+                  className="text-xs md:text-sm font-bold"
+                  style={{ color: b.type === 'down' ? '#C8102E' : '#111' }}
+                >
+                  {b.type === 'total'
+                    ? `$${b.value.toFixed(1)}B`
+                    : `${b.value > 0 ? '+' : '−'}$${Math.abs(b.value).toFixed(1)}B`}
+                </span>
+              </div>
+              <div
+                className="rounded-t-sm"
+                style={{
+                  position: 'absolute',
+                  left: '8%',
+                  right: '8%',
+                  bottom: `${b.bottom}%`,
+                  height: seen ? `${b.top - b.bottom}%` : '0%',
+                  background: color(b.type),
+                  transition: `height .9s ease ${i * 0.15}s, bottom .9s ease ${i * 0.15}s`,
+                  opacity: seen ? 1 : 0,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2 md:gap-4 mt-3">
+          {bars.map((b) => (
+            <div key={b.label} className="flex-1 text-center text-[11px] md:text-xs text-neutral-500 leading-tight">
+              {b.label}
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="text-center text-sm text-neutral-500 mt-5">
+        {TPV_CAPTIONS[yr]}
+        <Flag kind="assumption" note="Carried over from the merchant-experience commercial case — confirm before presenting" />
+      </p>
+    </div>
+  )
+}
+
+// Shipped bets, in the front-end / back-end / impact format from Nick's commercial case.
+export function ShippedBets() {
+  const [open, setOpen] = useState<string | null>(SHIPPED_BETS[0].name)
+  return (
+    <div className="mt-10 space-y-4">
+      {SHIPPED_BETS.map((b) => {
+        const isOpen = open === b.name
+        return (
+          <div key={b.name} className="rounded-2xl border border-neutral-200 overflow-hidden bg-white">
+            <button
+              type="button"
+              onClick={() => setOpen(isOpen ? null : b.name)}
+              className="w-full text-left px-6 py-5 flex items-start justify-between gap-4 hover:bg-neutral-50 transition-colors"
+            >
+              <span>
+                <span className="block font-black text-xl md:text-2xl">{b.name}</span>
+                <span className="block text-sm text-neutral-500 mt-0.5">{b.status}</span>
+              </span>
+              <span className="text-2xl font-light shrink-0 leading-none mt-1" style={{ color: FILL }}>
+                {isOpen ? '−' : '+'}
+              </span>
+            </button>
+            {isOpen && (
+              <div className="px-6 pb-6">
+                <div className="grid md:grid-cols-3 gap-6">
+                  {[
+                    ['Front end', b.front, false],
+                    ['Back end', b.back, false],
+                    ['Impact', b.impact, true],
+                  ].map(([label, body, bold]) => (
+                    <div key={label as string}>
+                      <p className="font-bold uppercase tracking-wide text-[11px] mb-2" style={{ color: ACCENT }}>
+                        {label}
+                      </p>
+                      <p className={`text-sm leading-relaxed ${bold ? 'font-bold text-neutral-800' : 'text-neutral-600'}`}>
+                        {body}
+                        {bold ? <Flag kind="assumption" note="Confirm figures before presenting" /> : null}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                {b.alias && <p className="mt-5 text-xs text-neutral-400 italic">{b.alias}</p>}
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

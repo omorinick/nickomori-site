@@ -14,7 +14,15 @@ import {
   Rib,
   Spine,
 } from '../substack/primitives'
-import { DeepDives, LifecycleMap, MoneyMap, TracksMap, UpstreamBars } from '../substack/charts'
+import {
+  DeepDives,
+  LifecycleMap,
+  MoneyMap,
+  ShippedBets,
+  TpvWaterfall,
+  TracksMap,
+  UpstreamBars,
+} from '../substack/charts'
 import { ArtifactAttribution } from '../substack/artifacts'
 import { ProcessAct } from '../substack/process'
 import { ResearchTurn } from '../substack/research'
@@ -49,88 +57,64 @@ export default function SubstackCaseContent() {
           {/* ---------- OPEN ---------- */}
 
           <Spine id="title" kicker="Nick Omori · Lead Product Manager — Merchant & Partner Lifecycle, PayPal">
-            <h1 className="font-black tracking-tight leading-[0.95] text-5xl md:text-8xl max-w-4xl">
+            <h1 className="font-black tracking-tight leading-[0.95] text-5xl md:text-8xl max-w-4xl mt-6">
               Building a Growth Ecosystem
             </h1>
-            <p className="mt-8 text-xl md:text-2xl max-w-3xl text-neutral-600">
-              How 2,000 phone calls became a lifecycle intervention system.
+            <p className="mt-10 text-xl md:text-2xl max-w-3xl text-neutral-600">
+              How one project became a multi-track lifecycle support system.
             </p>
-            <div className="mt-12 flex flex-wrap items-end gap-10">
-              <div>
-                <p className="font-black text-4xl md:text-5xl" style={{ color: ACCENT }}>
-                  ~$450M
-                </p>
-                <p className="mt-1.5 text-sm text-neutral-500">
-                  TPV recovered, year one
-                  <Flag kind="assumption" note="Counterfactual method still to be validated" />
-                </p>
-              </div>
-              <div>
-                <p className="font-black text-4xl md:text-5xl" style={{ color: ACCENT }}>
-                  ~$1B
-                </p>
-                <p className="mt-1.5 text-sm text-neutral-500">
-                  on track this year, across all tracks
-                  <Flag kind="assumption" note="Forward projection per Nick — ~$30M revenue" />
-                </p>
-              </div>
-              <div>
-                <p className="font-black text-4xl md:text-5xl text-neutral-300">~$15.9B</p>
-                <p className="mt-1.5 text-sm text-neutral-500">the leak we were sizing against</p>
-              </div>
-            </div>
-          </Spine>
-
-          {/* Why this project — the teacher framing */}
-          <Spine id="framing" kicker="Before I start">
-            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
-              I got stuck trying to pick a project that would get me the job.
-            </h2>
-            <div className="mt-8 space-y-5 text-lg md:text-xl text-neutral-700 max-w-3xl leading-relaxed">
-              <p>
-                So I stopped doing that, and leaned on my teacher roots instead: what could I share from my career
-                that would actually be useful to your team — regardless of how this turns out?
-              </p>
-              <p className="font-bold" style={{ color: INK }}>
-                So there are four lessons in here. Keep whatever resonates. Throw away whatever doesn&apos;t.
-              </p>
-            </div>
-            <div className="mt-10 grid sm:grid-cols-2 gap-3 max-w-4xl">
-              {LESSONS.map((l) => (
-                <a
-                  key={l.id}
-                  href={`#${l.id}`}
-                  className="rounded-xl border border-neutral-200 p-5 hover:border-neutral-400 transition-colors"
-                >
-                  <p className="font-bold uppercase tracking-widest text-[10px] mb-2" style={{ color: ACCENT }}>
-                    Lesson {l.n}
+            <div className="mt-20 flex flex-wrap items-end gap-12">
+              {[
+                ['~$15.9B', 'the annual leak we were sizing against', 'assumption' as const],
+                ['~$450M', 'TPV recovered, year one', 'assumption' as const],
+                ['~$1B', 'on track this year, across all tracks', 'assumption' as const],
+              ].map(([v, l, k]) => (
+                <div key={l as string}>
+                  <p className="font-black text-4xl md:text-5xl" style={{ color: ACCENT }}>
+                    {v}
                   </p>
-                  <p className="font-bold text-base leading-snug">{l.title}</p>
-                </a>
+                  <p className="mt-2 text-sm text-neutral-500 max-w-[15rem]">
+                    {l}
+                    <Flag kind={k as 'assumption'} note="Counterfactual method still to be validated" />
+                  </p>
+                </div>
               ))}
             </div>
-            <Note>
-              Say it plainly and move on — don&apos;t oversell the framing. “I had writer&apos;s block trying to
-              reverse-engineer what you wanted to hear, so I built the thing I&apos;d want to hand a team I respected.”
-            </Note>
           </Spine>
 
-          {/* Context */}
+          {/* Context — scope and directive only; the Substack parallel is spoken, not on the slide */}
           <Spine id="context" kicker="Context">
-            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
-              PayPal earns when merchants process more. So does Substack, when writers get paid.
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              I own how merchants and partners experience PayPal over their whole life with us.
             </h2>
             <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
-              That&apos;s the reason I picked this project. Both businesses take a cut of somebody else&apos;s
-              success — which means customer success isn&apos;t adjacent to the revenue model, it{' '}
-              <em>is</em> the revenue model.
+              The directive I was given was broad: improve activation, growth, and retention across the merchant
+              base. Which team solved it, and in what order, was left open.
             </p>
-            <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-4xl">
-              <div className="rounded-2xl border border-neutral-200 p-6">
-                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">What I owned</p>
-                <p className="font-semibold text-sm">
-                  The merchant lifecycle — activation, growth, retention — across direct and partner surfaces
+            <div className="mt-12 grid md:grid-cols-2 gap-5 max-w-4xl">
+              <div className="rounded-2xl border-2 p-6" style={{ borderColor: FILL, background: TINT }}>
+                <p className="font-bold uppercase tracking-wide text-[11px] mb-2" style={{ color: ACCENT }}>
+                  Merchant Portal
                 </p>
+                <p className="text-sm text-neutral-700 leading-relaxed">
+                  The logged-in home a merchant lands on — balance, activity, alerts, recommendations, and every
+                  lifecycle intervention we surface directly.
+                </p>
+              </div>
+              <div className="rounded-2xl border-2 p-6" style={{ borderColor: FILL, background: TINT }}>
+                <p className="font-bold uppercase tracking-wide text-[11px] mb-2" style={{ color: ACCENT }}>
+                  Partner Portal
+                </p>
+                <p className="text-sm text-neutral-700 leading-relaxed">
+                  The equivalent surface for platforms who bring us their own merchants — the same intelligence,
+                  delivered through their relationship instead of ours.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 grid md:grid-cols-3 gap-5 max-w-4xl">
+              <div className="rounded-2xl border border-neutral-200 p-6">
+                <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">The lifecycle</p>
+                <p className="font-semibold text-sm">Activation → growth → retention, direct and through partners</p>
               </div>
               <div className="rounded-2xl border border-neutral-200 p-6">
                 <p className="font-bold uppercase tracking-wide text-[11px] text-neutral-400 mb-2">Who I worked with</p>
@@ -145,30 +129,40 @@ export default function SubstackCaseContent() {
                 </p>
               </div>
             </div>
-            <div className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-neutral-500">
-              {[
-                'M0 · diagnosis',
-                'M2 · concierge pilot',
-                'M4 · product-assisted',
-                'M5 · research pivot',
-                'M8 · automated scale',
-                'M10+ · early lifecycle & partners',
-              ].map((m) => (
-                <span key={m} className="px-2.5 py-1 rounded-full bg-neutral-100">
-                  {m}
-                </span>
-              ))}
-            </div>
             <Note>
-              Boundaries, if asked: a borrowed analyst built the model, Pricing Strategy owned margin, Pricing Ops
+              Say verbally, not on the slide: why this project — PayPal earns when merchants process more, Substack
+              earns when writers get paid. Neither is a flat subscription, so customer success isn&apos;t adjacent to
+              the revenue model, it is the revenue model.
+              {' '}Boundaries if asked: a borrowed analyst built the model, Pricing Strategy owned margin, Pricing Ops
               fulfilled, feature teams owned their capabilities. I owned the strategy, the portfolio, and how it came
-              together into one system. Sponsorship: a director plus a commercial VP.
+              together. Sponsorship: a director plus a commercial VP. Offer to show the Portal build here.
             </Note>
           </Spine>
 
           {/* ---------- ACT I ---------- */}
 
           <ActOpener id={ACTS[0].id} num={ACTS[0].num} title={ACTS[0].title} />
+
+          <Spine id="opportunity" kicker="The situation">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-6xl max-w-4xl">
+              Two years of work. Zero net growth.
+            </h2>
+            <p className="mt-6 text-lg md:text-xl text-neutral-700 max-w-3xl">
+              Merchant TPV sat flat at roughly <strong>$118B</strong> for two consecutive years. Acquisition was
+              healthy. The back book was growing. And churn &amp; decline erased almost exactly as much as both of
+              them added.
+            </p>
+            <TpvWaterfall />
+            <p className="mt-10 text-xl md:text-2xl font-black max-w-3xl">
+              Nothing in the portfolio was sized to offset it —{' '}
+              <span style={{ color: ACCENT }}>and nobody owned it.</span>
+            </p>
+            <Note>
+              This is the slide that earns the right to the rest of the presentation. The point isn&apos;t that
+              churn is bad; it&apos;s that two full years of everyone else&apos;s good work was being cancelled out
+              by something no single team was accountable for.
+            </Note>
+          </Spine>
 
           <Spine id="problem" kicker="The problem" dark>
             <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
@@ -197,7 +191,7 @@ export default function SubstackCaseContent() {
           {/* Early exploration — the borrowed ops team */}
           <Spine id="exploration" kicker="Early exploration">
             <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-              We had no research budget, so we borrowed a VP&apos;s call centre.
+              We had no research budget, so we borrowed a VP&apos;s call center.
             </h2>
             <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
               A VP on the customer support side had been handed her own mandate to curb churn. When I showed her what
@@ -224,8 +218,8 @@ export default function SubstackCaseContent() {
             <div className="mt-12 flex flex-col md:flex-row gap-4 items-stretch max-w-4xl">
               {[
                 ['1 · Ask', 'Merchants told us, in their words, what had gone wrong'],
-                ['2 · Categorise', 'Their answers became the reason taxonomy'],
-                ['3 · Instrument', 'Tagging rules operationalised that taxonomy across the whole portfolio'],
+                ['2 · Categorize', 'Their answers became the reason taxonomy'],
+                ['3 · Instrument', 'Tagging rules operationalized that taxonomy across the whole portfolio'],
               ].map(([k, v]) => (
                 <div key={k} className="flex-1 rounded-2xl border border-neutral-200 p-5">
                   <p className="font-black text-sm mb-1.5" style={{ color: ACCENT }}>
@@ -235,10 +229,6 @@ export default function SubstackCaseContent() {
                 </div>
               ))}
             </div>
-            <p className="mt-10 text-lg md:text-xl font-bold max-w-3xl">
-              We did not start with a model.{' '}
-              <span style={{ color: ACCENT }}>We started with 750 people telling us what was wrong.</span>
-            </p>
             <Note>
               This is the alignment story if they probe on stakeholders: I didn&apos;t have headcount or a research
               budget. I found someone whose mandate overlapped mine and made her problem easier to solve. Verbal
@@ -265,62 +255,6 @@ export default function SubstackCaseContent() {
             <Note>
               Three addressable drivers, a small macro slice we bracketed as uncontrollable, and an honest untagged
               third. Say the untagged number out loud — it buys credibility for everything else on the chart.
-            </Note>
-          </Spine>
-
-          {/* The model — rebuilt around what actually happened */}
-          <Spine id="model" kicker="The zero-to-one">
-            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-              The model was two rules and a borrowed analyst.
-            </h2>
-            <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
-              We had almost no analytics support. So I pulled someone from pricing ops — a relationship, not a
-              headcount request — and we built the simplest thing that could possibly identify a merchant worth
-              calling.
-            </p>
-            <div className="mt-10 grid md:grid-cols-2 gap-5 max-w-4xl">
-              <div className="rounded-2xl border-2 p-6" style={{ borderColor: FILL, background: TINT }}>
-                <p className="font-black text-sm mb-2" style={{ color: ACCENT }}>
-                  Cohort A · Declining
-                </p>
-                <p className="text-sm text-neutral-700 leading-relaxed">
-                  Merchants down year over year, with a stack of exclusion rules — unresolved holds, sales-managed
-                  contracts, seasonality, known bankruptcies.
-                </p>
-              </div>
-              <div className="rounded-2xl border-2 p-6" style={{ borderColor: FILL, background: TINT }}>
-                <p className="font-black text-sm mb-2" style={{ color: ACCENT }}>
-                  Cohort B · Flattening
-                </p>
-                <p className="text-sm text-neutral-700 leading-relaxed">
-                  Merchants who had been growing and then stalled quickly — not yet declining, but bending toward it.
-                </p>
-              </div>
-            </div>
-            <div className="mt-10 rounded-2xl p-7 text-white max-w-3xl" style={{ background: '#0b0d12' }}>
-              <p className="font-bold uppercase tracking-wide text-[11px] mb-3" style={{ color: ACCENT_DARK }}>
-                The pushback
-              </p>
-              <p className="text-base text-neutral-300 leading-relaxed">
-                Plenty of people wanted a proper churn-reasoning model first — something that could tell them exactly
-                what was wrong with each merchant and how to fix it. That is a much better model. It was also months
-                away, and it answered a question we hadn&apos;t earned yet.
-              </p>
-              <p className="mt-5 text-lg md:text-xl font-bold">
-                We weren&apos;t trying to identify who was leaving.{' '}
-                <span style={{ color: ACCENT_DARK }}>
-                  We were trying to prove a lifecycle intervention could bend a trajectory at all.
-                </span>
-              </p>
-            </div>
-            <p className="mt-10 text-lg text-neutral-700 max-w-3xl">
-              For that question, a crude slope is the right instrument. And the win it produced is what bought us the
-              resources to build the real model later — which now powers the early-lifecycle program.
-            </p>
-            <Note>
-              If a data scientist probes: yes, this was blunt, and I&apos;ll show you exactly what it cost us in a
-              minute (Miss 1). The argument isn&apos;t that crude was better — it&apos;s that crude was fundable,
-              reversible, and available now, and the accurate version was none of those things yet.
             </Note>
           </Spine>
 
@@ -363,6 +297,62 @@ export default function SubstackCaseContent() {
                 </p>
               </div>
             </Rib>
+          </Spine>
+
+
+          <Spine id="model" kicker="0→1">
+            <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
+              Building the Churn Model
+            </h2>
+            <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
+              One analyst, some business rules, and two personas.
+            </p>
+            <div className="mt-12 grid md:grid-cols-2 gap-5 max-w-4xl">
+              <div className="rounded-2xl border-2 p-6" style={{ borderColor: FILL, background: TINT }}>
+                <p className="font-black text-sm mb-2" style={{ color: ACCENT }}>
+                  Persona A · Declining
+                </p>
+                <p className="text-sm text-neutral-700 leading-relaxed">
+                  Merchants down year over year, with a stack of exclusion rules — unresolved holds, sales-managed
+                  contracts, seasonality, known bankruptcies.
+                </p>
+              </div>
+              <div className="rounded-2xl border-2 p-6" style={{ borderColor: FILL, background: TINT }}>
+                <p className="font-black text-sm mb-2" style={{ color: ACCENT }}>
+                  Persona B · Flattening
+                </p>
+                <p className="text-sm text-neutral-700 leading-relaxed">
+                  Merchants who had been growing and then stalled quickly — not yet declining, but bending toward
+                  it.
+                </p>
+              </div>
+            </div>
+            <div className="mt-10 rounded-2xl p-7 text-white max-w-3xl" style={{ background: '#0b0d12' }}>
+              <p className="font-bold uppercase tracking-wide text-[11px] mb-3" style={{ color: ACCENT_DARK }}>
+                The pushback
+              </p>
+              <p className="text-base text-neutral-300 leading-relaxed">
+                Plenty of people wanted a proper churn-reasoning model first — something that could tell them
+                exactly what was wrong with each merchant and how to fix it. That is a much better model. It was
+                also months away, and it answered a question we hadn&apos;t earned yet.
+              </p>
+              <p className="mt-5 text-lg md:text-xl font-bold">
+                We weren&apos;t trying to identify why people were leaving.{' '}
+                <span style={{ color: ACCENT_DARK }}>
+                  We were trying to prove a lifecycle intervention could bend a trajectory at all.
+                </span>
+              </p>
+            </div>
+            <p className="mt-10 text-lg text-neutral-700 max-w-3xl">
+              For that question, a crude slope is the right instrument. And the win it produced is what bought us
+              the resources to build the real model later — which now powers the early-lifecycle program.
+            </p>
+            <Note>
+              Resource constraints are worth saying out loud here rather than putting on the slide: no analytics
+              support, so I borrowed someone from pricing ops on the strength of the relationship. If a data
+              scientist probes on rigor — yes, it was blunt, and Miss 1 shows exactly what that cost. The argument
+              isn&apos;t that crude was better; it&apos;s that crude was fundable, reversible, and available now.
+            </Note>
           </Spine>
 
           {/* The working process — now inline and vertical, ends on Miss 1 */}
@@ -472,8 +462,12 @@ export default function SubstackCaseContent() {
               One reinterpretation became ten tracks.
             </h2>
             <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
-              Most of these are small. That&apos;s the point — a thousand paper cuts in reverse. Individually
-              unremarkable, collectively the thing that moves a portfolio.
+              Three shipped last year. Most of the rest are small — that&apos;s the point. A thousand paper cuts in
+              reverse: individually unremarkable, collectively the thing that moves a portfolio.
+            </p>
+            <ShippedBets />
+            <p className="mt-16 font-bold uppercase tracking-widest text-[11px] text-neutral-400">
+              And the wider portfolio
             </p>
             <TracksMap />
             <p className="mt-10 text-lg md:text-xl font-bold max-w-3xl">

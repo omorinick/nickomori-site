@@ -99,12 +99,11 @@ export function ActOpener({ id, num, title }: { id: string; num: string; title: 
       className="relative min-h-[45vh] flex flex-col justify-center px-6 md:px-20 py-24 scroll-mt-16 text-white"
       style={{ background: '#0b0d12' }}
     >
-      <div className="max-w-5xl mx-auto w-full flex items-center gap-8 md:gap-12">
-        <span className="font-black text-6xl md:text-8xl leading-none select-none" style={{ color: '#8FBCFF' }}>
-          {num}
-        </span>
-        <div className="h-16 md:h-24 w-px bg-white/15" />
-        <h2 className="font-extrabold tracking-tight text-2xl md:text-4xl max-w-2xl">{title}</h2>
+      <div className="max-w-5xl mx-auto w-full">
+        <p className="font-black tracking-[0.22em] uppercase text-sm md:text-base mb-5" style={{ color: '#8FBCFF' }}>
+          Part {num}
+        </p>
+        <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">{title}</h2>
       </div>
     </section>
   )
@@ -307,7 +306,7 @@ export function ArtifactModal({ label, title, children }: { label: string; title
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-6 mb-2">
-                <h4 className="font-black text-xl md:text-2xl">{title}</h4>
+                <h4 className="font-black text-xl md:text-2xl mb-6">{title}</h4>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
@@ -317,10 +316,6 @@ export function ArtifactModal({ label, title, children }: { label: string; title
                   ✕
                 </button>
               </div>
-              <p className="text-[11px] text-neutral-400 mb-6 max-w-2xl">
-                Sanitized recreation of the original working artifact — labels and groupings simplified for
-                confidentiality and presentation clarity.
-              </p>
               {children}
             </div>
           </div>
