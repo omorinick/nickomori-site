@@ -315,14 +315,37 @@ export function ArtifactLearningBoard() {
             </div>
           </div>
           <div>
-            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">Technical investigations</p>
+            <p className="font-bold text-xs uppercase tracking-wide text-neutral-400 mb-2">
+              Technical investigations — spikes the team actually ran
+            </p>
             <div className="grid sm:grid-cols-2 gap-2 items-start">
               <Sticky tone="purple" tilt={-0.6}>
+                Can the pricing platform take thousands of per-merchant overrides — and give them all back?
+              </Sticky>
+              <Sticky tone="purple" tilt={0.7}>
+                What is the propagation lag from rate change to the transaction path?
+              </Sticky>
+              <Sticky tone="purple" tilt={-0.5}>
+                Precedence: what happens when a promo rate meets a contract renegotiation?
+              </Sticky>
+              <Sticky tone="purple" tilt={0.6}>
+                Can model output render in the Portal inside the page-load budget?
+              </Sticky>
+              <Sticky tone="purple" tilt={-0.8}>
+                Can email read the same eligibility source as the Portal, not a nightly copy?
+              </Sticky>
+              <Sticky tone="purple" tilt={0.5}>
+                Can holdout suppression be guaranteed across every channel?
+              </Sticky>
+              <Sticky tone="purple" tilt={-0.6}>
+                Where do we store consent, with the terms version the merchant actually saw?
+              </Sticky>
+              <Sticky tone="purple" tilt={0.8}>
+                Can we reconstruct which offer a given merchant was shown, months later?
+              </Sticky>
+              <Sticky tone="purple" tilt={-0.4}>
                 Continuity between the self-service flow and a required human intervention
               </Sticky>
-              <p className="text-xs text-neutral-500 italic pt-2">
-                …left nearly empty. Most feasibility questions were retired by asking, not building.
-              </p>
             </div>
           </div>
         </div>

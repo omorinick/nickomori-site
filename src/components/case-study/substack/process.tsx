@@ -236,7 +236,9 @@ export function AssumptionsSection() {
     >
       <p className="text-lg text-neutral-700 max-w-3xl -mt-6">
         About two hundred stickies went on the board. These are the ones that actually drove decisions — sorted by
-        how much each mattered and how little we knew about it.
+        how much each mattered and how little we knew about it. Filter to Feasibility for the questions the
+        engineers went away and answered, and to Legal &amp; ethical for the ones that turned out to be engineering
+        problems wearing a legal hat.
       </p>
       <AssumptionRegister />
       <div className="mt-16 rounded-2xl border border-neutral-200 bg-white p-6 md:p-8">
