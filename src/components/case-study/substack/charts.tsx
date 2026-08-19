@@ -3,7 +3,11 @@
 import { useState } from 'react'
 import { Flag, useInView } from './primitives'
 import {
+  ASSUMPTIONS,
+  ASSUMPTION_CATS,
   DIVES,
+  GATES,
+  LEARNING_METHODS,
   FINDINGS,
   LIFECYCLE,
   MONEY_MAP,
@@ -506,6 +510,280 @@ export function ShippedBets() {
           </div>
         )
       })}
+    </div>
+  )
+}
+
+// The full assumption register, filterable by category. The point of showing all of it is that the
+// volume is the method — this is what "what would have to be true" actually looks like.
+export function AssumptionRegister() {
+  const [cat, setCat] = useState<string>('All')
+  const shown = cat === 'All' ? ASSUMPTIONS : ASSUMPTIONS.filter((a) => a.cat === cat)
+  const colorOf = (c: string) => ASSUMPTION_CATS.find((x) => x.name === c)?.color ?? '#888'
+
+  return (
+    <div className="mt-10">
+      <div className="flex flex-wrap gap-2 mb-6">
+        {['All', ...ASSUMPTION_CATS.map((c) => c.name)].map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setCat(c)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+              cat === c ? 'text-white border-transparent' : 'border-neutral-300 text-neutral-600 hover:border-neutral-500'
+            }`}
+            style={cat === c ? { background: c === 'All' ? INK : colorOf(c) } : undefined}
+          >
+            {c}
+            {c !== 'All' && (
+              <span className="ml-1.5 opacity-60">{ASSUMPTIONS.filter((a) => a.cat === c).length}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 overflow-hidden bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[720px]">
+            <thead>
+              <tr className="text-left text-[10px] uppercase tracking-widest text-neutral-400 border-b border-neutral-200">
+                <th className="px-4 py-3 font-semibold">#</th>
+                <th className="px-4 py-3 font-semibold">What would have to be true</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap">Phase</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap">Imp</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap">Unc</th>
+                <th className="px-4 py-3 font-semibold">How we planned to find out</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((a) => (
+                <tr
+                  key={a.id}
+                  className="border-b border-neutral-100 last:border-0 align-top"
+                  style={a.hero ? { background: TINT } : undefined}
+                >
+                  <td className="px-4 py-3 font-black whitespace-nowrap" style={{ color: colorOf(a.cat) }}>
+                    {a.id}
+                  </td>
+                  <td className={`px-4 py-3 ${a.hero ? 'font-bold' : ''}`}>{a.text}</td>
+                  <td className="px-3 py-3 text-neutral-500 whitespace-nowrap">{a.phase}</td>
+                  <td className="px-3 py-3 font-bold tracking-tighter" style={{ color: INK }}>
+                    {'●'.repeat(a.imp)}
+                  </td>
+                  <td className="px-3 py-3 font-bold tracking-tighter" style={{ color: a.unc >= 4 ? '#C8102E' : '#a3a3a3' }}>
+                    {'●'.repeat(a.unc)}
+                  </td>
+                  <td className="px-4 py-3 text-neutral-600">{a.method}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p className="mt-3 text-xs text-neutral-500">
+        Importance and uncertainty are a reconstruction — the historical board carried no scores.
+        <Flag kind="assumption" note="Scoring reconstructed; the sorting logic is real, the numbers are not" />
+      </p>
+    </div>
+  )
+}
+
+// Importance × uncertainty. Everything in the top-right had to be retired before we could launch —
+// except the one thing that could only be learned by launching.
+export function AssumptionPlot() {
+  const [hover, setHover] = useState<string | null>(null)
+  const W = 720
+  const H = 460
+  const PAD = { l: 64, r: 24, t: 24, b: 56 }
+  const colorOf = (c: string) => ASSUMPTION_CATS.find((x) => x.name === c)?.color ?? '#888'
+
+  // Spread co-located points on a small deterministic spiral so nothing hides underneath.
+  const placed = ASSUMPTIONS.map((a) => {
+    const peers = ASSUMPTIONS.filter((b) => b.imp === a.imp && b.unc === a.unc)
+    const idx = peers.findIndex((b) => b.id === a.id)
+    const angle = (idx / Math.max(peers.length, 1)) * Math.PI * 2
+    const radius = peers.length > 1 ? 0.17 + (idx % 2) * 0.1 : 0
+    return { ...a, ox: Math.cos(angle) * radius, oy: Math.sin(angle) * radius }
+  })
+
+  const x = (unc: number, ox: number) => PAD.l + ((unc + ox - 1) / 4) * (W - PAD.l - PAD.r)
+  const y = (imp: number, oy: number) => H - PAD.b - ((imp + oy - 1) / 4) * (H - PAD.t - PAD.b)
+
+  const active = placed.find((a) => a.id === hover)
+
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Assumptions by importance and uncertainty">
+        <rect
+          x={PAD.l + (W - PAD.l - PAD.r) / 2}
+          y={PAD.t}
+          width={(W - PAD.l - PAD.r) / 2}
+          height={(H - PAD.t - PAD.b) / 2}
+          fill={TINT}
+          rx={8}
+        />
+        <text x={W - PAD.r - 10} y={PAD.t + 22} textAnchor="end" fontSize={12} fontWeight={800} fill={ACCENT}>
+          RETIRE THESE FIRST
+        </text>
+
+        {[1, 2, 3, 4, 5].map((v) => (
+          <g key={`g${v}`}>
+            <line x1={x(v, 0)} y1={PAD.t} x2={x(v, 0)} y2={H - PAD.b} stroke="#f0f0f0" strokeWidth={1} />
+            <line x1={PAD.l} y1={y(v, 0)} x2={W - PAD.r} y2={y(v, 0)} stroke="#f0f0f0" strokeWidth={1} />
+          </g>
+        ))}
+        <line x1={PAD.l} y1={H - PAD.b} x2={W - PAD.r} y2={H - PAD.b} stroke="#d4d4d4" strokeWidth={1.5} />
+        <line x1={PAD.l} y1={PAD.t} x2={PAD.l} y2={H - PAD.b} stroke="#d4d4d4" strokeWidth={1.5} />
+        <text x={(W + PAD.l) / 2} y={H - 16} textAnchor="middle" fontSize={12} fill="#737373">
+          How uncertain we were →
+        </text>
+        <text
+          x={18}
+          y={(H - PAD.b + PAD.t) / 2}
+          textAnchor="middle"
+          fontSize={12}
+          fill="#737373"
+          transform={`rotate(-90 18 ${(H - PAD.b + PAD.t) / 2})`}
+        >
+          How much it mattered →
+        </text>
+
+        {placed.map((a) => (
+          <g
+            key={a.id}
+            onMouseEnter={() => setHover(a.id)}
+            onMouseLeave={() => setHover(null)}
+            style={{ cursor: 'pointer' }}
+          >
+            <circle
+              cx={x(a.unc, a.ox)}
+              cy={y(a.imp, a.oy)}
+              r={a.hero ? 15 : hover === a.id ? 13 : 11}
+              fill={a.hero ? FILL : colorOf(a.cat)}
+              opacity={hover && hover !== a.id ? 0.25 : a.hero ? 1 : 0.85}
+              stroke={a.hero ? ACCENT : 'white'}
+              strokeWidth={a.hero ? 3 : 1.5}
+            />
+            <text
+              x={x(a.unc, a.ox)}
+              y={y(a.imp, a.oy) + 4}
+              textAnchor="middle"
+              fontSize={10}
+              fontWeight={800}
+              fill="white"
+              pointerEvents="none"
+            >
+              {a.id}
+            </text>
+          </g>
+        ))}
+      </svg>
+
+      <div
+        className="mt-4 rounded-xl border px-5 py-4 min-h-[86px]"
+        style={active ? { borderColor: colorOf(active.cat), background: '#fff' } : { borderColor: '#e5e5e5' }}
+      >
+        {active ? (
+          <>
+            <p className="font-black text-sm" style={{ color: colorOf(active.cat) }}>
+              {active.id} · {active.cat} · {active.phase}
+            </p>
+            <p className="mt-1 text-sm font-bold">{active.text}</p>
+            <p className="mt-1 text-sm text-neutral-500">{active.method}</p>
+          </>
+        ) : (
+          <p className="text-sm text-neutral-500">
+            Hover any dot to read the assumption. <strong style={{ color: ACCENT }}>V1</strong> is the outlined one —
+            top-right, and the only assumption on the board we could not retire before launching.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        {ASSUMPTION_CATS.map((c) => (
+          <span key={c.name} className="flex items-center gap-1.5 text-xs text-neutral-600">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
+            {c.name}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// The learning plan: methods ordered by what they cost, each carrying the assumptions it retired.
+export function LearningPlanDetail() {
+  const colorOf = (c: string) => ASSUMPTION_CATS.find((x) => x.name === c)?.color ?? '#888'
+  const byId = (id: string) => ASSUMPTIONS.find((a) => a.id === id)
+
+  return (
+    <div className="mt-10 space-y-3">
+      {LEARNING_METHODS.map((m, i) => (
+        <div key={m.name} className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+          <div className="px-6 py-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <p className="font-black text-lg">
+                <span className="mr-3 text-neutral-300">{i + 1}</span>
+                {m.name}
+              </p>
+              <div className="flex gap-2 text-[10px] font-bold uppercase tracking-wide">
+                <span className="px-2 py-0.5 rounded" style={{ background: '#f5f5f5', color: '#737373' }}>
+                  {m.cost}
+                </span>
+                <span className="px-2 py-0.5 rounded" style={{ background: TINT, color: ACCENT }}>
+                  {m.when}
+                </span>
+              </div>
+            </div>
+            <p className="mt-2 text-sm text-neutral-600 leading-relaxed max-w-3xl">{m.what}</p>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {m.retired.map((id) => {
+                const a = byId(id)
+                if (!a) return null
+                return (
+                  <span
+                    key={id}
+                    title={a.text}
+                    className="px-2 py-0.5 rounded text-[11px] font-bold text-white"
+                    style={{ background: colorOf(a.cat) }}
+                  >
+                    {id}
+                  </span>
+                )
+              })}
+            </div>
+            {m.note && (
+              <p className="mt-4 text-sm font-bold" style={{ color: ACCENT }}>
+                {m.note}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// The gates. Each one bought the next stage of investment.
+export function GateStrip() {
+  return (
+    <div className="mt-10 grid md:grid-cols-4 gap-4">
+      {GATES.map((g) => (
+        <div key={g.id} className="rounded-2xl border border-neutral-200 bg-white p-5 flex flex-col">
+          <p className="font-black text-2xl" style={{ color: ACCENT }}>
+            {g.id}
+          </p>
+          <p className="font-bold text-sm mt-1">{g.name}</p>
+          <p className="text-xs text-neutral-500 mt-3 flex-1">{g.ask}</p>
+          <p className="text-xs text-neutral-700 mt-4 pt-3 border-t border-neutral-200">
+            <span className="font-bold uppercase tracking-wide text-[10px] text-neutral-400 block mb-1">Evidence</span>
+            {g.evidence}
+          </p>
+          <p className="text-xs font-bold mt-3" style={{ color: ACCENT }}>
+            {g.outcome}
+          </p>
+        </div>
+      ))}
     </div>
   )
 }

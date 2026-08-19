@@ -24,11 +24,25 @@ import {
   UpstreamBars,
 } from '../substack/charts'
 import { ArtifactAttribution } from '../substack/artifacts'
-import { ProcessAct } from '../substack/process'
+import {
+  AssumptionsSection,
+  BetsSection,
+  DecomposeSection,
+  DesignSection,
+  HmwSection,
+  LearningPlanSection,
+  ProcessPanel,
+  ResultsSection,
+  StagesSection,
+} from '../substack/process'
 import { ResearchTurn } from '../substack/research'
 import {
   ACTS,
+  DEFINITION,
   FAMILIES,
+  FIRST_BET_REASONS,
+  SPACE_CHOICE,
+  WEDGE_REASONS,
   LESSONS,
   MISSES,
   PARTNER_CAPABILITIES,
@@ -66,7 +80,7 @@ export default function SubstackCaseContent() {
             <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12 max-w-3xl">
               {[
                 ['~$15.9B', 'the annual leak we were sizing against', 'assumption' as const],
-                ['~$450M', 'TPV recovered, year one', 'assumption' as const],
+                ['~$450M', 'net growth TPV, year one', 'assumption' as const],
                 ['~$1B', 'on track this year, across all tracks', 'assumption' as const],
               ].map(([v, l, k]) => (
                 <div key={l as string}>
@@ -164,28 +178,53 @@ export default function SubstackCaseContent() {
             </Note>
           </Spine>
 
-          <Spine id="problem" kicker="The problem" dark>
+          <Spine id="definition" kicker="The definition hole" dark>
             <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-3xl">
-              By the time a merchant churned, the damage was already done.
+              Churn was a $3B problem. Decline was a $16B one.
             </h2>
             <p className="mt-6 text-lg text-neutral-400 max-w-3xl">
-              Churn was defined as twelve months at zero volume. By then there is no product intervention left —
-              you&apos;re reading a death certificate, not a chart.
+              In a growth system, churn is normally the biggest number on the board. At a company with twenty years
+              of customer history it was suspiciously small — so I went and read the definition.
             </p>
-            <div className="mt-12 flex items-end gap-4">
-              <p className="font-black text-6xl md:text-8xl">
-                ~$16<span style={{ color: ACCENT_DARK }}>B</span>
+            <div className="mt-10 rounded-2xl p-6 max-w-3xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <p className="font-bold uppercase tracking-wide text-[11px] mb-2" style={{ color: ACCENT_DARK }}>
+                The rule
               </p>
-              <p className="text-neutral-400 mb-3 max-w-sm text-sm">
-                annualized contraction — mostly merchants still transacting, still reachable
-                <Flag kind="assumption" note="~$15.9B — annualized ×12 from a single-month snapshot; simplified construct" />
-              </p>
+              <p className="text-lg font-bold">{DEFINITION.rule}</p>
+              <p className="mt-4 text-base text-neutral-300 leading-relaxed">{DEFINITION.hole}</p>
             </div>
-            <p className="mt-10 text-xl md:text-2xl max-w-3xl font-bold">
-              So we changed the question: <span style={{ color: ACCENT_DARK }}>who is entering a preventable
-              trajectory</span> — not “why did they leave?”
+            <div className="mt-12 flex flex-wrap items-end gap-12">
+              <div>
+                <p className="font-black text-4xl md:text-6xl text-neutral-500">{DEFINITION.official.value}</p>
+                <p className="mt-2 text-sm text-neutral-500 max-w-[14rem]">{DEFINITION.official.sub}</p>
+              </div>
+              <div>
+                <p className="font-black text-5xl md:text-7xl">
+                  ~$16<span style={{ color: ACCENT_DARK }}>B</span>
+                </p>
+                <p className="mt-2 text-sm text-neutral-400 max-w-[16rem]">
+                  {DEFINITION.real.sub}
+                  <Flag kind="assumption" note="~$15.9B annualized; official churn figure to be confirmed" />
+                </p>
+              </div>
+            </div>
+            <div className="mt-10 flex flex-wrap gap-3">
+              {DEFINITION.excluded.map((e) => (
+                <span key={e.k} className="px-4 py-2 rounded-full text-sm border border-white/15 text-neutral-400">
+                  <strong className="text-white">{e.k}</strong> — {e.v}, all stripped out
+                </span>
+              ))}
+            </div>
+            <p className="mt-12 text-xl md:text-2xl max-w-3xl font-bold">
+              Everyone was talking about growth.{' '}
+              <span style={{ color: ACCENT_DARK }}>Nobody was talking about decline.</span>
             </p>
             <Guardrail>That the full pool was recoverable. It sizes the problem, not the addressable opportunity.</Guardrail>
+            <Note>
+              First month on the team. The tell was that churn looked far too small for a business this old — most of
+              the volume we were losing came from merchants who were still transacting, just less every month. Nobody
+              was counting them because they had not hit zero yet.
+            </Note>
           </Spine>
 
           {/* Early exploration — the borrowed ops team */}
@@ -258,54 +297,131 @@ export default function SubstackCaseContent() {
             </Note>
           </Spine>
 
-          <Spine id="wedge" kicker="Choosing the first bet">
+          <DecomposeSection />
+
+          <Spine id="wedge" kicker="Choosing where to start">
             <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
               Pricing had the highest <span style={{ color: ACCENT }}>learning-adjusted leverage</span> — not the
               biggest pool.
             </h2>
-            <div className="mt-10 flex flex-wrap gap-2.5">
-              {['Fast to test manually', 'Reversible & capped', 'Cleanly measurable', 'Operationally ready', 'Earns broader investment'].map((p) => (
-                <span key={p} className="px-4 py-2 rounded-full text-sm font-bold border" style={{ borderColor: FILL, color: ACCENT, background: TINT }}>
-                  {p}
-                </span>
+            <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
+              We had already sized every space. The question was which one we could learn from fastest.
+            </p>
+            <div className="mt-12 space-y-4">
+              {SPACE_CHOICE.map((sp) => (
+                <div
+                  key={sp.space}
+                  className="rounded-2xl border-2 p-6"
+                  style={sp.chosen ? { borderColor: FILL, background: TINT } : { borderColor: '#e5e5e5' }}
+                >
+                  <div className="flex items-baseline justify-between gap-4 flex-wrap">
+                    <p className="font-black text-lg">{sp.space}</p>
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded"
+                      style={sp.chosen ? { background: ACCENT, color: 'white' } : { background: '#f5f5f5', color: '#737373' }}
+                    >
+                      {sp.verdict}
+                    </span>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+                    <p className="text-neutral-700">
+                      <span className="font-bold uppercase tracking-wide text-[10px] text-neutral-400 block mb-1">
+                        The pull
+                      </span>
+                      {sp.pull}
+                    </p>
+                    <p className="text-neutral-700">
+                      <span className="font-bold uppercase tracking-wide text-[10px] text-neutral-400 block mb-1">
+                        The problem
+                      </span>
+                      {sp.problem}
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
-            <p className="mt-8 text-lg text-neutral-600 max-w-3xl">
-              Technical issues were the bigger pool and carried no margin risk — and still weren&apos;t first,
-              because nothing about them could be tested in weeks by people with phones.
-            </p>
-            <p className="mt-6 text-2xl md:text-3xl font-black max-w-3xl">
-              We earned permission to scale by <span style={{ color: ACCENT }}>reducing the cost of being wrong</span>.
+            <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {WEDGE_REASONS.map((r) => (
+                <div key={r.k} className="rounded-xl border border-neutral-200 p-5">
+                  <p className="font-bold text-sm mb-1.5" style={{ color: ACCENT }}>
+                    {r.k}
+                  </p>
+                  <p className="text-sm text-neutral-600 leading-relaxed">{r.v}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-12 text-2xl md:text-3xl font-black max-w-3xl">
+              We earned permission to scale by{' '}
+              <span style={{ color: ACCENT }}>reducing the cost of being wrong</span>.
             </p>
             <Rib branch="Conflict & alignment" title="The margin fight — and how alignment was actually earned">
               <div className="space-y-3">
                 <p>
-                  Pricing Strategy and business GMs pushed back hard: margin was the most important business metric, a
-                  discount might subsidize merchants who would stay anyway, and product-led pricing risked
+                  Pricing Strategy and the business GMs pushed back hard: margin was the metric that mattered, a
+                  discount might subsidise merchants who would have stayed, and product-led pricing risked
                   inconsistency with negotiated enterprise contracts.
                 </p>
+                <p className="font-bold" style={{ color: INK }}>
+                  What actually won the argument was framing and size, not evidence — I did not have evidence yet.
+                </p>
                 <ul className="list-disc pl-5 space-y-1.5">
-                  <li>Narrow eligibility via the two cohorts; sales-managed contracts carved out entirely.</li>
-                  <li>A reversible 2,000-merchant calling experiment before any product build.</li>
+                  <li>It runs as an experiment, on a tight timeline, with a date where we stop and report.</li>
+                  <li>It costs almost nothing — borrowed ops time and a borrowed analyst, no engineering.</li>
+                  <li>Narrow eligibility; sales-managed contracts carved out entirely.</li>
                   <li>Control and comparison populations preserved at every stage.</li>
-                  <li>Adoption and trajectory evidence required before automation investment.</li>
-                  <li>Director + commercial VP sponsorship to align dependencies.</li>
+                  <li>Adoption and trajectory evidence required before any automation investment.</li>
                 </ul>
                 <p className="text-neutral-500">
-                  The finance conversation in one line: the subsidy risk couldn&apos;t be known pre-launch, but it
-                  could be <em>bounded</em> pre-launch — guardrails were the price of permission.
+                  In one line: the subsidy risk could not be known before launching, but it could be{' '}
+                  <em>bounded</em> before launching. Guardrails were the price of permission.
                 </p>
               </div>
             </Rib>
           </Spine>
 
+          <HmwSection />
 
-          <Spine id="model" kicker="0→1">
+          <BetsSection />
+
+          <ProcessPanel
+            id="first-bet"
+            kicker="Choosing the first bet"
+            title="Proactive save offers won because the stars happened to line up."
+            tint
+          >
+            <p className="text-lg text-neutral-700 max-w-3xl -mt-6 mb-10">
+              I want to be honest about this, because it is the question I would ask. It was not the most
+              sophisticated bet on the board. It was the one where everything we needed already existed.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              {FIRST_BET_REASONS.map((r) => (
+                <div key={r.k} className="rounded-2xl border border-neutral-200 bg-white p-6">
+                  <p className="font-black text-base mb-2" style={{ color: ACCENT }}>
+                    {r.k}
+                  </p>
+                  <p className="text-sm text-neutral-600 leading-relaxed">{r.v}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-10 text-lg md:text-xl font-bold max-w-3xl">
+              High potential impact, it would prove the whole space was worth funding, and it was{' '}
+              <span style={{ color: ACCENT }}>straightforward to execute</span>. That combination is rarer than it
+              sounds.
+            </p>
+            <Note>
+              Say the honest version out loud: I went poking around the pricing org, found they had margin headroom
+              nobody was spending, and found an analyst willing to build us a model. The prioritisation was real, but
+              availability of resource was a genuine input — pretending otherwise would be revisionist.
+            </Note>
+          </ProcessPanel>
+
+          <Spine id="model" kicker="0→1 · the leverage point">
             <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
               Building the Churn Model
             </h2>
             <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
-              One analyst, some business rules, and two personas.
+              One analyst, some business rules, and two personas — and the single thing that made this bet
+              executable inside our timeline.
             </p>
             <div className="mt-12 grid md:grid-cols-2 gap-5 max-w-4xl">
               <div className="rounded-2xl border-2 p-6" style={{ borderColor: FILL, background: TINT }}>
@@ -355,8 +471,15 @@ export default function SubstackCaseContent() {
             </Note>
           </Spine>
 
-          {/* The working process — now inline and vertical, ends on Miss 1 */}
-          <ProcessAct />
+          <DesignSection />
+
+          <AssumptionsSection />
+
+          <LearningPlanSection />
+
+          <StagesSection />
+
+          <ResultsSection />
 
           <Lesson {...LESSONS[0]} />
 
@@ -674,9 +797,9 @@ export default function SubstackCaseContent() {
             </h2>
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl">
               {[
-                ['5% → 17%', 'acceptance, phone calls → automation', 'confirmed' as const],
-                ['~$450M', 'TPV recovered by the pricing program', 'assumption' as const],
-                ['~$9M', 'net margin after discounts', 'assumption' as const],
+                ['5% → 30%', 'opt-in, phone calls → automation', 'confirmed' as const],
+                ['~$450M', 'net growth TPV from the pricing program', 'assumption' as const],
+                ['~$9M', 'net growth margin, after discounts', 'assumption' as const],
                 ['~$1B', 'on track this year across all tracks', 'assumption' as const],
               ].map(([v, l, k]) => (
                 <div key={l as string}>

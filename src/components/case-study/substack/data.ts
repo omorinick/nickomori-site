@@ -36,10 +36,77 @@ export const MONEY_MAP = [
 ]
 
 export const STAGES = [
-  { name: 'Concierge MVP', cohort: '2,000', how: 'Phone outreach, manual offers — the pilot was also the research instrument', rate: 5 },
-  { name: 'Product-assisted', cohort: '20,000', how: 'In-product experience, manually batched fulfillment', rate: 10 },
-  { name: 'Automated platform', cohort: '100,000', how: 'Automated eligibility, acceptance, fulfillment', rate: 17 },
+  { name: 'Call pilot', cohort: '2,000', how: 'Phone outreach, manual offers — the pilot was also the research instrument', rate: 5 },
+  { name: 'Product-assisted', cohort: '20,000', how: 'In-product experience, manually batched fulfillment', rate: 20 },
+  { name: 'Automated platform', cohort: '100,000', how: 'Automated eligibility, acceptance and fulfillment, with far better sequencing', rate: 30 },
 ]
+
+// The definition hole — what churn was officially measured at, versus what was actually leaking.
+export const DEFINITION = {
+  official: { value: '~$3B', label: 'TPV', sub: 'what churn was officially sized at' },
+  real: { value: '~$16B', label: 'TPV', sub: 'preventable decline, once you looked at trajectory' },
+  rule: 'Churn = twelve consecutive months of no money movement.',
+  hole: 'By the time a merchant tripped that rule they had almost no volume left with us. We were measuring the funeral, not the illness.',
+  excluded: [
+    { k: 'Macro', v: 'Politics, compliance, market conditions' },
+    { k: 'Micro', v: 'Lost contracts, bankruptcy, seasonality' },
+  ],
+}
+
+// Which problem space to enter first. The two we seriously considered and set aside, and why.
+export const SPACE_CHOICE = [
+  {
+    space: 'Risk, limitations & holds',
+    pull: 'The most painful thing we do to merchants. Emotionally the obvious place to start.',
+    problem: 'An iceberg of legacy rules and friction owned by another org. Every fix meant a policy change, and policy changes are slow and lagging.',
+    verdict: 'Set aside',
+  },
+  {
+    space: 'Disputes',
+    pull: 'Large, well understood, and merchants talk about it constantly.',
+    problem: 'Too many stakeholders with conflicting incentives — buyer protection, risk, and the merchant side all pulling different directions.',
+    verdict: 'Set aside',
+  },
+  {
+    space: 'Pricing',
+    pull: 'Not the biggest bucket. But the fastest thing we could learn from.',
+    problem: 'Real margin cost, and a genuine risk of paying merchants who were never going to leave.',
+    verdict: 'Chosen',
+    chosen: true,
+  },
+]
+
+export const WEDGE_REASONS = [
+  { k: 'Immediate signal', v: 'A merchant accepts or doesn’t, within days. No lagging policy change to wait on.' },
+  { k: 'The pool was identifiable', v: 'The attribution work had already sized and located it.' },
+  { k: 'We knew the stakeholders', v: 'We had worked with pricing before. No cold-start on relationships.' },
+  { k: 'Small enough to fund', v: 'It could run as an experiment on borrowed resources, not a funded program.' },
+  { k: 'Reversible', v: 'Narrow eligibility, capped concessions, and we could stop it at any point.' },
+]
+
+// Why proactive save offers specifically — the bet inside the space.
+export const FIRST_BET_REASONS = [
+  {
+    k: 'The margin existed',
+    v: 'Poking around with the pricing team, I found they had headroom they were willing to spend on the right merchants. Nobody had asked.',
+  },
+  {
+    k: 'The analyst existed',
+    v: 'A pricing analytics person was willing to build the detection model for us — off the side of their desk.',
+  },
+  {
+    k: 'It fit the timeline',
+    v: 'We had promised evidence inside a month. This was the only bet on the board that could actually be run by humans in that window.',
+  },
+  {
+    k: 'It would get a reaction',
+    v: 'Offering someone money is the fastest way to find out whether they are still listening to you.',
+  },
+]
+
+export const PROPRIETARY_LINE =
+  'Everything from here on is a recreation. I am walking a line between showing you how we actually worked and not putting real numbers or internal boards on screen — so treat the shapes as real and the figures as illustrative.'
+
 
 // PLACEHOLDER RESEARCH — every count here except "actively diverting volume" (8/20, Nick's
 // correction) is a reconstruction designed to fit the narrative, pending the real study. Each row
@@ -730,5 +797,162 @@ export const ASSUMPTION_MAP: { cat: string; color: string; tone: StickyTone; pha
       ['Collecting competitor pricing is legal and ethical', 'Not penalizing merchants who negotiate'],
       ['Follow-on upsells appropriate, not exploitative'],
     ],
+  },
+]
+
+// ---------- the assumption register ----------
+//
+// The real board carried ~200 stickies. This is the working subset that actually drove decisions,
+// with the two scores we sorted on. The historical board carried no numbers — importance and
+// uncertainty here are a reconstruction of how we ranked them, labeled as such wherever shown.
+
+export type AssumptionCat = 'Desirability' | 'Usability' | 'Feasibility' | 'Viability' | 'Legal & ethical' | 'Organizational'
+
+export const ASSUMPTION_CATS: { name: AssumptionCat; color: string; tone: StickyTone; q: string }[] = [
+  { name: 'Desirability', color: '#E8503A', tone: 'orange', q: 'Do merchants actually want this?' },
+  { name: 'Usability', color: '#E89B3A', tone: 'yellow', q: 'Can they understand and act on it?' },
+  { name: 'Feasibility', color: '#8B5CF6', tone: 'purple', q: 'Can we actually build and run it?' },
+  { name: 'Viability', color: '#3B82F6', tone: 'blue', q: 'Does the business survive us doing it?' },
+  { name: 'Legal & ethical', color: '#22A06B', tone: 'green', q: 'Are we allowed to, and should we?' },
+  { name: 'Organizational', color: '#6B7280', tone: 'gray', q: 'Will the company let us?' },
+]
+
+export const ASSUMPTIONS: {
+  id: string
+  cat: AssumptionCat
+  phase: 'Detect' | 'Reach' | 'Present' | 'Negotiate' | 'Reinforce'
+  text: string
+  imp: number
+  unc: number
+  method: string
+  hero?: boolean
+}[] = [
+  { id: 'D1', cat: 'Desirability', phase: 'Reach', text: 'Merchants want us to reach out before they leave, rather than after', imp: 5, unc: 2, method: 'Prototype testing' },
+  { id: 'D2', cat: 'Desirability', phase: 'Present', text: 'An unsolicited rate offer lands as recognition — not as an insult, or a signal that something is wrong', imp: 5, unc: 4, method: 'Call pilot, reaction-coded' },
+  { id: 'D3', cat: 'Desirability', phase: 'Present', text: 'A personalized dollar saving beats a generic percentage', imp: 3, unc: 3, method: 'Post-launch A/B' },
+  { id: 'D4', cat: 'Desirability', phase: 'Present', text: 'The offer feels exclusive and earned, not desperate', imp: 4, unc: 4, method: 'Call pilot, reaction-coded' },
+  { id: 'D5', cat: 'Desirability', phase: 'Negotiate', text: 'Merchants want a human available when they have questions', imp: 3, unc: 2, method: 'Just Ask — support' },
+  { id: 'D6', cat: 'Desirability', phase: 'Reinforce', text: 'Seeing savings accumulate keeps the decision feeling good', imp: 3, unc: 2, method: 'Post-launch analytics' },
+
+  { id: 'U1', cat: 'Usability', phase: 'Reach', text: 'Merchants will open and read a pricing message from PayPal', imp: 5, unc: 3, method: 'Post-launch analytics' },
+  { id: 'U2', cat: 'Usability', phase: 'Reach', text: 'They can tell it is legitimately us and not a phishing attempt', imp: 5, unc: 4, method: 'Prototype testing + Just Ask — marketing' },
+  { id: 'U3', cat: 'Usability', phase: 'Present', text: 'They understand what the discount applies to', imp: 4, unc: 3, method: 'Prototype testing' },
+  { id: 'U4', cat: 'Usability', phase: 'Present', text: 'They can work out whether it is actually a good deal for them', imp: 3, unc: 3, method: 'Prototype testing' },
+  { id: 'U5', cat: 'Usability', phase: 'Reinforce', text: 'They can verify the new rate was really applied', imp: 4, unc: 2, method: 'Post-launch analytics' },
+
+  { id: 'F1', cat: 'Feasibility', phase: 'Detect', text: 'We can identify declining merchants accurately enough to be worth calling', imp: 5, unc: 3, method: 'Backtest + data audit' },
+  { id: 'F2', cat: 'Feasibility', phase: 'Detect', text: 'We can separate pricing-driven decline from risk-driven or technical decline', imp: 4, unc: 5, method: 'Just Ask — data + backtest' },
+  { id: 'F3', cat: 'Feasibility', phase: 'Present', text: 'We can calculate a personalized saving in real time', imp: 3, unc: 2, method: 'Engineering spike' },
+  { id: 'F4', cat: 'Feasibility', phase: 'Negotiate', text: 'Pricing ops can fulfil rate changes at volume without breaking', imp: 5, unc: 3, method: 'Just Ask — pricing ops + dry run' },
+  { id: 'F5', cat: 'Feasibility', phase: 'Reinforce', text: 'We can track offer → acceptance → 30/60/90-day retention end to end', imp: 5, unc: 2, method: 'Engineering spike' },
+  { id: 'F6', cat: 'Feasibility', phase: 'Reinforce', text: 'We can detect a merchant who declines again after being saved', imp: 3, unc: 3, method: 'Data audit' },
+
+  { id: 'V1', cat: 'Viability', phase: 'Present', text: 'Merchants can actually respond — the volume is movable at all', imp: 5, unc: 5, method: 'Only learnable by launching', hero: true },
+  { id: 'V2', cat: 'Viability', phase: 'Detect', text: 'We are not paying merchants who would have stayed anyway', imp: 5, unc: 4, method: 'Holdout comparison' },
+  { id: 'V3', cat: 'Viability', phase: 'Present', text: 'The discount is large enough to change behaviour and small enough to keep margin', imp: 5, unc: 4, method: 'Call pilot + margin model' },
+  { id: 'V4', cat: 'Viability', phase: 'Reinforce', text: 'Saves persist past the first month', imp: 5, unc: 4, method: '30/60/90-day cohorts' },
+  { id: 'V5', cat: 'Viability', phase: 'Negotiate', text: 'This does not train merchants to threaten to leave in order to get a better rate', imp: 4, unc: 4, method: 'Guardrail analytics' },
+  { id: 'V6', cat: 'Viability', phase: 'Reach', text: 'The cost of intervening stays below the cost of losing the merchant', imp: 4, unc: 2, method: 'Break-even model' },
+
+  { id: 'L1', cat: 'Legal & ethical', phase: 'Present', text: 'Differential pricing is lawful and does not disadvantage a protected class', imp: 5, unc: 3, method: 'Just Ask — legal' },
+  { id: 'L2', cat: 'Legal & ethical', phase: 'Reach', text: 'Outreach is compliant and honours existing opt-outs', imp: 5, unc: 2, method: 'Just Ask — legal + marketing' },
+  { id: 'L3', cat: 'Legal & ethical', phase: 'Present', text: 'Any urgency we express is truthful — a deadline is a real deadline', imp: 4, unc: 1, method: 'Design review' },
+  { id: 'L4', cat: 'Legal & ethical', phase: 'Detect', text: 'Predicting churn to target an offer is consistent with our privacy policy', imp: 5, unc: 2, method: 'Just Ask — legal' },
+
+  { id: 'O1', cat: 'Organizational', phase: 'Detect', text: 'Leadership will permit a margin concession as an experiment', imp: 5, unc: 4, method: 'Executive review — a gate, not an experiment' },
+  { id: 'O2', cat: 'Organizational', phase: 'Detect', text: 'Sales-managed accounts can be cleanly carved out before anyone is contacted', imp: 5, unc: 2, method: 'Just Ask — commercial' },
+  { id: 'O3', cat: 'Organizational', phase: 'Reach', text: 'Marketing will let us into the channel without colliding with live campaigns', imp: 3, unc: 3, method: 'Just Ask — marketing' },
+]
+
+export const JOURNEY_PHASES = ['Detect', 'Reach', 'Present', 'Negotiate', 'Reinforce'] as const
+
+// ---------- the learning plan ----------
+//
+// Methods ordered by what they cost us. The whole design principle: never spend a more expensive
+// method on a question a cheaper one can answer.
+
+export const LEARNING_METHODS = [
+  {
+    name: 'Just Ask',
+    cost: 'Hours',
+    when: 'Before anything',
+    what: 'Walk to data, legal, engineering, marketing, pricing, commercial and ask the question directly.',
+    retired: ['F2', 'F4', 'L1', 'L2', 'L4', 'O2', 'O3', 'D5'],
+    note: 'This was the biggest column on our board. Most of what looked like technical risk was somebody else already knowing the answer.',
+  },
+  {
+    name: 'Design review & prior work',
+    cost: 'Hours',
+    when: 'Before anything',
+    what: 'Judgment calls we did not need evidence for — the ethics of urgency, the shape of the message.',
+    retired: ['L3'],
+  },
+  {
+    name: 'Prototype testing',
+    cost: 'Days',
+    when: 'Pre-launch',
+    what: 'Put the offer in front of merchants and watch them read it. Do the terms play back correctly?',
+    retired: ['D1', 'U2', 'U3', 'U4'],
+  },
+  {
+    name: 'Backtest & data audit',
+    cost: 'Days',
+    when: 'Pre-launch',
+    what: 'Run the cohort rules over history. Would this have flagged the merchants we actually lost?',
+    retired: ['F1', 'F6', 'V6'],
+  },
+  {
+    name: 'Engineering spike',
+    cost: 'Weeks',
+    when: 'Pre-launch, sparingly',
+    what: 'The only two questions we could not retire any cheaper: real-time savings maths and end-to-end tracking.',
+    retired: ['F3', 'F5'],
+    note: 'Our Technical Investigations column had one sticky on it. That was deliberate.',
+  },
+  {
+    name: 'The call pilot',
+    cost: 'A month of ops time',
+    when: 'Launch',
+    what: 'Humans on phones. Reaction-coded, so the pilot was the research instrument as much as the intervention.',
+    retired: ['D2', 'D4', 'V1', 'V3'],
+    note: 'V1 — can merchants actually respond — was untestable by any other means. That is why the pilot existed.',
+  },
+  {
+    name: 'Holdouts & cohorts',
+    cost: 'Runs alongside',
+    when: 'Post-launch',
+    what: 'Comparison groups preserved at every stage; 30/60/90-day retention tracked against them.',
+    retired: ['V2', 'V4', 'V5', 'U1', 'U5', 'D3', 'D6'],
+  },
+]
+
+export const GATES = [
+  {
+    id: 'G0',
+    name: 'Permission',
+    ask: 'Leadership signs off on a bounded margin concession',
+    evidence: 'Sized pool, capped exposure, carve-outs agreed, holdout design',
+    outcome: 'Approved as a time-boxed experiment',
+  },
+  {
+    id: 'G1',
+    name: 'Call pilot · 2,000',
+    ask: 'Do merchants respond at all, and how does it land?',
+    evidence: '5% accepted and repriced; reactions coded as recognition rather than suspicion',
+    outcome: 'Proceed — build a product surface',
+  },
+  {
+    id: 'G2',
+    name: 'Product-assisted · 20,000',
+    ask: 'Does it hold up without a human making the call?',
+    evidence: '20% opt-in; retention holding against holdout at 30 and 60 days',
+    outcome: 'Proceed — fund automation',
+  },
+  {
+    id: 'G3',
+    name: 'Automated · 100,000',
+    ask: 'Does it survive full automation and better sequencing?',
+    evidence: '30% opt-in; margin within the cap',
+    outcome: 'Proceed — and reuse the layers elsewhere',
   },
 ]
