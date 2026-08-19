@@ -118,7 +118,7 @@ export const FINDINGS: { label: string; n: number; seeds: string; real?: boolean
   { label: 'Said the money mattered, but wouldn’t move volume for it', n: 12, seeds: '“Every dollar counts” — price is real, just not decisive' },
   { label: 'Couldn’t say what their fees actually bought them', n: 14, seeds: '→ Value communication track' },
   { label: 'Named a non-pricing frustration as the bigger issue', n: 11, seeds: '→ Disputes, risk holds, integration health tracks' },
-  { label: 'Made their payments decision years ago and never revisited it', n: 15, seeds: '→ The early-lifecycle move: decisions get made once, early' },
+  { label: 'Made their payments decision years ago and never revisited it', n: 12, seeds: '→ The early-lifecycle move: decisions get made once, early' },
   { label: 'Were actively diverting volume to another processor', n: 8, seeds: 'Real switching existed — but it was the minority', real: true },
 ]
 

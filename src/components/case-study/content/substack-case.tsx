@@ -603,7 +603,7 @@ export default function SubstackCaseContent() {
             </h2>
             <p className="mt-6 text-lg text-neutral-400 max-w-3xl">
               What actually protects a mature merchant is how much of their business runs through us. That is why
-              fifteen of twenty had never revisited a decision they made years ago — and why, once one of them does
+              twelve of twenty had never revisited a decision they made years ago — and why, once one of them does
               start leaving, it is expensive to stop. By then the moat is already gone.
             </p>
             <p className="mt-6 text-xl md:text-2xl font-bold max-w-3xl">
