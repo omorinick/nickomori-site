@@ -57,23 +57,23 @@ export default function SubstackCaseContent() {
           {/* ---------- OPEN ---------- */}
 
           <Spine id="title" kicker="Nick Omori · Lead Product Manager — Merchant & Partner Lifecycle, PayPal">
-            <h1 className="font-black tracking-tight leading-[0.95] text-5xl md:text-8xl max-w-4xl mt-6">
+            <h1 className="font-black tracking-tight leading-[0.95] text-5xl md:text-8xl max-w-4xl mt-10 md:mt-16">
               Building a Growth Ecosystem
             </h1>
             <p className="mt-10 text-xl md:text-2xl max-w-3xl text-neutral-600">
               How one project became a multi-track lifecycle support system.
             </p>
-            <div className="mt-20 flex flex-wrap items-end gap-12">
+            <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12 max-w-3xl">
               {[
                 ['~$15.9B', 'the annual leak we were sizing against', 'assumption' as const],
                 ['~$450M', 'TPV recovered, year one', 'assumption' as const],
                 ['~$1B', 'on track this year, across all tracks', 'assumption' as const],
               ].map(([v, l, k]) => (
                 <div key={l as string}>
-                  <p className="font-black text-4xl md:text-5xl" style={{ color: ACCENT }}>
+                  <p className="font-black text-4xl md:text-5xl leading-none" style={{ color: ACCENT }}>
                     {v}
                   </p>
-                  <p className="mt-2 text-sm text-neutral-500 max-w-[15rem]">
+                  <p className="mt-3 text-sm text-neutral-500">
                     {l}
                     <Flag kind={k as 'assumption'} note="Counterfactual method still to be validated" />
                   </p>
@@ -200,8 +200,8 @@ export default function SubstackCaseContent() {
             </p>
             <div className="mt-12 grid sm:grid-cols-3 gap-6 max-w-3xl">
               {[
-                ['~3,000', 'declining and departed high-value merchants contacted'],
-                ['~750', 'responded — a qualitative base almost nobody gets'],
+                ['~2,500', 'declining and departed high-value merchants contacted'],
+                ['~150', 'responded — enough to point us in a direction'],
                 ['6', 'reason categories that came out of what they told us'],
               ].map(([v, l]) => (
                 <div key={l}>
