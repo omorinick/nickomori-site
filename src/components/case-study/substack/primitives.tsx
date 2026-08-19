@@ -109,9 +109,9 @@ export function ActOpener({ id, num, title }: { id: string; num: string; title: 
   )
 }
 
-// The lessons are the actual spine of this presentation. They get one recurring, unmistakable
+// The takeaways are the actual spine of this presentation. They get one recurring, unmistakable
 // treatment so the room can feel the rhythm even when we get interrupted off the running order.
-export function Lesson({
+export function Takeaway({
   n,
   id,
   title,
@@ -142,7 +142,7 @@ export function Lesson({
             {n}
           </span>
           <p className="font-semibold tracking-[0.22em] uppercase text-xs" style={{ color: '#8FBCFF' }}>
-            Lesson {n}
+            Takeaway {n}
           </p>
         </div>
         <h2 className="font-black tracking-tight text-3xl md:text-6xl max-w-4xl leading-[1.05]">{title}</h2>
@@ -160,7 +160,7 @@ export function Lesson({
           style={{ background: 'rgba(143,188,255,0.08)', border: '1px solid rgba(143,188,255,0.25)' }}
         >
           <p className="font-bold uppercase tracking-wide text-[11px] mb-2.5" style={{ color: '#8FBCFF' }}>
-            Why I think this is useful to you
+            Where I think it might apply here
           </p>
           <p className="text-lg md:text-xl font-bold leading-snug">{bridge}</p>
         </div>

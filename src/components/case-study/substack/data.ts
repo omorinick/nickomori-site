@@ -377,7 +377,7 @@ export const PRINCIPLES = [
   'Customer success is the monetization model — deliver value, and make it legible.',
 ]
 
-// ---------- narrative spine: acts, lessons, misses ----------
+// ---------- narrative spine: parts, takeaways, misses ----------
 
 export const ACTS = [
   { id: 'act-1', num: 'I', title: 'The Opportunity', anchor: 'problem' },
@@ -439,12 +439,12 @@ export const SHIPPED_BETS = [
   },
 ]
 
-export const LESSONS = [
+export const TAKEAWAYS = [
   {
     n: 1,
-    id: 'lesson-1',
+    id: 'takeaway-1',
     title: 'You don’t have to build it to learn it.',
-    sub: 'Growth is a paralyzingly large space. Don’t shrink the ambition — shrink the question.',
+    sub: 'Growth is a paralyzingly large space. What unlocked it for me was shrinking the question, not the ambition.',
     points: [
       'Every assumption got matched to the cheapest method that could retire it: ask someone, run a prototype, check the data, or — last — build.',
       'On our own learning board, “Just Ask” was the biggest column. Technical Investigations had one sticky on it.',
@@ -455,9 +455,9 @@ export const LESSONS = [
   },
   {
     n: 2,
-    id: 'lesson-2',
+    id: 'takeaway-2',
     title: 'We’re paid to create positive correlation, not to prove causation.',
-    sub: 'Causation matters later — for knowing where to double down.',
+    sub: 'Causation still matters — just later, and for a different job: knowing where to double down.',
     points: [
       'We handed the outreach list to sales so reps could personally thank our highest-volume merchants for their loyalty.',
       'It muddied the experiment. It also delivered more value to more merchants, faster.',
@@ -468,9 +468,9 @@ export const LESSONS = [
   },
   {
     n: 3,
-    id: 'lesson-3',
+    id: 'takeaway-3',
     title: 'Plan broadly. Commit narrowly. Come back for the good ideas.',
-    sub: 'The plan’s value was the map, not the itinerary.',
+    sub: 'The plan’s value turned out to be the map, not the itinerary.',
     points: [
       'Six problem spaces, seven opportunity areas, about forty candidate bets. We shipped one and followed where it led.',
       'The row we dismissed on our own board as “measuring pre-decliners, lol” became the early-lifecycle program.',
@@ -481,9 +481,9 @@ export const LESSONS = [
   },
   {
     n: 4,
-    id: 'lesson-4',
+    id: 'takeaway-4',
     title: 'Multiply wins across segments, not just across the lifecycle.',
-    sub: 'The same intelligence, delivered through somebody else’s relationship.',
+    sub: 'The second axis I nearly missed — the same intelligence, delivered through somebody else’s relationship.',
     points: [
       'We had already multiplied across the lifecycle — retention first, then early activation. The second axis was segment.',
       'We gave platforms who serve their own merchants the detection model and the pricing controls, under their brand.',

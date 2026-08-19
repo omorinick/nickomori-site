@@ -6,7 +6,7 @@ import {
   ArtifactModal,
   Flag,
   Guardrail,
-  Lesson,
+  Takeaway,
   Miss,
   Note,
   NotesCtx,
@@ -43,7 +43,7 @@ import {
   FIRST_BET_REASONS,
   SPACE_CHOICE,
   WEDGE_REASONS,
-  LESSONS,
+  TAKEAWAYS,
   MISSES,
   PARTNER_CAPABILITIES,
   PRINCIPLES,
@@ -481,7 +481,7 @@ export default function SubstackCaseContent() {
 
           <ResultsSection />
 
-          <Lesson {...LESSONS[0]} />
+          <Takeaway {...TAKEAWAYS[0]} />
 
           {/* ---------- ACT II ---------- */}
 
@@ -525,7 +525,7 @@ export default function SubstackCaseContent() {
             </Note>
           </Spine>
 
-          <Lesson {...LESSONS[1]} />
+          <Takeaway {...TAKEAWAYS[1]} />
 
           <Spine id="wedge-results" kicker="The turn" dark>
             <ResearchTurn />
@@ -676,7 +676,7 @@ export default function SubstackCaseContent() {
             </Note>
           </Spine>
 
-          <Lesson {...LESSONS[2]} />
+          <Takeaway {...TAKEAWAYS[2]} />
 
           {/* ---------- ACT IV ---------- */}
 
@@ -774,7 +774,7 @@ export default function SubstackCaseContent() {
             </div>
           </Spine>
 
-          <Lesson {...LESSONS[3]} />
+          <Takeaway {...TAKEAWAYS[3]} />
 
           {/* ---------- CLOSE ---------- */}
 
@@ -855,11 +855,11 @@ export default function SubstackCaseContent() {
             </h2>
             <div className="mt-12 rounded-2xl p-8 md:p-10 text-white" style={{ background: '#0b0d12' }}>
               <p className="font-bold uppercase tracking-wide text-[11px] mb-5" style={{ color: ACCENT_DARK }}>
-                The four lessons, once more
+                The four takeaways, once more
               </p>
               <ol className="space-y-3 text-lg text-neutral-200 list-decimal pl-5 max-w-3xl font-semibold">
-                {LESSONS.map((l) => (
-                  <li key={l.id}>{l.title}</li>
+                {TAKEAWAYS.map((t) => (
+                  <li key={t.id}>{t.title}</li>
                 ))}
               </ol>
               <p className="mt-8 text-lg md:text-xl font-bold max-w-3xl">
