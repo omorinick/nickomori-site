@@ -7,16 +7,15 @@ import {
   ASSUMPTION_CATS,
   DIVES,
   GATES,
+  LARGE_BETS,
   LEARNING_METHODS,
   FINDINGS,
   LIFECYCLE,
   MONEY_MAP,
   QUADRANT,
-  SHIPPED_BETS,
   STAGES,
   TPV_CAPTIONS,
   TPV_YEARS,
-  TRACKS,
 } from './data'
 import { ACCENT, FILL, INK, TINT } from './tokens'
 
@@ -147,68 +146,6 @@ export function InterviewGrid() {
             {x.label}
           </button>
         ))}
-      </div>
-    </div>
-  )
-}
-
-export function TracksMap() {
-  const large = TRACKS.filter((t) => t.size === 'Large bet')
-  const small = TRACKS.filter((t) => t.size === 'Small bet')
-  const statusStyle = (s: string) =>
-    s === 'Shipped'
-      ? { background: '#E7F4E4', color: '#1f6b32' }
-      : s === 'In flight'
-        ? { background: TINT, color: ACCENT }
-        : { background: '#f5f5f5', color: '#737373' }
-
-  return (
-    <div className="mt-10 space-y-8">
-      <div>
-        <p className="font-bold text-xs uppercase tracking-widest text-neutral-400 mb-3">Large bets</p>
-        <div className="grid md:grid-cols-2 gap-4">
-          {large.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <p className="font-black text-base">{t.name}</p>
-                <span
-                  className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0"
-                  style={statusStyle(t.status)}
-                >
-                  {t.status}
-                </span>
-              </div>
-              <p className="text-sm text-neutral-600 leading-relaxed">{t.what}</p>
-              {t.result && (
-                <p className="mt-3 text-sm font-bold" style={{ color: ACCENT }}>
-                  {t.result}
-                  <Flag kind="assumption" note="Placeholder — awaiting Nick's figures" />
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="font-bold text-xs uppercase tracking-widest text-neutral-400 mb-3">
-          Small bets — the thousand paper cuts
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {small.map((t) => (
-            <div key={t.name} className="rounded-xl border border-neutral-200 p-4">
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <p className="font-bold text-sm">{t.name}</p>
-                <span
-                  className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0"
-                  style={statusStyle(t.status)}
-                >
-                  {t.status}
-                </span>
-              </div>
-              <p className="text-xs text-neutral-500 leading-relaxed">{t.what}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   )
@@ -466,11 +403,11 @@ export function TpvWaterfall() {
 }
 
 // Shipped bets, in the front-end / back-end / impact format from Nick's commercial case.
-export function ShippedBets() {
-  const [open, setOpen] = useState<string | null>(SHIPPED_BETS[0].name)
+export function LargeBets() {
+  const [open, setOpen] = useState<string | null>(LARGE_BETS[0].name)
   return (
     <div className="mt-10 space-y-4">
-      {SHIPPED_BETS.map((b) => {
+      {LARGE_BETS.map((b) => {
         const isOpen = open === b.name
         return (
           <div key={b.name} className="rounded-2xl border border-neutral-200 overflow-hidden bg-white">
@@ -506,6 +443,17 @@ export function ShippedBets() {
                     </div>
                   ))}
                 </div>
+                {b.caveat && (
+                  <div
+                    className="mt-6 rounded-xl border-l-4 px-5 py-4"
+                    style={{ borderColor: '#E8A33D', background: '#FFF8EC' }}
+                  >
+                    <p className="font-bold uppercase tracking-wide text-[10px] mb-1.5" style={{ color: '#8a5a12' }}>
+                      What we still don’t know
+                    </p>
+                    <p className="text-sm text-neutral-700 leading-relaxed">{b.caveat}</p>
+                  </div>
+                )}
                 {b.alias && <p className="mt-5 text-xs text-neutral-400 italic">{b.alias}</p>}
               </div>
             )}

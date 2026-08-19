@@ -193,87 +193,6 @@ export const FAMILIES = [
   { name: 'Recognition & progress', note: 'Standing, progress, value framing' },
 ]
 
-// The tracks that spun out of the research. Breadth is the point here, not depth — most are small
-// bets that compound. All impact figures are placeholders pending Nick's numbers.
-export const TRACKS: {
-  name: string
-  what: string
-  size: 'Small bet' | 'Large bet'
-  status: 'Shipped' | 'In flight' | 'Exploring'
-  result?: string
-}[] = [
-  {
-    name: 'Dispute protection',
-    what: 'Absorb selected lost disputes for merchants in good standing, and make the protection visible',
-    size: 'Large bet',
-    status: 'In flight',
-    result: '+8pp 90-day TPV retention vs. holdout',
-  },
-  {
-    name: 'Value communication',
-    what: 'Reframe the bill: not “you paid $X,” but the fraud stopped, disputes won, uptime, and hours saved',
-    size: 'Large bet',
-    status: 'In flight',
-    result: 'Actively resourced today',
-  },
-  {
-    name: 'High-potential scoring',
-    what: 'The decline model inverted — score merchants early and deliver proven value in the first 90 days',
-    size: 'Large bet',
-    status: 'In flight',
-    result: '22% vs. 12% reached high value within 180 days',
-  },
-  {
-    name: 'Partner intelligence',
-    what: 'Detection and pricing controls exposed to platforms who serve their own merchants',
-    size: 'Large bet',
-    status: 'In flight',
-    result: '10% partner adoption in three months',
-  },
-  {
-    name: 'Milestone pricing',
-    what: '“You’ve processed $100K — you’ve unlocked a better rate”',
-    size: 'Small bet',
-    status: 'Shipped',
-    result: '~12% of eligible merchants hit a milestone in the first quarter',
-  },
-  {
-    name: 'Product bundles',
-    what: 'Pricing built on complementary products, not raw product count',
-    size: 'Small bet',
-    status: 'Shipped',
-    result: '~20% relative lift in second-product activation',
-  },
-  {
-    name: 'Savings visibility',
-    what: '“You’ve saved $342 this month with your new rate” — make the win recur',
-    size: 'Small bet',
-    status: 'Shipped',
-    result: '~2× repeat engagement with the monthly savings summary',
-  },
-  {
-    name: 'Integration health',
-    what: 'Detect technical degradation and tell the merchant before it costs them volume',
-    size: 'Small bet',
-    status: 'In flight',
-    result: 'Detection live; merchant-facing alerts in build',
-  },
-  {
-    name: 'Risk & holds transparency',
-    what: 'Surface limitations within 24 hours, resolve self-serve, stop them reading as punishment',
-    size: 'Small bet',
-    status: 'In flight',
-    result: 'Surfacing live; self-serve resolution in build',
-  },
-  {
-    name: 'Growth capability surfacing',
-    what: 'BNPL, working capital, and financing put in front of merchants who qualify',
-    size: 'Small bet',
-    status: 'Exploring',
-    result: 'Eligibility model scoped; no build committed yet',
-  },
-]
-
 // Substack's own growth-accounting vocabulary, mapped honestly — including the stage we chose not
 // to work on and why.
 export const LIFECYCLE = [
@@ -410,16 +329,49 @@ export const TPV_CAPTIONS: Record<string, string> = {
   'FY24→25': '$117.6B → $118.0B · net 0% growth',
 }
 
-// Shipped bets, in the format Nick used in the commercial case: what the merchant saw, what had to
-// be built behind it, and what it moved.
-export const SHIPPED_BETS = [
+// The large bets that came out of the reinterpretation. Front end is what the merchant sees, back
+// end is what it took to stand it up, impact is what moved. Figures pending Nick's final numbers.
+export const LARGE_BETS: {
+  name: string
+  status: string
+  alias: string
+  front: string
+  back: string
+  impact: string
+  caveat?: string
+}[] = [
   {
-    name: 'Proactive Save Discounts',
-    status: 'Shipped · US',
-    alias: 'The first bet — “Proactive Retention Pricing”',
-    front: 'Self-serve discount offers through the Merchant Portal and email for at-risk merchants.',
-    back: 'Built the first instant opt-in pricing interface in the Portal; stitched the pricing engine to ops; aligned a new pricing strategy.',
-    impact: '1.4K+ merchants opted in; sub-$1M TPV cohort showing +5% TPV uplift vs. control (~$40M incremental TPV).',
+    name: 'Merchant health model, rebuilt',
+    status: 'Shipped',
+    alias: 'The sequel to the two-persona rules engine',
+    front: 'Merchants are scored into health tiers rather than carrying a binary declining / not-declining flag.',
+    back: 'A real analytics and ML team took over what had been two business rules and a borrowed analyst, and rebuilt it properly.',
+    impact: 'Health tiers now drive eligibility for every bet below. The crude version’s win is what paid for this one.',
+  },
+  {
+    name: 'Repositioned betas as a high-value benefit',
+    status: 'Shipped · scaling',
+    alias: 'Agentic assistant · PayPal Ads · Agentic Store Sync · SMB offers',
+    front: 'Our highest-value merchants get early access to tools other teams already had in pilot.',
+    back: 'No new build. We went to teams already running betas and asked whether their beta could be repositioned as a benefit for our best merchants, then wired eligibility to the health model.',
+    impact: '~8% higher growth than control peers. Merchants using at least one beta tool monthly grew ~15% faster than peers.',
+  },
+  {
+    name: 'Shipping integration',
+    status: 'Shipped · rolling out globally',
+    alias: 'The standout from the beta program',
+    front: 'Shipping integrated into the merchant’s flow, with tracking that stands up as evidence in a dispute.',
+    back: 'Same repositioning motion as the other betas — but the dispute link is what made it land.',
+    impact: '~20% higher growth among merchants who opted in. Disputes were one of the largest churn reasons we had, and this gave merchants a way to fight them.',
+  },
+  {
+    name: 'Fraud Protection Advanced, covered',
+    status: 'Shipped · expanding',
+    alias: 'Partnered with the value-added services team',
+    front: 'High-value merchants get Fraud Protection Advanced at no cost for three months.',
+    back: 'The VAS team covered the cost out of their own budget in exchange for access to the cohort. Nobody had to fund it centrally.',
+    impact: 'Decline in those cohorts down ~15% — roughly $200M in recovered TPV. Rolling out to more merchants now.',
+    caveat: 'We do not yet know how many re-subscribe at their own cost once the three months end. That number decides whether this is a save or a subsidy.',
   },
   {
     name: 'Enhanced Seller Protection',
@@ -433,9 +385,17 @@ export const SHIPPED_BETS = [
     name: 'Proactive Risk Experience Audit',
     status: 'Shipped · Global',
     alias: 'Internally: “the rules audit”',
-    front: 'Fewer holds and limitations landing on merchant accounts.',
+    front: 'Fewer holds and limitations landing on merchant accounts in the first place.',
     back: 'Stood up a tiger team and the data infrastructure to audit back-end rules with high appeal and lift rates.',
-    impact: '~$65M TPV protected in 2026; ~4K fewer merchants per month hit by risk actions.',
+    impact: '~$65M TPV protected in 2026; ~4K fewer merchants per month hit by a risk action.',
+  },
+  {
+    name: 'Pricing transparency & value communication',
+    status: 'In flight',
+    alias: 'Straight out of “I couldn’t tell you what I get for what I pay”',
+    front: 'Fee transparency in the Portal, and a reframed bill — not “you paid $X”, but the fraud stopped, disputes won, uptime held, hours saved.',
+    back: 'Needs every product team to feed one shared value-attribution surface. The coordination is the hard part, not the interface.',
+    impact: 'Actively resourced today, with dedicated headcount on it.',
   },
 ]
 

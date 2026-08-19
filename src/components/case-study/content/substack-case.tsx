@@ -14,15 +14,7 @@ import {
   Rib,
   Spine,
 } from '../substack/primitives'
-import {
-  DeepDives,
-  LifecycleMap,
-  MoneyMap,
-  ShippedBets,
-  TpvWaterfall,
-  TracksMap,
-  UpstreamBars,
-} from '../substack/charts'
+import { DeepDives, LargeBets, LifecycleMap, MoneyMap, TpvWaterfall, UpstreamBars } from '../substack/charts'
 import { ArtifactAttribution } from '../substack/artifacts'
 import {
   AssumptionsSection,
@@ -585,18 +577,15 @@ export default function SubstackCaseContent() {
 
           <Spine id="tracks" kicker="What the research spun off">
             <h2 className="font-extrabold tracking-tight text-3xl md:text-5xl max-w-4xl">
-              One reinterpretation became ten tracks.
+              One reinterpretation became a portfolio.
             </h2>
             <p className="mt-6 text-lg text-neutral-700 max-w-3xl">
-              Three shipped last year. Most of the rest are small — that&apos;s the point. A thousand paper cuts in
-              reverse: individually unremarkable, collectively the thing that moves a portfolio.
+              Most of these did not require us to build anything new. The biggest single unlock was going to teams
+              who already had something in beta and asking whether their beta could become our merchants&apos;
+              benefit.
             </p>
-            <ShippedBets />
-            <p className="mt-16 font-bold uppercase tracking-widest text-[11px] text-neutral-400">
-              And the wider portfolio
-            </p>
-            <TracksMap />
-            <p className="mt-10 text-lg md:text-xl font-bold max-w-3xl">
+            <LargeBets />
+            <p className="mt-12 text-lg md:text-xl font-bold max-w-3xl">
               None of these were on the original roadmap in this form.{' '}
               <span style={{ color: ACCENT }}>They came from asking twenty people what was actually going on.</span>
             </p>
